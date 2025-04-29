@@ -42,8 +42,8 @@ private let settings = Settings.settings(
     base: ["SWIFT_VERSION": "6.0"],
     configurations: [
         .debug(name: .debug, xcconfig:
-                .relativeToRoot("BBANGZIP/Resources/Config/Secrets.xcconfig")),
-        .release(name: .release, xcconfig: .relativeToRoot("BBANGZIP/Resources/Config/Secrets.xcconfig"))
+                .relativeToRoot("BBANGZIP-iOS/Resources/Config/Secrets.xcconfig")),
+        .release(name: .release, xcconfig: .relativeToRoot("BBANGZIP-iOS/Resources/Config/Secrets.xcconfig"))
     ])
 
 private let moduleName = "BBANGZIP"
@@ -54,15 +54,15 @@ let project = Project.makeModule(
     product: .app,
     bundleId: "BBANGZIP-iOS.app",
     infoPlist: .extendingDefault(with: infoPlist),
-    sources: ["BBANGZIP/Sources/**"],
-    resources: ["BBANGZIP/Resources/**"],
+    sources: ["BBANGZIP-iOS/Sources/**"],
+    resources: ["BBANGZIP-iOS/Resources/**"],
     dependencies: [
         .external(name: "Alamofire", condition: .none),
         .external(name: "KakaoSDKAuth", condition: .none),
         .external(name: "KakaoSDKCommon", condition: .none),
         .external(name: "KakaoSDKUser", condition: .none),
         .external(name: "Kingfisher", condition: .none),
-        .external(name: "CocoaCombineCocoa", condition: .none)
+        .external(name: "CombineCocoa", condition: .none)
     ],
     settings: settings
 )
@@ -73,7 +73,7 @@ let testTarget = Project.makeModule(
     product: .unitTests,
     bundleId: "\(moduleName)Tests",
     infoPlist: .default,
-    sources: ["BBANGZIP/Tests/**"],
+    sources: ["BBANGZIP-iOS/Tests/**"],
     resources: [],
     dependencies: [
         .target(name: moduleName)
