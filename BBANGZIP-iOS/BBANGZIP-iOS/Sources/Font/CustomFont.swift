@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum bbangzipFont: Sendable {
+enum BbangzipFont: Sendable {
     case timer
     case picker1, picker2
     case title1, title2, title3
@@ -39,16 +39,43 @@ enum bbangzipFont: Sendable {
     var lineHeight: CGFloat {
         switch self {
         case .timer:
-            return size * 1.0
-        case .title1, .title2:
-            return size * 1.2
-        case .title3, .picker1, .picker2, .subtitle1, .subtitle2,
-                .body1, .body2, .body3, .body4, .label5, .label6:
-            return size * 1.4
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.extraBold, size: size)!.lineHeight - size) * 1.0
+        case .picker1:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.semiBold, size: size)!.lineHeight - size) * 1.4
+        case .picker2:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
+        case .title1:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.semiBold, size: size)!.lineHeight - size) * 1.2
+        case .title2:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.2
+        case .title3:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.semiBold, size: size)!.lineHeight - size) * 1.4
+        case .subtitle1:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
+        case .subtitle2:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.regular, size: size)!.lineHeight - size) * 1.4
         case .subtitle3:
-            return size * 1.5
-        case .label1, .label2, .label3, .label4:
-            return size * 1.2
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.5
+        case .body1:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
+        case .body2:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
+        case .body3:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
+        case .body4:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
+        case .label1:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.semiBold, size: size)!.lineHeight - size) * 1.2
+        case .label2:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.regular, size: size)!.lineHeight - size) * 1.2
+        case .label3:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.semiBold, size: size)!.lineHeight - size) * 1.2
+        case .label4:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.regular, size: size)!.lineHeight - size) * 1.2
+        case .label5:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.semiBold, size: size)!.lineHeight - size) * 1.4
+        case .label6:
+            return (UIFont(font: BBANGZIPFontFamily.Pretendard.medium, size: size)!.lineHeight - size) * 1.4
         }
     }
     
@@ -80,45 +107,45 @@ enum bbangzipFont: Sendable {
     }
 }
 
-struct bbangModifier: ViewModifier {
-    private let font: bbangzipFont
+struct BbangFontModifier: ViewModifier {
+    private let font: BbangzipFont
     
-    init(font: bbangzipFont) {
+    init(font: BbangzipFont) {
         self.font = font
     }
     
     func body(content: Content) -> some View {
         content
             .font(font.swiftUIFont)
-            .lineSpacing((font.lineHeight - font.size) / 4)
+            .lineSpacing(font.lineHeight - font.size)
             .kerning(font.letterSpacing)
     }
 }
 
 extension View {
-    func bbangFont(_ font: bbangzipFont) -> some View {
-        modifier(bbangModifier(font: font))
+    func bbangFont(_ font: BbangzipFont) -> some View {
+        modifier(BbangFontModifier(font: font))
     }
 }
 
-struct bbangText: View {
+struct BbangText: View {
     private let title: String
-    private let fontType: bbangzipFont
+    private let font: BbangzipFont
     private let color: Color?
     
     init(
         _ title: String,
-        fontType: bbangzipFont,
+        font: BbangzipFont,
         color: Color? = Color(.label)
     ) {
         self.title = title
-        self.fontType = fontType
+        self.font = font
         self.color = color
     }
     
     var body: some View {
         Text(title)
-            .bbangFont(fontType)
+            .bbangFont(font)
             .foregroundStyle(color ?? Color(.black))
     }
 }
