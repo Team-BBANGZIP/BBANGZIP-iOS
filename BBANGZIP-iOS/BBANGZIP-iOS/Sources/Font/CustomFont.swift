@@ -119,6 +119,6 @@ struct bbangText: View {
     var body: some View {
         Text(title)
             .bbangFont(fontType)
-            .foregroundStyle(color ?? Color(.label))
+            .foregroundStyle(color ?? Color(.black))
     }
 }
