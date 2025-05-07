@@ -34,7 +34,7 @@ enum BbangzipColor {
     case todoblue2
     case todogreen1
     case todogreen2
-    case todoperple2
+    case todopurple2
     case todopurple1
     case todored1
     case todored2
@@ -95,8 +95,8 @@ enum BbangzipColor {
             return BBANGZIPAsset.Assets.todogreen1.swiftUIColor
         case .todogreen2:
             return BBANGZIPAsset.Assets.todogreen2.swiftUIColor
-        case .todoperple2:
-            return BBANGZIPAsset.Assets.todoperple2.swiftUIColor
+        case .todopurple2:
+            return BBANGZIPAsset.Assets.todopurple2.swiftUIColor
         case .todopurple1:
             return BBANGZIPAsset.Assets.todopurple1.swiftUIColor
         case .todored1:
