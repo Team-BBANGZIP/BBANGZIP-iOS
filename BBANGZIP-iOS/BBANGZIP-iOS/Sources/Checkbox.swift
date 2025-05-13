@@ -12,7 +12,9 @@ struct Checkbox: View {
     
     var body: some View {
         Button(action: {
-            isChecked.toggle()
+            withAnimation(nil) {
+                isChecked.toggle()
+            }
         }) {
             ZStack {
                 Image(.icBread)
@@ -30,6 +32,7 @@ struct Checkbox: View {
                 }
             }
         }
+        .buttonStyle(.plain)
     }
 }
 
