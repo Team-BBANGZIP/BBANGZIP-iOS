@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CustomToggleStyle: ToggleStyle {
+struct TimerToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack(alignment: configuration.isOn ? .trailing : .leading) {
             RoundedRectangle(cornerRadius: 15)
@@ -67,7 +67,7 @@ struct ToggleButton: View {
 
     var body: some View {
         Toggle(isOn: $isToggleOn) { }
-            .toggleStyle(CustomToggleStyle())
+            .toggleStyle(TimerToggleStyle())
     }
 }
 
