@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct BasicButtonStyle: ButtonStyle {
-    let backgroundColor: Color
-    let foregroundColor: Color
-    let leftIcon: Image?
-    let rightIcon: Image?
+    private let backgroundColor: Color
+    private let foregroundColor: Color
+    private let leftIcon: Image?
+    private let rightIcon: Image?
     
     init (
         backgroundColor: Color,
@@ -24,7 +24,6 @@ struct BasicButtonStyle: ButtonStyle {
         self.leftIcon = leftIcon
         self.rightIcon = rightIcon
     }
-    
     
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 4) {
