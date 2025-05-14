@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Checkbox: View {
-    @State private var isChecked: Bool = false
+    @Binding var isChecked: Bool
     
     var body: some View {
         Button(action: {
@@ -36,6 +36,6 @@ struct Checkbox: View {
     }
 }
 
-#Preview {
-    Checkbox()
-}
+//#Preview {
+//    Checkbox(isChecked: $item.false)
+//}
