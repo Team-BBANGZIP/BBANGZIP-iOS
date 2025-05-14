@@ -12,11 +12,13 @@ extension String {
     func toAmPmFormattedTime() -> String? {
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "HH:mm"
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX")
         
         let outputFormatter = DateFormatter()
         outputFormatter.dateFormat = "a h:mm"
         outputFormatter.amSymbol = "AM"
         outputFormatter.pmSymbol = "PM"
+        outputFormatter.locale = Locale(identifier: "en_US_POSIX")
         
         guard let date = inputFormatter.date(from: self) else { return nil }
         return outputFormatter.string(from: date)
