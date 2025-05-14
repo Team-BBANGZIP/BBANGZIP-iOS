@@ -9,14 +9,14 @@ import SwiftUI
 
 public struct TaskInputField: View {
     @Binding public var text: String
-    public let onCommit: (() -> Void)?
+    public let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
-        onCommit: (() -> Void)? = nil
+        onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
-        self.onCommit = onCommit
+        self.onSubmit = onSubmit
     }
     
     public var body: some View {
@@ -34,7 +34,7 @@ public struct TaskInputField: View {
         .cornerRadius(8)
         .onSubmit {
             if isValidInput(text) {
-                onCommit?()
+                onSubmit?()
             }
         }
     }
