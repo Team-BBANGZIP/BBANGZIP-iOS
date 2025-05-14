@@ -11,20 +11,42 @@ struct TaskBox: View {
     @Binding var item: TodoItem
     var onMoreTapped: () -> Void
     var showSeperator: Bool = true
+    var onToggleCompleted: ((Bool) -> Void)? = nil
     
     var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Checkbox(isChecked: $item.isCompleted)
+        HStack(alignment: .top) {
+            Checkbox(isChecked: $item.isCompleted) {
+                onToggleCompleted?(item.isCompleted)
+            }
             
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .center) {
-                    Text(item.content)
-                        .bbangFont(.body2)
-                        .foregroundColor(Color(.labelNomal))
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    Spacer()
+            VStack{
+                HStack (alignment: .center) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .center) {
+                            Text(item.content)
+                                .bbangFont(.body2)
+                                .foregroundColor(Color(.labelNomal))
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                            
+                            Spacer()
+                        }
+                        
+                        if let time = item.startTime,
+                           let formattedTime = time.toAmPmFormattedTime() {
+                            HStack(spacing: 3) {
+                                Image(.icClock)
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .frame(width: 15, height: 15)
+                                    .foregroundColor(Color(.labelAssistive))
+                                
+                                Text(formattedTime)
+                                    .bbangFont(.label4)
+                                    .foregroundColor(Color(.labelAssistive))
+                            }
+                        }
+                    }
                     
                     Button(action: onMoreTapped) {
                         Image(.icMeatball)
@@ -33,26 +55,12 @@ struct TaskBox: View {
                     }
                 }
                 
-                if let time = item.startTime,
-                   let formattedTime = time.toAmPmFormattedTime() {
-                    HStack(spacing: 3) {
-                        Image(.icClock)
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 15, height: 15)
-                            .foregroundColor(Color(.labelAssistive))
-                        
-                        Text(formattedTime)
-                            .bbangFont(.label4)
-                            .foregroundColor(Color(.labelAssistive))
-                    }
-                }
-                
                 if showSeperator {
                     Rectangle()
                         .frame(height: 1)
                         .foregroundColor(Color(.secondaryNormal))
                         .padding(.top, 6)
+                        .padding(.bottom, 14)
                 }
             }
         }
@@ -60,41 +68,47 @@ struct TaskBox: View {
 }
 
 ///사용법 예시
+struct TaskBoxPreviewWrapper: View {
+    @State var item: TodoItem
+    var showSeperator: Bool = true
+    
+    var body: some View {
+        TaskBox(
+            item: $item,
+            onMoreTapped: {
+                print("미트볼 버튼 눌림")
+            },
+            showSeperator: showSeperator,
+            onToggleCompleted: {
+                print("상태 바뀜: \($0)")
+            }
+        )
+    }
+}
+
 struct TaskBox_Previews: PreviewProvider {
-    @State static var mockItem1 = TodoItem(
-        todoId: 1,
-        content: "저녁 메뉴 추천해주세요! 배고픈데 신전떡볶이나 먹을까 고민되네 진짜 날은 또 왜이리 좋아",
-        isCompleted: true,
-        startTime: "14:00"
-    )
-    
-    @State static var mockItem2 = TodoItem(
-        todoId: 2,
-        content: "회의 준비사항 정리해서 Notion에 업로드하기",
-        isCompleted: false,
-        startTime: "10:30"
-    )
-    
-    @State static var mockItem3 = TodoItem(
-        todoId: 3,
-        content: "LLM 모델 정리하기",
-        isCompleted: false,
-        startTime: nil
-    )
-    
     static var previews: some View {
-        VStack(spacing: 16) {
-            TaskBox(item: $mockItem1, onMoreTapped: {
-                print("미트볼 1 눌림")
-            }, showSeperator: true)
+        VStack {
+            TaskBoxPreviewWrapper(item: TodoItem(
+                todoId: 1,
+                content: "디자인 회의 참석 스타벅스엔 하루종일 사람이 많다 하지만 비싸다 가격을 내려주세요 ㅋㅋ",
+                isCompleted: true,
+                startTime: "10:00"
+            ), showSeperator: false)
             
-            TaskBox(item: $mockItem2, onMoreTapped: {
-                print("미트볼 2 눌림")
-            }, showSeperator: true)
+            TaskBoxPreviewWrapper(item: TodoItem(
+                todoId: 2,
+                content: "기획안 작성 및 팀 노션 업데이트",
+                isCompleted: false,
+                startTime: "14:30"
+            ))
             
-            TaskBox(item: $mockItem3, onMoreTapped: {
-                print("미트볼 3 눌림")
-            }, showSeperator: false)
+            TaskBoxPreviewWrapper(item: TodoItem(
+                todoId: 3,
+                content: "LLM 기반 챗봇 아키텍처 정리",
+                isCompleted: false,
+                startTime: nil
+            ))
         }
         .previewLayout(.sizeThatFits)
         .padding()

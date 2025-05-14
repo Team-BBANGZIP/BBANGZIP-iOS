@@ -9,11 +9,13 @@ import SwiftUI
 
 struct Checkbox: View {
     @Binding var isChecked: Bool
+    var onToggle: (() -> Void)? = nil
     
     var body: some View {
         Button(action: {
             withAnimation(nil) {
                 isChecked.toggle()
+                onToggle?()
             }
         }) {
             ZStack {
