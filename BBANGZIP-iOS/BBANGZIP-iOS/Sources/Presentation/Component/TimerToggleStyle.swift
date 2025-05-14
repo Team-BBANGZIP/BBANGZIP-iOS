@@ -11,18 +11,12 @@ struct TimerToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack(alignment: configuration.isOn ? .trailing : .leading) {
             RoundedRectangle(cornerRadius: 15)
-                .frame(
-                    width: 96,
-                    height: 28
-                )
+                .frame(width: 96, height: 28)
                 .foregroundColor(Color(.secondaryStrong))
             
             ZStack {
                 RoundedRectangle(cornerRadius: 15)
-                    .frame(
-                        width: 47,
-                        height: 26
-                    )
+                    .frame(width: 47, height: 26)
                     .foregroundColor(Color(.primaryNormal))
                 
                 configuration.isOn ? Text("60분")
@@ -34,7 +28,6 @@ struct TimerToggleStyle: ToggleStyle {
             .padding(.horizontal, 1)
             
             HStack(spacing: 0) {
-                
                 if configuration.isOn {
                     Text("30분")
                         .bbangFont(BbangzipFont.body4)
@@ -50,7 +43,6 @@ struct TimerToggleStyle: ToggleStyle {
                         .foregroundColor(Color(.primaryNormal))
                         .frame(width: 48, height: 28)
                 }
-
             }
             .frame(width: 96, height: 28)
         }
