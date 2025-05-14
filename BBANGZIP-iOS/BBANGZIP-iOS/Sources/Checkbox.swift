@@ -20,14 +20,14 @@ struct Checkbox: View {
                 Image(.icBread)
                     .renderingMode(.template)
                     .resizable()
-                    .frame(width: 19, height: 19)
+                    .frame(width: 28, height: 28)
                     .foregroundColor(isChecked ? Color(.todored1) : Color(.secondaryNormal))
                 
                 if isChecked {
                     Image(.icCheck)
                         .renderingMode(.template)
                         .resizable()
-                        .frame(width: 9, height: 9)
+                        .frame(width: 12, height: 12)
                         .foregroundColor(Color(.staticwhite))
                 }
             }
