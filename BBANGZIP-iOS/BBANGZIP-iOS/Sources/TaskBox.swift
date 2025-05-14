@@ -46,7 +46,8 @@ struct TaskBox: View {
                             }
                         }
                     }
-                    .padding(.vertical, item.startTime == nil ? 13 : 10)         
+                    .padding(.vertical, item.startTime == nil ? 13 : 10)
+                    
                     Button(action: onMoreTapped) {
                         Image(.icMeatball)
                             .renderingMode(.template)
