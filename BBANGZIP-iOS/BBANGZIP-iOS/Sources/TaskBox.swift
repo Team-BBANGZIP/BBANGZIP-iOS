@@ -27,7 +27,6 @@ struct TaskBox: View {
                                 .bbangFont(.body2)
                                 .foregroundColor(Color(.labelNomal))
                                 .multilineTextAlignment(.leading)
-                                .fixedSize(horizontal: false, vertical: true)
                             
                             Spacer()
                         }
@@ -47,9 +46,7 @@ struct TaskBox: View {
                             }
                         }
                     }
-                    .padding(.top, item.startTime == nil ? 13 : 10)
-                    .padding(.bottom, item.startTime == nil ? 13 : 10)
-                    
+                    .padding(.vertical, item.startTime == nil ? 13 : 10)         
                     Button(action: onMoreTapped) {
                         Image(.icMeatball)
                             .renderingMode(.template)
@@ -94,7 +91,7 @@ struct TaskBox_Previews: PreviewProvider {
                 content: "디자인 회의 참석 스타벅스엔 하루종일 사람이 많다 하지만 비싸다 가격을 내려주세요 ㅋㅋ",
                 isCompleted: true,
                 startTime: "10:00"
-            ), showSeperator: false)
+            ), showSeperator: true)
             
             TaskBoxPreviewWrapper(item: TodoItem(
                 todoId: 2,
