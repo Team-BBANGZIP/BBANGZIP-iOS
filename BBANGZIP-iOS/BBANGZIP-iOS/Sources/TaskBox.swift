@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaskBox: View {
     @Binding var item: TodoItem
-    var onMoreTapped: () -> Void
+    var meatballTapped: () -> Void
     var showSeperator: Bool = true
     var onToggleCompleted: ((Bool) -> Void)? = nil
     
@@ -48,7 +48,7 @@ struct TaskBox: View {
                     }
                     .padding(.vertical, item.startTime == nil ? 13 : 10)
                     
-                    Button(action: onMoreTapped) {
+                    Button(action: meatballTapped) {
                         Image(.icMeatball)
                             .renderingMode(.template)
                             .foregroundColor(Color(.secondaryStrong))
@@ -73,7 +73,7 @@ struct TaskBoxPreviewWrapper: View {
     var body: some View {
         TaskBox(
             item: $item,
-            onMoreTapped: {
+            meatballTapped: {
                 print("미트볼 버튼 눌림")
             },
             showSeperator: showSeperator,

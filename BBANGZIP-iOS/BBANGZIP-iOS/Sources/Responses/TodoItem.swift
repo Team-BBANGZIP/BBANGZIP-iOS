@@ -11,7 +11,12 @@ struct TodoItem: Identifiable {
     var isCompleted: Bool
     var startTime: String?
     
-    init(todoId: Int, content: String, isCompleted: Bool, startTime: String?) {
+    init(
+        todoId: Int,
+        content: String,
+        isCompleted: Bool,
+        startTime: String?
+    ) {
         self.id = todoId
         self.content = content
         self.isCompleted = isCompleted
