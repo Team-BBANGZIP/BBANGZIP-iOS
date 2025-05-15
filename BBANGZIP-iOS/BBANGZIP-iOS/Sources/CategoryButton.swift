@@ -10,20 +10,22 @@ import SwiftUI
 struct CategoryButton: View {
     private var color: Color
     private var labelText: String
-    private var action: () -> Void
+    @Binding var isSheetPresented: Bool
     
     init(
         color: Color,
         labelText: String,
-        action: @escaping () -> Void
+        isSheetPresented: Binding<Bool>
     ) {
         self.color = color
         self.labelText = labelText
-        self.action = action
+        self._isSheetPresented = isSheetPresented
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            isSheetPresented = true
+        }) {
             HStack(spacing: 6) {
                 Circle()
                     .fill(color)
@@ -47,28 +49,37 @@ struct CategoryButton: View {
     }
 }
 
-#Preview {
-    VStack(spacing: 20) {
-        CategoryButton(
-            color: Color(.todored1),
-            labelText: "빵집",
-            action: {
-                print("어서오세요 빵집입니다")
-            }
-        )
-        CategoryButton(
-            color: Color(.todoblue1),
-            labelText: "밥집",
-            action: {
-                print("어서오세요 밥집입니다")
-            }
-        )
-        CategoryButton(
-            color: Color(.todogreen1),
-            labelText: "술집",
-            action: {
-                print("어서오세요 술집입니다")
-            }
-        )
+//TODO: 바텀시트 오픈 시 참고용 예시 코드
+struct CategoryButtonPreviewWrapper: View {
+    @State private var isSheetPresented = false
+
+    var body: some View {
+        VStack(spacing: 20) {
+            CategoryButton(
+                color: Color(.todored1),
+                labelText: "빵집",
+                isSheetPresented: $isSheetPresented
+            )
+            CategoryButton(
+                color: Color(.todoblue1),
+                labelText: "밥집",
+                isSheetPresented: $isSheetPresented
+            )
+            CategoryButton(
+                color: Color(.todogreen1),
+                labelText: "술집",
+                isSheetPresented: $isSheetPresented
+            )
+        }
+        .sheet(isPresented: $isSheetPresented) {
+            Text("어서오세요")
+                .presentationDetents([.medium])
+        }
+        .padding()
     }
 }
+
+#Preview {
+    CategoryButtonPreviewWrapper()
+}
+
