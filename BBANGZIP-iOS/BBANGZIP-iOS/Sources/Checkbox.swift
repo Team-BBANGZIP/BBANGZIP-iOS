@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct Checkbox: View {
-    @State private var isChecked: Bool = false
+    @Binding var isChecked: Bool
+    var onToggle: (() -> Void)? = nil
     private var color: Color
     
-    init(color: Color) {
+    init(
+        isChecked: Binding<Bool>,
+        color: Color
+    ) {
+        self._isChecked = isChecked
         self.color = color
     }
     
@@ -19,20 +24,21 @@ struct Checkbox: View {
         Button(action: {
             withAnimation(nil) {
                 isChecked.toggle()
+                onToggle?()
             }
         }) {
             ZStack {
                 Image(.icBread)
                     .renderingMode(.template)
                     .resizable()
-                    .frame(width: 19, height: 19)
+                    .frame(width: 28, height: 28)
                     .foregroundColor(isChecked ? color : Color(.secondaryNormal))
                 
                 if isChecked {
                     Image(.icCheck)
                         .renderingMode(.template)
                         .resizable()
-                        .frame(width: 9, height: 9)
+                        .frame(width: 12, height: 12)
                         .foregroundColor(Color(.staticwhite))
                 }
             }
@@ -41,11 +47,23 @@ struct Checkbox: View {
     }
 }
 
-#Preview {
-    HStack {
-        Checkbox(color: Color(.todored1))
-        Checkbox(color: Color(.todored2))
-        Checkbox(color: Color(.todoblue1))
-        Checkbox(color: Color(.todoblue2))
+//TODO: 참고용 예시 코드
+struct CheckboxPreviewContainer: View {
+    @State var checked1 = false
+    @State var checked2 = false
+    @State var checked3 = false
+    @State var checked4 = false
+    
+    var body: some View {
+        HStack {
+            Checkbox(isChecked: $checked1, color: Color(.todored1))
+            Checkbox(isChecked: $checked2, color: Color(.todored2))
+             Checkbox(isChecked: $checked3, color: Color(.todoblue1))
+             Checkbox(isChecked: $checked4, color: Color(.todoblue2))
+        }
     }
+}
+
+#Preview {
+    CheckboxPreviewContainer()
 }
