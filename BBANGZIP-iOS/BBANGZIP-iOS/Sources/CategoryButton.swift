@@ -48,38 +48,3 @@ struct CategoryButton: View {
         }
     }
 }
-
-//TODO: 바텀시트 오픈 시 참고용 예시 코드
-struct CategoryButtonPreviewWrapper: View {
-    @State private var isSheetPresented = false
-
-    var body: some View {
-        VStack(spacing: 20) {
-            CategoryButton(
-                color: Color(.todored1),
-                labelText: "빵집",
-                isSheetPresented: $isSheetPresented
-            )
-            CategoryButton(
-                color: Color(.todoblue1),
-                labelText: "밥집",
-                isSheetPresented: $isSheetPresented
-            )
-            CategoryButton(
-                color: Color(.todogreen1),
-                labelText: "술집",
-                isSheetPresented: $isSheetPresented
-            )
-        }
-        .sheet(isPresented: $isSheetPresented) {
-            Text("어서오세요")
-                .presentationDetents([.medium])
-        }
-        .padding()
-    }
-}
-
-#Preview {
-    CategoryButtonPreviewWrapper()
-}
-
