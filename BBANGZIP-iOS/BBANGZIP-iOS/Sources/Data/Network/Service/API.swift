@@ -7,19 +7,12 @@
 
 import Foundation
 import Alamofire
-import OSLog
 
 final class API {
     private let session: Session
     
     init(
-        session: Session = {
-#if DEBUG
-            return Session(eventMonitors: [Monitor()])
-#else
-            return Session.default
-#endif
-        }()
+        session: Session = Session(eventMonitors: [Monitor()])
     ) {
         self.session = session
         LoggerFactory.create(category: .lifeCycle)
