@@ -12,6 +12,8 @@ final class LoggerFactory {
         case presentation
         case domain
         case data
+        case lifeCycle
+        case etc
     }
     
     static func create(category: LoggerCategory) -> Logger {
