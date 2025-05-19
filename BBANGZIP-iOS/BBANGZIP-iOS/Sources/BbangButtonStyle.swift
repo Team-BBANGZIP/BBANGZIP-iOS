@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct BbangButtonStyle: ButtonStyle {
-    private let style: BbangButtonType
-    private let leftIcon: Image?
-    private let rightIcon: Image?
+    let style: BbangButtonType
+    let leftIcon: Image?
+    let rightIcon: Image?
     
     init (
         style: BbangButtonType,
