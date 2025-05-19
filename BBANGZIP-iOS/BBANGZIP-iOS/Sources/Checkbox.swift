@@ -9,6 +9,8 @@ import SwiftUI
 
 struct Checkbox: View {
     @Binding var isChecked: Bool
+    @Binding var color: Color
+
     var onToggle: (() -> Void)? = nil
     
     var body: some View {
@@ -23,7 +25,7 @@ struct Checkbox: View {
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: 28, height: 28)
-                    .foregroundColor(isChecked ? Color(.todored1) : Color(.secondaryNormal))
+                    .foregroundColor(isChecked ? color : Color(.secondaryNormal))
                 
                 if isChecked {
                     Image(.icCheck)
@@ -37,7 +39,3 @@ struct Checkbox: View {
         .buttonStyle(.plain)
     }
 }
-
-//#Preview {
-//    Checkbox(isChecked: $item.false)
-//}
