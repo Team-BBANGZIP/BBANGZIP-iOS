@@ -8,19 +8,9 @@
 import SwiftUI
 
 struct CategoryButton: View {
-    private var color: Color
-    private var labelText: String
+    @Binding var color: Color
+    @Binding var labelText: String
     @Binding var isSheetPresented: Bool
-    
-    init(
-        color: Color,
-        labelText: String,
-        isSheetPresented: Binding<Bool>
-    ) {
-        self.color = color
-        self.labelText = labelText
-        self._isSheetPresented = isSheetPresented
-    }
     
     var body: some View {
         Button(action: {
@@ -47,4 +37,42 @@ struct CategoryButton: View {
             .cornerRadius(32)
         }
     }
+}
+
+//TODO: 참고용 예시 코드
+struct CategoryPreviewContainer: View {
+    @State var label1 = "빵집"
+    @State var label2 = "밥집"
+    @State var color1 = Color(.todored1)
+    @State var color2 = Color(.todoblue1)
+    @State var isSheetPresented1 = false
+    @State var isSheetPresented2 = false
+    
+    var body: some View {
+        HStack {
+            CategoryButton(
+                color: $color1,
+                labelText: $label1,
+                isSheetPresented: $isSheetPresented1
+            )
+            .sheet(isPresented: $isSheetPresented1) {
+                Text(label1 + "에 어서오세요")
+                    .presentationDetents([.medium])
+            }
+            
+            CategoryButton(
+                color: $color2,
+                labelText: $label2,
+                isSheetPresented: $isSheetPresented2
+            )
+            .sheet(isPresented: $isSheetPresented2) {
+                Text(label2 + "에 어서오세요")
+                    .presentationDetents([.medium])
+            }
+        }
+    }
+}
+
+#Preview {
+    CategoryPreviewContainer()
 }
