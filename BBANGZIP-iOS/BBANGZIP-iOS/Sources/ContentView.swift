@@ -2,7 +2,13 @@ import SwiftUI
 
 public struct ContentView: View {
     public init() {
+        let appearance = UITabBarAppearance()
+        appearance.backgroundColor = UIColor(Color(.componentAlternative))
+        appearance.shadowColor = UIColor(Color(.labelDisable))
         UITabBar.appearance().unselectedItemTintColor = UIColor(Color(.labelAssistive))
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
     }
 
     public var body: some View {
@@ -33,6 +39,7 @@ public struct ContentView: View {
                 }
         }
         .accentColor(Color(.staticblack))
+        .toolbarBackground(Color(.componentAlternative), for: .tabBar)
     }
 }
 
