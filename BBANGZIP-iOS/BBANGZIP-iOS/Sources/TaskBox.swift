@@ -15,7 +15,7 @@ struct TaskBox: View {
     
     var body: some View {
         HStack(alignment: .center) {
-            Checkbox(isChecked: $item.isCompleted) {
+            Checkbox(isChecked: $item.isCompleted, color: $item.color) {
                 onToggleCompleted?(item.isCompleted)
             }
             
