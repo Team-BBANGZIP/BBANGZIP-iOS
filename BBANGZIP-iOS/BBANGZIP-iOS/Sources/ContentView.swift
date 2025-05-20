@@ -6,7 +6,6 @@ public struct ContentView: View {
         appearance.backgroundColor = UIColor(Color(.componentAlternative))
         appearance.shadowColor = UIColor(Color(.labelDisable))
         UITabBar.appearance().unselectedItemTintColor = UIColor(Color(.labelAssistive))
-
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
@@ -39,7 +38,10 @@ public struct ContentView: View {
                 }
         }
         .accentColor(Color(.staticblack))
-        .toolbarBackground(Color(.componentAlternative), for: .tabBar)
+        .toolbarBackground(
+            Color(.componentAlternative),
+            for: .tabBar
+        )
     }
 }
 
