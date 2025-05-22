@@ -55,7 +55,7 @@ struct TimerToggleStyle: ToggleStyle {
 }
 
 struct ToggleButton: View {
-    @State private var isToggleOn = false
+    @Binding var isToggleOn: Bool
 
     var body: some View {
         Toggle(isOn: $isToggleOn) { }
@@ -64,5 +64,5 @@ struct ToggleButton: View {
 }
 
 #Preview {
-    ToggleButton()
+    ToggleButton(isToggleOn: Binding<Bool>.constant(false))
 }
