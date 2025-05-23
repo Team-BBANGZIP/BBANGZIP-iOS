@@ -34,21 +34,27 @@ struct CheckedOffView: View {
                     .padding(.top, 30)
                     .padding(.bottom, 30)
                 
-                ForEach($viewModel.categories) { $category in
+                ForEach(viewModel.categories.indices, id: \.self) { categoryIndex in
+                    let category = viewModel.categories[categoryIndex]
+                    
                     VStack(alignment: .leading, spacing: 0) {
                         CategoryButton(
-                            color: $category.color,
+                            color: $viewModel.categories[categoryIndex].color,
                             labelText: .constant(category.name),
                             isSheetPresented: $viewModel.isSheetPresented
                         )
                         .padding(.leading, 20)
                         
-                        ForEach(Array($category.todos.enumerated()), id: \.element.id) { index, $todo in
+                        ForEach(category.todos.indices, id: \.self) { todoIndex in
+                            let todo = category.todos[todoIndex]
+                            let isLast = todoIndex == category.todos.count - 1
+                            
                             TaskBox(
-                                item: $todo,
-                                meatballTapped: { print("미트볼 버튼 눌림!")
+                                item: $viewModel.categories[categoryIndex].todos[todoIndex],
+                                meatballTapped: {
+                                    handleMeatballTapped(for: todo)
                                 },
-                                showSeperator: index < category.todos.count - 1,
+                                showSeperator: !isLast,
                                 onToggleCompleted: { _ in }
                             )
                             .padding(.horizontal, 20)
@@ -64,8 +70,12 @@ struct CheckedOffView: View {
         }
         .navigationBarHidden(true)
     }
+    
+    private func handleMeatballTapped(for todo: TodoItem) {
+        print("미트볼 버튼 눌림! - \(todo.content)")
+        // TODO: 미트볼 열리는거 구현해야 함
+    }
 }
-
 
 struct CheckedOffView_Previews: PreviewProvider {
     static var previews: some View {
