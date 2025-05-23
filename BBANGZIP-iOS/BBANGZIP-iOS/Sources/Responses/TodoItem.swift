@@ -26,11 +26,12 @@ struct TodoItem: Identifiable {
         self.isCompleted = isCompleted
         self.startTime = startTime
         self.color = color
-        
     }
 }
 
-struct TodoCategory {
+struct TodoCategory: Identifiable {
+    let id = UUID()
     let categoryName: String
+    var color: Color
     var todos: [TodoItem]
 }
