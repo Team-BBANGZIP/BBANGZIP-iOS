@@ -43,11 +43,14 @@ struct CheckedOffView: View {
                         )
                         .padding(.leading, 20)
                         
-                        ForEach($category.todos) { $todo in
-                            TaskBox(item: $todo,
-                                    meatballTapped: {},
-                                    showSeperator: true,
-                                    onToggleCompleted: { _ in })
+                        ForEach(Array($category.todos.enumerated()), id: \.element.id) { index, $todo in
+                            TaskBox(
+                                item: $todo,
+                                meatballTapped: { print("미트볼 버튼 눌림!")
+                                },
+                                showSeperator: index < category.todos.count - 1,
+                                onToggleCompleted: { _ in }
+                            )
                             .padding(.horizontal, 20)
                         }
                     }
