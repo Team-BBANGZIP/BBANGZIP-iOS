@@ -30,11 +30,10 @@ struct CheckedOffView: View {
 }
 
 private extension CheckedOffView {
-    
     var navBar: some View {
         HStack {
             Button(action: {
-                //TODO: 뒤로가기 구현 뷰 연결
+                // TODO: 뒤로가기 구현
             }) {
                 Image(.icChevronLeft)
                     .foregroundColor(Color(.labelAlternative))
@@ -51,10 +50,7 @@ private extension CheckedOffView {
             .fontWeight(.semibold)
             .foregroundColor(Color(.darkGray))
             .padding(.vertical, 30)
-            .frame(
-                maxWidth: .infinity,
-                alignment: .leading
-            )
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 20)
     }
     
@@ -62,39 +58,40 @@ private extension CheckedOffView {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 ForEach(
-                    viewModel.categories.indices,
-                    id: \.self
-                ) { categoryIndex in
-                    let category = viewModel.categories[categoryIndex]
-                    
+                    viewModel.categories,
+                    id: \.categoryId
+                ) { category in
                     VStack(alignment: .leading, spacing: 0) {
                         CategoryButton(
-                            color: $viewModel.categories[categoryIndex].color,
+                            color: Binding(
+                                get: {
+                                    category.color
+                                },
+                                set: { _ in }
+                            ),
                             labelText: .constant(category.name),
                             isSheetPresented: $viewModel.isSheetPresented
                         )
                         .padding(.leading, 20)
                         
-                        ForEach(
-                            category.todos.indices,
-                            id: \.self
-                        ) { todoIndex in
-                            let todo = category.todos[todoIndex]
-                            let isLast = todoIndex == category.todos.count - 1
-                            
-                            TaskBox(
-                                item: $viewModel.categories[categoryIndex].todos[todoIndex],
-                                meatballTapped: {
-                                    handleMeatballTapped(for: todo)
-                                },
-                                showSeperator: !isLast,
-                                onToggleCompleted: { _ in }
-                            )
-                            .padding(.horizontal, 20)
+                        if let todos = viewModel.todosByCategory[category.categoryId] {
+                            ForEach(todos.indices, id: \.self) { index in
+                                TaskBox(
+                                    item: Binding(
+                                        get: { viewModel.todosByCategory[category.categoryId]![index] },
+                                        set: { viewModel.todosByCategory[category.categoryId]![index] = $0 }
+                                    ),
+                                    meatballTapped: {
+                                        handleMeatballTapped(for: todos[index])
+                                    },
+                                    showSeperator: index < todos.count - 1,
+                                    onToggleCompleted: { _ in }
+                                )
+                                .padding(.horizontal, 20)
+                            }
                         }
                     }
                 }
-                
                 Spacer(minLength: 50)
             }
         }
@@ -130,34 +127,138 @@ private extension CheckedOffView {
     
     func handleMeatballTapped(for todo: TodoItem) {
         print("미트볼 버튼 눌림! - \(todo.content)")
-        //TODO: 버튼 구현 필요
+        //TODO: 기능 구현 필요
     }
 }
 
-
 struct CheckedOffView_Previews: PreviewProvider {
     static var previews: some View {
-        let sampleCategories: [Category] = [
+        let categories = [
             Category(
                 categoryId: 1,
                 name: "제과제빵점",
-                color: Color(.todored1),
-                todos: [
-                    TodoItem(todoId: 11, content: "Lo-Fi Wireframe 회의", isCompleted: true, startTime: "23:00"),
-                    TodoItem(todoId: 12, content: "Hi-Fi Wireframe 확정", isCompleted: false, startTime: "13:00")
-                ]
+                color: Color(
+                    .todored1
+                )
             ),
             Category(
                 categoryId: 2,
                 name: "스터디모임",
-                color: Color(.todogreen1),
-                todos: [
-                    TodoItem(todoId: 21, content: "영어 단어 복습", isCompleted: false, startTime: "07:00")
-                ]
+                color: Color(
+                    .todogreen1
+                )
+            ),
+            Category(
+                categoryId: 3,
+                name: "운동 루틴",
+                color: Color(
+                    .todoyellow1
+                )
+            ),
+            Category(
+                categoryId: 4,
+                name: "사이드 프로젝트",
+                color: Color(.todopurple1)
             )
         ]
         
-        return CheckedOffView(viewModel: CheckedOffViewModel(categories: sampleCategories))
+        let todos: [Int: [TodoItem]] = [
+            1: [
+                TodoItem(
+                    todoId: 11,
+                    content: "Lo-Fi Wireframe 회의",
+                    isCompleted: true,
+                    startTime: "23:00",
+                    color: Color(
+                        .todored1
+                    )
+                ),
+                TodoItem(
+                    todoId: 12,
+                    content: "Hi-Fi Wireframe 확정",
+                    isCompleted: false,
+                    startTime: "13:00",
+                    color: Color(
+                        .todored1
+                    )
+                )
+            ],
+            2: [
+                TodoItem(
+                    todoId: 21,
+                    content: "영어 단어 복습",
+                    isCompleted: false,
+                    startTime: "07:00",
+                    color: Color(
+                        .todogreen1
+                    )
+                ),
+                TodoItem(
+                    todoId: 22,
+                    content: "지난 주 발표 피드백",
+                    isCompleted: true,
+                    startTime: nil,
+                    color: Color(
+                        .todogreen1
+                    )
+                )
+            ],
+            3: [
+                TodoItem(
+                    todoId: 31,
+                    content: "스쿼트 3세트",
+                    isCompleted: false,
+                    startTime: "06:30",
+                    color: Color(
+                        .todoyellow1
+                    )
+                ),
+                TodoItem(
+                    todoId: 32,
+                    content: "스트레칭 10분",
+                    isCompleted: false,
+                    startTime: nil,
+                    color: Color(
+                        .todoyellow1
+                    )
+                )
+            ],
+            4: [
+                TodoItem(
+                    todoId: 41,
+                    content: "Figma 디자인 리뷰",
+                    isCompleted: true,
+                    startTime: "22:00",
+                    color: Color(
+                        .todopurple1
+                    )
+                ),
+                TodoItem(
+                    todoId: 42,
+                    content: "SwiftUI 리팩토링",
+                    isCompleted: false,
+                    startTime: nil,
+                    color: Color(
+                        .todopurple1
+                    )
+                ),
+                TodoItem(
+                    todoId: 43,
+                    content: "README 문서 작성",
+                    isCompleted: false,
+                    startTime: "18:30",
+                    color: Color(
+                        .todopurple1
+                    )
+                )
+            ]
+        ]
+        
+        return CheckedOffView(
+            viewModel: CheckedOffViewModel(
+                categories: categories,
+                todos: todos
+            )
+        )
     }
 }
-

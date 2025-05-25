@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-struct Category: Identifiable {
+struct Category: Identifiable, Hashable {
     var id: Int { categoryId }
     let categoryId: Int
-    var name: String
-    var color: Color
-    var todos: [TodoItem]
+    let name: String
+    let color: Color
 }
