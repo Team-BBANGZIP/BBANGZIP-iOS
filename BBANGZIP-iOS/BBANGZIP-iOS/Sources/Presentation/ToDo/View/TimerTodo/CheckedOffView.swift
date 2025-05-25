@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct CheckedOffView: View {
-    @StateObject private var viewModel = CheckedOffViewModel()
+    @StateObject private var viewModel: CheckedOffViewModel
+    
+    init(viewModel: CheckedOffViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -46,8 +50,7 @@ private extension CheckedOffView {
             .font(.title3)
             .fontWeight(.semibold)
             .foregroundColor(Color(.darkGray))
-            .padding(.top, 30)
-            .padding(.bottom, 30)
+            .padding(.vertical, 30)
             .frame(
                 maxWidth: .infinity,
                 alignment: .leading
@@ -134,6 +137,27 @@ private extension CheckedOffView {
 
 struct CheckedOffView_Previews: PreviewProvider {
     static var previews: some View {
-        CheckedOffView()
+        let sampleCategories: [Category] = [
+            Category(
+                categoryId: 1,
+                name: "제과제빵점",
+                color: Color(.todored1),
+                todos: [
+                    TodoItem(todoId: 11, content: "Lo-Fi Wireframe 회의", isCompleted: true, startTime: "23:00"),
+                    TodoItem(todoId: 12, content: "Hi-Fi Wireframe 확정", isCompleted: false, startTime: "13:00")
+                ]
+            ),
+            Category(
+                categoryId: 2,
+                name: "스터디모임",
+                color: Color(.todogreen1),
+                todos: [
+                    TodoItem(todoId: 21, content: "영어 단어 복습", isCompleted: false, startTime: "07:00")
+                ]
+            )
+        ]
+        
+        return CheckedOffView(viewModel: CheckedOffViewModel(categories: sampleCategories))
     }
 }
+
