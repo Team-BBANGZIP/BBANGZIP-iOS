@@ -27,7 +27,7 @@ public struct TaskInputField: View {
         )
         .tint(Color(.labelAssistive))
         .bbangFont(.body1)
-        .foregroundColor(Color(.labelNomal))
+        .foregroundColor(Color(.labelNormal))
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(Color(.componentStrong))
