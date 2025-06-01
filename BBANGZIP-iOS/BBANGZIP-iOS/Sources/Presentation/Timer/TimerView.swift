@@ -15,32 +15,16 @@ struct TimerView: View {
             if viewModel.breadCount > 0 {
                 BbangText("\(viewModel.breadCount)", font: .title3)
             }
-            
             BbangText(viewModel.announceMessage, font: .title3)
-            
             BbangText(viewModel.leftTimeText, font: .title2)
             
             HStack {
                 if viewModel.state != .initial {
-                    Button {
-                        viewModel.refreshTimer()
-                    } label: {
-                        Image(.icRefreshThin)
-                    }
+                    refreshButton
                 }
-                
-                Button {
-                    viewModel.timerControlButtonTapped()
-                } label: {
-                    Image(viewModel.state == .running ? .icPause : .icStart)
-                }
-                
+                timerControlButton
                 if viewModel.state != .initial {
-                    Button {
-                        viewModel.resetTimer()
-                    } label: {
-                        Image(.icStop)
-                    }
+                    resetButton
                 }
             }
             
@@ -48,6 +32,132 @@ struct TimerView: View {
                 ToggleButton(isToggleOn: $viewModel.isTimerHour)
             }
         }
+        .sheet(isPresented: $viewModel.isResetSheetOn) {
+            resetSheet
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.isRefreshSheetOn) {
+            refreshSheet
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.isCompleteSheetOn) {
+            completeSheet
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
+    }
+    
+    var refreshButton: some View {
+        Button {
+            viewModel.refreshButtonTapped()
+        } label: {
+            Image(.icRefreshThin)
+                .opacity(viewModel.state == .done ? 0.5 : 1)
+        }
+        .disabled(viewModel.state == .done)
+    }
+    
+    var refreshSheet: some View {
+        HStack(spacing: 8) {
+            Button {
+                viewModel.isRefreshSheetOn = false
+            } label: {
+                Text("돌아가기")
+            }
+            
+            Button {
+                viewModel.refreshTimer()
+                viewModel.isRefreshSheetOn = false
+            } label: {
+                Image(.icRefreshThin)
+            }
+        }
+    }
+    
+    var timerControlButton: some View {
+        Button {
+            viewModel.timerControlButtonTapped()
+        } label: {
+            Image(viewModel.state == .running ? .icPause : .icStart)
+        }
+    }
+    
+    var resetButton: some View {
+        Button {
+            viewModel.resetButtonTapped()
+        } label: {
+            Image(.icStop)
+        }
+    }
+    
+    var resetSheet: some View  {
+        HStack(spacing: 8) {
+            Button {
+                viewModel.isResetSheetOn = false
+            } label: {
+                Text("돌아가기")
+            }
+            
+            Button {
+                viewModel.resetTimer()
+                viewModel.isResetSheetOn = false
+            } label: {
+                Image(.icStop)
+            }
+        }
+    }
+    
+    var completeSheet: some View {
+        VStack(spacing: 0) {
+            Text("역시 사장님은 제빵왕!")
+                .bbangFont(.title1)
+                .bbangColor(.primaryNormal)
+                .padding(.top, 40)
+                .padding(.bottom, 4)
+            
+            Text("빵 \(viewModel.isTimerHour ? "두" : "한") 개를 흭득했어요")
+                .bbangFont(.body1)
+                .bbangColor(.labelAlternative)
+                .padding(.bottom, 28)
+            
+            Image(.icPerson) // TODO: 이미지 빵으로 변경
+                .resizable()
+                .frame(width: .infinity)
+                .padding(.horizontal, 4)
+                .padding(.bottom, 42)
+                
+            GeometryReader { geometry in
+                let width = geometry.size.width
+                HStack(spacing: 8) {
+                    Button("\(viewModel.isTimerHour ? "60" : "30")분 더") {
+                        viewModel.timerControlButtonTapped()
+                        viewModel.isCompleteSheetOn = false
+                    }
+                    .buttonStyle(
+                        BbangButtonStyle(
+                            style: .secondary,
+                            rightIcon: Image(.icPlusThick)
+                        )
+                    )
+                    .frame(width: width * 130 / 370)
+                    
+                    Button("완료한 일 체크") {
+                        // TODO: 완료한 일 체크 페이지로 이동
+                    }
+                    .buttonStyle(
+                        BbangButtonStyle(
+                            style: .primary,
+                            rightIcon: Image(.icBook)
+                        )
+                    )
+                }
+            }
+            .frame(height: 48)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
     }
 }
 

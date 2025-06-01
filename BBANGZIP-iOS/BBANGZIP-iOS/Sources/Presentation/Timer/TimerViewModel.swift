@@ -24,6 +24,10 @@ final class TimerViewModel: ObservableObject {
     @Published var state: TimerState = .initial
     @Published var isTimerHour: Bool = false
     
+    @Published var isRefreshSheetOn: Bool = false
+    @Published var isResetSheetOn: Bool = false
+    @Published var isCompleteSheetOn: Bool = false
+    
     private let timerUseCase: TimerUseCase
     private var timerTask: Task<Void, Never>?
     
@@ -51,6 +55,9 @@ final class TimerViewModel: ObservableObject {
     func timerControlButtonTapped() {
         if state == .running {
             pauseTimer()
+        } else if state == .done {
+            resetTimer()
+            resumeTimer()
         } else {
             resumeTimer()
         }
@@ -73,8 +80,31 @@ final class TimerViewModel: ObservableObject {
                 leftTimePercentage = CGFloat(remainingSeconds) / CGFloat(timeCase.totalSeconds)
                 print("leftSeconds : \(leftSeconds)")
             }
-            state = .done
-            announceMessage = "빵이 완성됐어요!"
+            if leftSeconds == 0 {
+                state = .done
+                announceMessage = "빵이 완성됐어요!"
+                isCompleteSheetOn = true
+            }
+        }
+    }
+    
+    func refreshButtonTapped() {
+        if state == .done {
+            resetTimer()
+        } else {
+            state = .paused
+            pauseTimer()
+            isRefreshSheetOn = true
+        }
+    }
+    
+    func resetButtonTapped() {
+        if state == .done {
+            resetTimer()
+        } else {
+            state = .paused
+            pauseTimer()
+            isResetSheetOn = true
         }
     }
     
@@ -85,6 +115,10 @@ final class TimerViewModel: ObservableObject {
         leftTimeText = formatTime(seconds: leftSeconds)
         leftTimePercentage = 1.0
         resumeTimer()
+    }
+    
+    func presentResetSheet() {
+        isResetSheetOn = true
     }
 
     func resetTimer() {
