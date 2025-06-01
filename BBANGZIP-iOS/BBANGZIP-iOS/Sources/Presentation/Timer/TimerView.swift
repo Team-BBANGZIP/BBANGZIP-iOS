@@ -60,20 +60,48 @@ struct TimerView: View {
     }
     
     var refreshSheet: some View {
-        HStack(spacing: 8) {
-            Button {
-                viewModel.isRefreshSheetOn = false
-            } label: {
-                Text("돌아가기")
-            }
+        VStack(spacing: 0) {
+            Text("정말 초기화 하시겠어요?")
+                .bbangFont(.title1)
+                .bbangColor(.primaryNormal)
+                .padding(.top, 40)
+                .padding(.bottom, 4)
             
-            Button {
-                viewModel.refreshTimer()
-                viewModel.isRefreshSheetOn = false
-            } label: {
-                Image(.icRefreshThin)
+            Text("지금까지 구운 빵이 완성되지 않아요")
+                .bbangFont(.body1)
+                .bbangColor(.labelAlternative)
+                .padding(.bottom, 28)
+            
+            Image(.icPerson) // TODO: 이미지 빵으로 변경
+                .resizable()
+                .frame(width: .infinity)
+                .padding(.horizontal, 4)
+                .padding(.bottom, 42)
+            HStack(spacing: 8) {
+                Button("돌아가기") {
+                    viewModel.isRefreshSheetOn = false
+                }
+                .buttonStyle(
+                    BbangButtonStyle(
+                        style: .secondary,
+                        rightIcon: Image(.icRefreshThin)
+                    )
+                )
+                
+                Button("초기화 하기") {
+                    viewModel.refreshTimer()
+                    viewModel.isRefreshSheetOn = false
+                }
+                .buttonStyle(
+                    BbangButtonStyle(
+                        style: .primary,
+                        rightIcon: Image(.icQuit)
+                    )
+                )
             }
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
     }
     
     var timerControlButton: some View {
@@ -93,20 +121,48 @@ struct TimerView: View {
     }
     
     var resetSheet: some View  {
-        HStack(spacing: 8) {
-            Button {
-                viewModel.isResetSheetOn = false
-            } label: {
-                Text("돌아가기")
-            }
+        VStack(spacing: 0) {
+            Text("정말 종료 하시겠어요?")
+                .bbangFont(.title1)
+                .bbangColor(.primaryNormal)
+                .padding(.top, 40)
+                .padding(.bottom, 4)
             
-            Button {
-                viewModel.resetTimer()
-                viewModel.isResetSheetOn = false
-            } label: {
-                Image(.icStop)
+            Text("\(1)분만 더 하면 빵 \(viewModel.isTimerHour ? "두" : "한") 개를 얻을 수 있어요") // TODO: N분 수정
+                .bbangFont(.body1)
+                .bbangColor(.labelAlternative)
+                .padding(.bottom, 28)
+            
+            Image(.icPerson) // TODO: 이미지 빵으로 변경
+                .resizable()
+                .frame(width: .infinity)
+                .padding(.horizontal, 4)
+                .padding(.bottom, 42)
+            HStack(spacing: 8) {
+                Button("돌아가기") {
+                    viewModel.isResetSheetOn = false
+                }
+                .buttonStyle(
+                    BbangButtonStyle(
+                        style: .secondary,
+                        rightIcon: Image(.icRefreshThin)
+                    )
+                )
+                
+                Button("종료 하기") {
+                    viewModel.resetTimer()
+                    viewModel.isResetSheetOn = false
+                }
+                .buttonStyle(
+                    BbangButtonStyle(
+                        style: .primary,
+                        rightIcon: Image(.icQuit)
+                    )
+                )
             }
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
     }
     
     var completeSheet: some View {

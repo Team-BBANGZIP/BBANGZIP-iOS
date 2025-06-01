@@ -17,12 +17,12 @@ enum TimerState {
 
 @MainActor
 final class TimerViewModel: ObservableObject {
-    @Published var breadCount: Int = 0
+    @Published var breadCount: Int = 1
     @Published var announceMessage: String = "오늘의 빵을 구워보세요!"
-    @Published var leftTimeText: String = "30:00"
+    @Published var leftTimeText: String = "30:00" // TODO: 초기값 직접 넣기 개선
     @Published var leftTimePercentage: CGFloat = 1.0
-    @Published var state: TimerState = .initial
-    @Published var isTimerHour: Bool = false
+    @Published var state: TimerState = .initial // TODO: State 기반으로 리팩토링 고려해보기
+    @Published var isTimerHour: Bool = false // TODO: 변수 이름 shit
     
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
@@ -31,7 +31,7 @@ final class TimerViewModel: ObservableObject {
     private let timerUseCase: TimerUseCase
     private var timerTask: Task<Void, Never>?
     
-    private var leftSeconds: Int = 4
+    private var leftSeconds: Int = 4 // TODO: 초기값 직접 넣기 개선
     private var timeCase: TimerCase = .halfHour
     
     private var cancellables = Set<AnyCancellable>()
@@ -78,7 +78,6 @@ final class TimerViewModel: ObservableObject {
                 leftSeconds = remainingSeconds
                 leftTimeText = formatTime(seconds: remainingSeconds)
                 leftTimePercentage = CGFloat(remainingSeconds) / CGFloat(timeCase.totalSeconds)
-                print("leftSeconds : \(leftSeconds)")
             }
             if leftSeconds == 0 {
                 state = .done
