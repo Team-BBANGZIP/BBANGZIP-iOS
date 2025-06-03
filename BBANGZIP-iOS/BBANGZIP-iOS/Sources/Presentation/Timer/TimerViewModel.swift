@@ -21,8 +21,9 @@ final class TimerViewModel: ObservableObject {
     @Published var announceMessage: String = "오늘의 빵을 구워보세요!"
     @Published var leftTimeText: String = "30:00" // TODO: 초기값 직접 넣기 개선
     @Published var progressPercentage: CGFloat = 0.01
-    @Published var state: TimerState = .initial // TODO: State 기반으로 리팩토링 고려해보기
-    @Published var isHour: Bool = false // TODO: 변수 이름 shit
+    @Published var state: TimerState = .initial // TODO: 전체 State 기반으로 리팩토링 고려해보기
+    @Published var isHour: Bool = false
+    @Published var leftSeconds: Int
     
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
@@ -31,13 +32,13 @@ final class TimerViewModel: ObservableObject {
     private let timerUseCase: TimerUseCase
     private var timerTask: Task<Void, Never>?
     
-    private var leftSeconds: Int = 4 // TODO: 초기값 직접 넣기 개선
     private var timeCase: TimerCase = .halfHour
     
     private var cancellables = Set<AnyCancellable>()
     
     init(timerUseCase: TimerUseCase) {
         self.timerUseCase = timerUseCase
+        leftSeconds = timeCase.totalSeconds
         bind()
     }
     

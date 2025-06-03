@@ -35,7 +35,9 @@ struct TimerView: View {
                 if viewModel.state != .initial {
                     refreshButton
                 }
+                
                 timerControlButton
+                
                 if viewModel.state != .initial {
                     resetButton
                 }
@@ -44,23 +46,19 @@ struct TimerView: View {
         }
         .sheet(isPresented: $viewModel.isResetSheetOn) {
             resetSheet
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.isRefreshSheetOn) {
             refreshSheet
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.isCompleteSheetOn) {
             completeSheet
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
         }
     }
     
     var breadCountChip: some View {
-        HStack(spacing: 1) {
+        let opacity: Double = viewModel.breadCount == 0 ? 0 : 1
+        
+        return HStack(spacing: 1) {
             Image(.icBread)
                 .renderingMode(.template)
                 .foregroundStyle(Color.primaryLight)
@@ -75,15 +73,17 @@ struct TimerView: View {
         .overlay(Capsule()
             .stroke(Color.secondaryStrong, lineWidth: 1)
         )
-        .opacity(viewModel.breadCount == 0 ? 0 : 1)
+        .opacity(opacity)
         .padding(.trailing, 20)
     }
     
     var announceText: some View {
-        Text(viewModel.announceMessage)
+        let opacity: Double = viewModel.state == .running ? 0 : 1
+        
+        return Text(viewModel.announceMessage)
             .bbangFont(.title2)
             .bbangColor(.labelAlternative)
-            .opacity(viewModel.state == .running ? 0 : 1)
+            .opacity(opacity)
     }
     
     var leftTimeView: some View {
@@ -121,14 +121,20 @@ struct TimerView: View {
     }
 
     var timeToggleButton: some View {
-        ToggleButton(isToggleOn: $viewModel.isHour)
-            .opacity(viewModel.state == .initial ? 1 : 0)
-            .disabled(viewModel.state != .initial)
+        let opacity: Double = viewModel.state == .initial ? 1 : 0
+        let disabled = viewModel.state != .initial
+        
+        return ToggleButton(isToggleOn: $viewModel.isHour)
+            .opacity(opacity)
+            .disabled(disabled)
             .padding(.bottom, 7)
     }
     
     var refreshButton: some View {
-        Button {
+        let opacity = viewModel.state == .done ? 0.5 : 1
+        let disabled = viewModel.state == .done
+        
+        return Button {
             viewModel.refreshButtonTapped()
         } label: {
             Image(.icRefreshThick)
@@ -138,14 +144,14 @@ struct TimerView: View {
                 .foregroundStyle(Color.primaryNormal)
                 .opacity(0.6)
         }
-        .disabled(viewModel.state == .done)
+        .disabled(disabled)
         .frame(width: 48, height: 48)
         .clipShape(.circle)
         .overlay(
             Circle()
                 .stroke(Color.secondaryStrong, lineWidth: 1)
         )
-        .opacity(viewModel.state == .done ? 0.5 : 1)
+        .opacity(opacity)
     }
     
     var refreshSheet: some View {
@@ -191,23 +197,29 @@ struct TimerView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
     
     var timerControlButton: some View {
-        Button {
+        let image: ImageResource = viewModel.state == .running ? .icPause : .icStart
+        let imageColor: Color = viewModel.state == .running ? Color.primaryNormal : Color.secondaryNormal
+        let backgroundColor: Color = viewModel.state == .running ? Color.secondaryStrong : Color.primaryStrong
+        
+        return Button {
             viewModel.timerControlButtonTapped()
         } label: {
-            Image(viewModel.state == .running ? .icPause : .icStart)
+            Image(image)
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 60, height: 60)
-                .foregroundStyle(viewModel.state == .running ? Color.primaryNormal : Color.secondaryNormal)
+                .foregroundStyle(imageColor)
         }
         .frame(width: 80, height: 80)
         .clipShape(.circle)
         .background(
             Circle()
-                .fill(viewModel.state == .running ? Color.secondaryStrong : Color.primaryStrong)
+                .fill(backgroundColor)
         )
     }
     
@@ -229,14 +241,18 @@ struct TimerView: View {
     }
     
     var resetSheet: some View  {
-        VStack(spacing: 0) {
+        let leftTime = viewModel.leftSeconds / 60 > 0 ? "\(viewModel.leftSeconds / 60)분" : "\(viewModel.leftSeconds % 60)초"
+        let breadCount = viewModel.isHour ? "두" : "한"
+        
+        
+        return VStack(spacing: 0) {
             Text("정말 종료 하시겠어요?")
                 .bbangFont(.title1)
                 .bbangColor(.primaryNormal)
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("\(1)분만 더 하면 빵 \(viewModel.isHour ? "두" : "한") 개를 얻을 수 있어요") // TODO: N분 수정
+            Text("\(leftTime)만 더 하면 빵 \(breadCount) 개를 얻을 수 있어요")
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
@@ -271,17 +287,22 @@ struct TimerView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
     
     var completeSheet: some View {
-        VStack(spacing: 0) {
+        let breadCount = viewModel.isHour ? "두" : "한"
+        let minute = viewModel.isHour ? "60" : "30"
+        
+        return VStack(spacing: 0) {
             Text("역시 사장님은 제빵왕!")
                 .bbangFont(.title1)
                 .bbangColor(.primaryNormal)
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("빵 \(viewModel.isHour ? "두" : "한") 개를 흭득했어요")
+            Text("빵 \(breadCount) 개를 흭득했어요")
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
@@ -295,7 +316,7 @@ struct TimerView: View {
             GeometryReader { geometry in
                 let width = geometry.size.width
                 HStack(spacing: 8) {
-                    Button("\(viewModel.isHour ? "60" : "30")분 더") {
+                    Button("\(minute)분 더") {
                         viewModel.timerControlButtonTapped()
                         viewModel.isCompleteSheetOn = false
                     }
@@ -322,6 +343,8 @@ struct TimerView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
 }
 
