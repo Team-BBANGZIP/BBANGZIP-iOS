@@ -15,27 +15,16 @@ struct TimerView: View {
             HStack {
                 Spacer()
                 
-                Text("\(viewModel.breadCount)")
-                    .bbangFont(.title3)
-                    .bbangColor(.primaryNormal)
-                    .monospacedDigit()
-                    .opacity(viewModel.breadCount == 0 ? 0 : 1)
+                breadCountChip
             }
             
             Spacer()
             
-            Text(viewModel.announceMessage)
-                .bbangFont(.title2)
-                .bbangColor(.labelAlternative)
+            announceText
             
-            Text(viewModel.leftTimeText)
-                .bbangFont(.timer)
-                .bbangColor(.primaryLight)
-                .monospacedDigit()
+            leftTimeView
             
-            ToggleButton(isToggleOn: $viewModel.isTimerHour)
-                .opacity(viewModel.state == .initial ? 1 : 0)
-                .disabled(viewModel.state != .initial)
+            timeToggleButton
             
             Spacer()
             
@@ -65,6 +54,45 @@ struct TimerView: View {
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
+    }
+    
+    var breadCountChip: some View {
+        HStack(spacing: 1) {
+            Image(.icBread)
+                .renderingMode(.template)
+                .foregroundStyle(Color.primaryLight)
+                .padding(.leading, 5)
+            
+            Text("\(viewModel.breadCount)")
+                .bbangFont(.title3)
+                .bbangColor(.primaryNormal)
+                .monospacedDigit()
+                .padding(.trailing, 10)
+        }
+        .overlay(Capsule()
+            .stroke(Color.secondaryStrong, lineWidth: 1)
+        )
+        .opacity(viewModel.breadCount == 0 ? 0 : 1)
+        .padding(.trailing, 20)
+    }
+    
+    var announceText: some View {
+        Text(viewModel.announceMessage)
+            .bbangFont(.title2)
+            .bbangColor(.labelAlternative)
+    }
+    
+    var leftTimeView: some View {
+        Text(viewModel.leftTimeText)
+            .bbangFont(.timer)
+            .bbangColor(.primaryLight)
+            .monospacedDigit()
+    }
+    
+    var timeToggleButton: some View {
+        ToggleButton(isToggleOn: $viewModel.isTimerHour)
+            .opacity(viewModel.state == .initial ? 1 : 0)
+            .disabled(viewModel.state != .initial)
     }
     
     var refreshButton: some View {
