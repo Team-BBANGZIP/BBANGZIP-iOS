@@ -20,9 +20,9 @@ final class TimerViewModel: ObservableObject {
     @Published var breadCount: Int = 1
     @Published var announceMessage: String = "오늘의 빵을 구워보세요!"
     @Published var leftTimeText: String = "30:00" // TODO: 초기값 직접 넣기 개선
-    @Published var leftTimePercentage: CGFloat = 1.0
+    @Published var progressPercentage: CGFloat = 0.01
     @Published var state: TimerState = .initial // TODO: State 기반으로 리팩토링 고려해보기
-    @Published var isTimerHour: Bool = false // TODO: 변수 이름 shit
+    @Published var isHour: Bool = false // TODO: 변수 이름 shit
     
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
@@ -42,7 +42,7 @@ final class TimerViewModel: ObservableObject {
     }
     
     private func bind() {
-        $isTimerHour
+        $isHour
             .sink { [weak self] isHour in
                 guard let self else { return }
                 timeCase = isHour ? .oneHour : .halfHour
@@ -72,12 +72,12 @@ final class TimerViewModel: ObservableObject {
 
     func resumeTimer() {
         state = .running
-        announceMessage = " "
         timerTask = Task {
             for await remainingSeconds in timerUseCase.timerStream(from: leftSeconds) {
                 leftSeconds = remainingSeconds
                 leftTimeText = formatTime(seconds: remainingSeconds)
-                leftTimePercentage = CGFloat(remainingSeconds) / CGFloat(timeCase.totalSeconds)
+                let progress = 1 - CGFloat(remainingSeconds) / CGFloat(timeCase.totalSeconds)
+                progressPercentage = progress <= 0.01 ? 0.01 : progress
             }
             if leftSeconds == 0 {
                 state = .done
@@ -112,7 +112,7 @@ final class TimerViewModel: ObservableObject {
         timerTask?.cancel()
         leftSeconds = timeCase.totalSeconds
         leftTimeText = formatTime(seconds: leftSeconds)
-        leftTimePercentage = 1.0
+        progressPercentage = 0.01
         resumeTimer()
     }
     
@@ -126,7 +126,7 @@ final class TimerViewModel: ObservableObject {
         timerTask?.cancel()
         leftSeconds = timeCase.totalSeconds
         leftTimeText = formatTime(seconds: leftSeconds)
-        leftTimePercentage = 1.0
+        progressPercentage = 0.01
         announceMessage = "오늘의 빵을 구워보세요!"
     }
 

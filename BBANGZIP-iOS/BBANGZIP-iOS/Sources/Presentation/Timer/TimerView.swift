@@ -17,14 +17,17 @@ struct TimerView: View {
                 
                 breadCountChip
             }
+            .padding(.top, 17)
             
             Spacer()
             
-            announceText
-            
-            leftTimeView
-            
-            timeToggleButton
+            VStack(spacing: 30) {
+                announceText
+                
+                leftTimeView
+                
+                timeToggleButton
+            }
             
             Spacer()
             
@@ -80,19 +83,48 @@ struct TimerView: View {
         Text(viewModel.announceMessage)
             .bbangFont(.title2)
             .bbangColor(.labelAlternative)
+            .opacity(viewModel.state == .running ? 0 : 1)
     }
     
     var leftTimeView: some View {
-        Text(viewModel.leftTimeText)
-            .bbangFont(.timer)
-            .bbangColor(.primaryLight)
-            .monospacedDigit()
+        GeometryReader { geometry in
+            let lineWidth = min(geometry.size.width, geometry.size.height) * 0.035
+            let textColor: BbangzipColor = viewModel.state == .running ? .primaryNormal : viewModel.state == .done ? .primaryStrong : .primaryLight
+            
+            ZStack {
+                Circle()
+                    .stroke(lineWidth: lineWidth)
+                    .foregroundStyle(Color.secondaryNormal)
+                
+                Circle()
+                    .trim(from: 0, to: viewModel.progressPercentage)
+                    .stroke(
+                        Color.primaryLight,
+                        style: StrokeStyle(
+                            lineWidth: lineWidth,
+                            lineCap: .round,
+                            lineJoin: .round
+                        )
+                    )
+                    .rotationEffect(.degrees(-90))
+                
+                Text(viewModel.leftTimeText)
+                    .bbangFont(.timer)
+                    .bbangColor(textColor)
+                    .monospacedDigit()
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .padding(.horizontal, 38)
+        .padding(.vertical, 6)
     }
-    
+
     var timeToggleButton: some View {
-        ToggleButton(isToggleOn: $viewModel.isTimerHour)
+        ToggleButton(isToggleOn: $viewModel.isHour)
             .opacity(viewModel.state == .initial ? 1 : 0)
             .disabled(viewModel.state != .initial)
+            .padding(.bottom, 7)
     }
     
     var refreshButton: some View {
@@ -204,7 +236,7 @@ struct TimerView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("\(1)분만 더 하면 빵 \(viewModel.isTimerHour ? "두" : "한") 개를 얻을 수 있어요") // TODO: N분 수정
+            Text("\(1)분만 더 하면 빵 \(viewModel.isHour ? "두" : "한") 개를 얻을 수 있어요") // TODO: N분 수정
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
@@ -249,7 +281,7 @@ struct TimerView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("빵 \(viewModel.isTimerHour ? "두" : "한") 개를 흭득했어요")
+            Text("빵 \(viewModel.isHour ? "두" : "한") 개를 흭득했어요")
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
@@ -263,7 +295,7 @@ struct TimerView: View {
             GeometryReader { geometry in
                 let width = geometry.size.width
                 HStack(spacing: 8) {
-                    Button("\(viewModel.isTimerHour ? "60" : "30")분 더") {
+                    Button("\(viewModel.isHour ? "60" : "30")분 더") {
                         viewModel.timerControlButtonTapped()
                         viewModel.isCompleteSheetOn = false
                     }
