@@ -11,14 +11,35 @@ struct TimerView: View {
     @ObservedObject var viewModel: TimerViewModel
     
     var body: some View {
-        VStack {
-            if viewModel.breadCount > 0 {
-                BbangText("\(viewModel.breadCount)", font: .title3)
-            }
-            BbangText(viewModel.announceMessage, font: .title3)
-            BbangText(viewModel.leftTimeText, font: .title2)
-            
+        VStack(spacing: 0) {
             HStack {
+                Spacer()
+                
+                Text("\(viewModel.breadCount)")
+                    .bbangFont(.title3)
+                    .bbangColor(.primaryNormal)
+                    .monospacedDigit()
+                    .opacity(viewModel.breadCount == 0 ? 0 : 1)
+            }
+            
+            Spacer()
+            
+            Text(viewModel.announceMessage)
+                .bbangFont(.title2)
+                .bbangColor(.labelAlternative)
+            
+            Text(viewModel.leftTimeText)
+                .bbangFont(.timer)
+                .bbangColor(.primaryLight)
+                .monospacedDigit()
+            
+            ToggleButton(isToggleOn: $viewModel.isTimerHour)
+                .opacity(viewModel.state == .initial ? 1 : 0)
+                .disabled(viewModel.state != .initial)
+            
+            Spacer()
+            
+            HStack(spacing: 16) {
                 if viewModel.state != .initial {
                     refreshButton
                 }
@@ -27,10 +48,7 @@ struct TimerView: View {
                     resetButton
                 }
             }
-            
-            if viewModel.state == .initial {
-                ToggleButton(isToggleOn: $viewModel.isTimerHour)
-            }
+            .padding(.bottom, 48)
         }
         .sheet(isPresented: $viewModel.isResetSheetOn) {
             resetSheet
@@ -53,10 +71,21 @@ struct TimerView: View {
         Button {
             viewModel.refreshButtonTapped()
         } label: {
-            Image(.icRefreshThin)
-                .opacity(viewModel.state == .done ? 0.5 : 1)
+            Image(.icRefreshThick)
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 26, height: 26)
+                .foregroundStyle(Color.primaryNormal)
+                .opacity(0.6)
         }
         .disabled(viewModel.state == .done)
+        .frame(width: 48, height: 48)
+        .clipShape(.circle)
+        .overlay(
+            Circle()
+                .stroke(Color.secondaryStrong, lineWidth: 1)
+        )
+        .opacity(viewModel.state == .done ? 0.5 : 1)
     }
     
     var refreshSheet: some View {
@@ -109,7 +138,17 @@ struct TimerView: View {
             viewModel.timerControlButtonTapped()
         } label: {
             Image(viewModel.state == .running ? .icPause : .icStart)
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 60, height: 60)
+                .foregroundStyle(viewModel.state == .running ? Color.primaryNormal : Color.secondaryNormal)
         }
+        .frame(width: 80, height: 80)
+        .clipShape(.circle)
+        .background(
+            Circle()
+                .fill(viewModel.state == .running ? Color.secondaryStrong : Color.primaryStrong)
+        )
     }
     
     var resetButton: some View {
@@ -117,7 +156,16 @@ struct TimerView: View {
             viewModel.resetButtonTapped()
         } label: {
             Image(.icStop)
+                .renderingMode(.template)
+                .foregroundStyle(Color.primaryNormal)
+                .opacity(0.6)
         }
+        .frame(width: 48, height: 48)
+        .clipShape(.circle)
+        .overlay(
+            Circle()
+                .stroke(Color.secondaryStrong, lineWidth: 1)
+        )
     }
     
     var resetSheet: some View  {

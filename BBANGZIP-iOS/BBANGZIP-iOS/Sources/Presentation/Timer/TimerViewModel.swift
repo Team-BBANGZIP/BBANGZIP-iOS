@@ -72,7 +72,7 @@ final class TimerViewModel: ObservableObject {
 
     func resumeTimer() {
         state = .running
-        announceMessage = ""
+        announceMessage = " "
         timerTask = Task {
             for await remainingSeconds in timerUseCase.timerStream(from: leftSeconds) {
                 leftSeconds = remainingSeconds
