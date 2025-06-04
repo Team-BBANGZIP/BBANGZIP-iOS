@@ -46,6 +46,7 @@ final class TimerViewModel: ObservableObject {
                 guard let self else { return }
                 leftSeconds = isHour ? 3600 : 1800
                 leftTimeText = formatTime(seconds: leftSeconds)
+                resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
             }
             .store(in: &cancellables)
     }
