@@ -80,7 +80,7 @@ struct TimerView: View {
     var announceText: some View {
         let opacity: Double = viewModel.state == .running ? 0 : 1
         
-        return Text(viewModel.announceMessage)
+        return Text(viewModel.announceText)
             .bbangFont(.title2)
             .bbangColor(.labelAlternative)
             .opacity(opacity)
@@ -174,7 +174,7 @@ struct TimerView: View {
                 .padding(.bottom, 42)
             HStack(spacing: 8) {
                 Button("돌아가기") {
-                    viewModel.isRefreshSheetOn = false
+                    viewModel.refreshSheetBackButtonTapped()
                 }
                 .buttonStyle(
                     BbangButtonStyle(
@@ -184,8 +184,7 @@ struct TimerView: View {
                 )
                 
                 Button("초기화 하기") {
-                    viewModel.refreshTimer()
-                    viewModel.isRefreshSheetOn = false
+                    viewModel.refreshSheetRefreshButtonTapped()
                 }
                 .buttonStyle(
                     BbangButtonStyle(
@@ -241,9 +240,7 @@ struct TimerView: View {
     }
     
     var resetSheet: some View  {
-        let leftTime = viewModel.leftSeconds / 60 > 0 ? "\(viewModel.leftSeconds / 60)분" : "\(viewModel.leftSeconds % 60)초"
         let breadCount = viewModel.isHour ? "두" : "한"
-        
         
         return VStack(spacing: 0) {
             Text("정말 종료 하시겠어요?")
@@ -252,7 +249,7 @@ struct TimerView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("\(leftTime)만 더 하면 빵 \(breadCount) 개를 얻을 수 있어요")
+            Text("\(viewModel.resetSheetLeftTimeText)만 더 하면 빵 \(breadCount) 개를 얻을 수 있어요")
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
@@ -264,7 +261,7 @@ struct TimerView: View {
                 .padding(.bottom, 42)
             HStack(spacing: 8) {
                 Button("돌아가기") {
-                    viewModel.isResetSheetOn = false
+                    viewModel.resetSheetBackButtonTapped()
                 }
                 .buttonStyle(
                     BbangButtonStyle(
@@ -274,8 +271,7 @@ struct TimerView: View {
                 )
                 
                 Button("종료 하기") {
-                    viewModel.resetTimer()
-                    viewModel.isResetSheetOn = false
+                    viewModel.resetSheetResetButtonTapped()
                 }
                 .buttonStyle(
                     BbangButtonStyle(
@@ -317,8 +313,7 @@ struct TimerView: View {
                 let width = geometry.size.width
                 HStack(spacing: 8) {
                     Button("\(minute)분 더") {
-                        viewModel.timerControlButtonTapped()
-                        viewModel.isCompleteSheetOn = false
+                        viewModel.completeSheetMoreButtonTapped()
                     }
                     .buttonStyle(
                         BbangButtonStyle(
@@ -329,7 +324,7 @@ struct TimerView: View {
                     .frame(width: width * 130 / 370)
                     
                     Button("완료한 일 체크") {
-                        // TODO: 완료한 일 체크 페이지로 이동
+                        viewModel.completeSheetCompleteButtonTapped()
                     }
                     .buttonStyle(
                         BbangButtonStyle(

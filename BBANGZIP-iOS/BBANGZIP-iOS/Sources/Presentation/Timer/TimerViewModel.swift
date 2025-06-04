@@ -8,22 +8,22 @@
 import SwiftUI
 import Combine
 
-enum TimerState {
-    case initial
-    case running
-    case paused
-    case done
-}
-
 @MainActor
 final class TimerViewModel: ObservableObject {
-    @Published var breadCount: Int = 1
-    @Published var announceMessage: String = "오늘의 빵을 구워보세요!"
-    @Published var leftTimeText: String = "30:00" // TODO: 초기값 직접 넣기 개선
+    enum TimerState {
+        case initial
+        case running
+        case paused
+        case done
+    }
+
+    @Published var breadCount: Int = 0
+    @Published var announceText: String = "오늘의 빵을 구워보세요!"
+    @Published var leftTimeText: String = "" // TODO: 초기값 어케함?
     @Published var progressPercentage: CGFloat = 0.01
-    @Published var state: TimerState = .initial // TODO: 전체 State 기반으로 리팩토링 고려해보기
+    @Published var state: TimerState = .initial
     @Published var isHour: Bool = false
-    @Published var leftSeconds: Int
+    @Published var resetSheetLeftTimeText: String = "" // TODO: 초기값 어케함?
     
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
@@ -31,14 +31,12 @@ final class TimerViewModel: ObservableObject {
     
     private let timerUseCase: TimerUseCase
     private var timerTask: Task<Void, Never>?
-    
-    private var timeCase: TimerCase = .halfHour
-    
     private var cancellables = Set<AnyCancellable>()
+    
+    private lazy var leftSeconds: Int = isHour ? 3600: 1800
     
     init(timerUseCase: TimerUseCase) {
         self.timerUseCase = timerUseCase
-        leftSeconds = timeCase.totalSeconds
         bind()
     }
     
@@ -46,13 +44,65 @@ final class TimerViewModel: ObservableObject {
         $isHour
             .sink { [weak self] isHour in
                 guard let self else { return }
-                timeCase = isHour ? .oneHour : .halfHour
-                leftSeconds = timeCase.totalSeconds
+                leftSeconds = isHour ? 3600 : 1800
                 leftTimeText = formatTime(seconds: leftSeconds)
             }
             .store(in: &cancellables)
     }
+
+    private func pauseTimer() {
+        state = .paused
+        announceText = "잠시 쉬는 중..."
+        timerUseCase.stop()
+        timerTask?.cancel()
+    }
+
+    private func resumeTimer() {
+        state = .running
+        timerTask = Task {
+            for await remainingSeconds in timerUseCase.timerStream(from: leftSeconds) {
+                leftSeconds = remainingSeconds
+                leftTimeText = formatTime(seconds: remainingSeconds)
+                let progress = 1 - CGFloat(remainingSeconds) / CGFloat(isHour ? 3600 : 1800)
+                progressPercentage = progress <= 0.01 ? 0.01 : progress
+                resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
+            }
+            if leftSeconds == 0 {
+                state = .done
+                announceText = "빵이 완성됐어요!"
+                isCompleteSheetOn = true // TODO: 바로 시트 띄우지 말고 서버 요청을 보내고 요청 성공 시에 시트 띄워야 함
+            }
+        }
+    }
     
+    private func refreshTimer() {
+        timerUseCase.stop()
+        timerTask?.cancel()
+        leftSeconds = isHour ? 3600 : 1800
+        leftTimeText = formatTime(seconds: leftSeconds)
+        progressPercentage = 0.01
+        resumeTimer()
+    }
+
+    private func resetTimer() {
+        state = .initial
+        timerUseCase.stop()
+        timerTask?.cancel()
+        leftSeconds = isHour ? 3600 : 1800
+        leftTimeText = formatTime(seconds: leftSeconds)
+        progressPercentage = 0.01
+        announceText = "오늘의 빵을 구워보세요!"
+    }
+
+    private func formatTime(seconds: Int) -> String {
+        let minutes = seconds / 60
+        let seconds = seconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - User Interaction
+extension TimerViewModel {
     func timerControlButtonTapped() {
         if state == .running {
             pauseTimer()
@@ -61,30 +111,6 @@ final class TimerViewModel: ObservableObject {
             resumeTimer()
         } else {
             resumeTimer()
-        }
-    }
-
-    func pauseTimer() {
-        state = .paused
-        announceMessage = "잠시 쉬는 중..."
-        timerUseCase.stop()
-        timerTask?.cancel()
-    }
-
-    func resumeTimer() {
-        state = .running
-        timerTask = Task {
-            for await remainingSeconds in timerUseCase.timerStream(from: leftSeconds) {
-                leftSeconds = remainingSeconds
-                leftTimeText = formatTime(seconds: remainingSeconds)
-                let progress = 1 - CGFloat(remainingSeconds) / CGFloat(timeCase.totalSeconds)
-                progressPercentage = progress <= 0.01 ? 0.01 : progress
-            }
-            if leftSeconds == 0 {
-                state = .done
-                announceMessage = "빵이 완성됐어요!"
-                isCompleteSheetOn = true
-            }
         }
     }
     
@@ -108,32 +134,30 @@ final class TimerViewModel: ObservableObject {
         }
     }
     
-    func refreshTimer() {
-        timerUseCase.stop()
-        timerTask?.cancel()
-        leftSeconds = timeCase.totalSeconds
-        leftTimeText = formatTime(seconds: leftSeconds)
-        progressPercentage = 0.01
-        resumeTimer()
+    func refreshSheetBackButtonTapped() {
+        isRefreshSheetOn = false
     }
     
-    func presentResetSheet() {
-        isResetSheetOn = true
+    func refreshSheetRefreshButtonTapped() {
+        refreshTimer()
+        isRefreshSheetOn = false
     }
-
-    func resetTimer() {
-        state = .initial
-        timerUseCase.stop()
-        timerTask?.cancel()
-        leftSeconds = timeCase.totalSeconds
-        leftTimeText = formatTime(seconds: leftSeconds)
-        progressPercentage = 0.01
-        announceMessage = "오늘의 빵을 구워보세요!"
+    
+    func resetSheetBackButtonTapped() {
+        isResetSheetOn = false
     }
-
-    func formatTime(seconds: Int) -> String {
-        let minutes = seconds / 60
-        let seconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+    
+    func resetSheetResetButtonTapped() {
+        resetTimer()
+        isResetSheetOn = false
+    }
+    
+    func completeSheetMoreButtonTapped() {
+        timerControlButtonTapped()
+        isCompleteSheetOn = false
+    }
+    
+    func completeSheetCompleteButtonTapped() {
+        // TODO: 페이지 이동 변수 컨트롤
     }
 }
