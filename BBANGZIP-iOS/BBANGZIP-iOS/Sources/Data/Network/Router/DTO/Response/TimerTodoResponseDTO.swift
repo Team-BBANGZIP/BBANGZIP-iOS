@@ -1,5 +1,5 @@
 //
-//  CategoryDTO.swift
+//  TimerTodoResponseDTO.swift
 //  BBANGZIP
 //
 //  Created by 송여경 on 5/29/25.
@@ -35,8 +35,8 @@ extension CategoryDTO {
 }
 
 extension TodoDTO {
-    func toEntity(with color: Color) -> Todo {
-        return Todo(
+    func toEntity(with color: Color) -> TimerTodo {
+        return TimerTodo(
             id: todoId,
             content: content,
             isCompleted: isCompleted,

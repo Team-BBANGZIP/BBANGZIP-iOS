@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct Category: Identifiable, Hashable {
+struct Category: Identifiable, Equatable {
     let id: Int
     let name: String
     let color: Color
-    let todos: [Todo]
+    let todos: [TimerTodo]
 }
