@@ -26,6 +26,9 @@ struct CheckedOffView: View {
             // TODO: 바텀시트 UI 구현 예정
         }
         .navigationBarHidden(true)
+        .onAppear {
+            viewModel.fetchData()
+        }
     }
 }
 
@@ -68,12 +71,12 @@ private extension CheckedOffView {
                         
                         ForEach(category.todos) { todo in
                             TaskBox(
-                                item: .constant(todo),
+                                item: todo,
                                 meatballTapped: {
                                     handleMeatballTapped(for: todo)
                                 },
                                 showSeperator: todo.id != category.todos.last?.id,
-                                onToggleCompleted: { _ in
+                                onToggleCompleted: {
                                     viewModel.toggleCompletion(for: category.id, todoId: todo.id)
                                 }
                             )
@@ -105,7 +108,7 @@ private extension CheckedOffView {
         .padding(.horizontal, 20)
     }
     
-    func handleMeatballTapped(for todo: Todo) {
+    func handleMeatballTapped(for todo: TimerTodo) {
         print("미트볼 버튼 눌림! - \(todo.content)")
         // TODO: 메뉴 또는 편집 기능 구현
     }
@@ -113,16 +116,34 @@ private extension CheckedOffView {
 
 struct CheckedOffView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockCategory = Category(
-            id: 1,
-            name: "제과제빵점",
-            color: Color(.todored1),
-            todos: [
-                Todo(id: 11, content: "Lo-Fi 회의", isCompleted: false, startTime: "23:00", color: Color(.todored1)),
-                Todo(id: 12, content: "기획서 작성", isCompleted: true, startTime: nil, color: Color(.todored1))
-            ]
-        )
+        let previewData = [
+            Category(
+                id: 1,
+                name: "오늘 할 일",
+                color: Color(.todored1),
+                todos: [
+                    TimerTodo(
+                        id: 101,
+                        content: "할 일 1",
+                        isCompleted: false,
+                        startTime: "09:00",
+                        color: Color(
+                            .todored1
+                        )
+                    ),
+                    TimerTodo(
+                        id: 102,
+                        content: "할 일 2",
+                        isCompleted: true,
+                        startTime: nil,
+                        color: Color(.todored1)
+                    )
+                ]
+            )
+        ]
         
-        CheckedOffView(viewModel: TimerCheckedOffViewModel(categories: [mockCategory]))
+        let previewViewModel = TimerCheckedOffViewModel(previewCategories: previewData)
+        
+        return CheckedOffView(viewModel: previewViewModel)
     }
 }

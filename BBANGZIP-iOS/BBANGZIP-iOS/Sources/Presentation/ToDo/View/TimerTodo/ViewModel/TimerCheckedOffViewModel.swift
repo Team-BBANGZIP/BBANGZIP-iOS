@@ -8,15 +8,27 @@ import SwiftUI
 
 @MainActor
 final class TimerCheckedOffViewModel: ObservableObject {
-    @Published private var categories: [Category] = []
+    @Published private(set) var categories: [Category] = []
     @Published var isSheetPresented: Bool = false
     
     private let repository: TodoRepository
     private let toggleUseCase: ToggleTodoCompletionUseCase
     
-    init(repository: TodoRepository, toggleUseCase: ToggleTodoCompletionUseCase) {
+    init(
+        repository: TodoRepository,
+        toggleUseCase: ToggleTodoCompletionUseCase
+    ) {
         self.repository = repository
         self.toggleUseCase = toggleUseCase
+    }
+    
+    /// 프리뷰/테스트용!!
+    convenience init(previewCategories: [Category]) {
+        self.init(
+            repository: MockTodoRepository(),
+            toggleUseCase: MockToggleUseCase()
+        )
+        self.categories = previewCategories
     }
     
     func fetchData() {
@@ -31,7 +43,10 @@ final class TimerCheckedOffViewModel: ObservableObject {
         }
     }
     
-    func toggleCompletion(for categoryId: Int, todoId: Int) {
+    func toggleCompletion(
+        for categoryId: Int,
+        todoId: Int
+    ) {
         guard let categoryIndex = categories.firstIndex(where: { $0.id == categoryId }),
               let todoIndex = categories[categoryIndex].todos.firstIndex(where: { $0.id == todoId }) else {
             return
@@ -56,7 +71,10 @@ final class TimerCheckedOffViewModel: ObservableObject {
         
         Task {
             do {
-                try await toggleUseCase.execute(todoId: todoId, isCompleted: updatedTodo.isCompleted)
+                try await toggleUseCase.execute(
+                    todoId: todoId,
+                    isCompleted: updatedTodo.isCompleted
+                )
             } catch {
                 print("상태 업데이트 실패: \(error)")
             }
