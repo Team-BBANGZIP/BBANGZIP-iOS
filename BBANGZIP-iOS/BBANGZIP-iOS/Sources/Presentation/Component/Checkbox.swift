@@ -8,15 +8,13 @@
 import SwiftUI
 
 struct Checkbox: View {
-    @Binding var isChecked: Bool
-    @Binding var color: Color
-
+    let isChecked: Bool
+    let color: Color
     var onToggle: (() -> Void)? = nil
     
     var body: some View {
         Button(action: {
             withAnimation(nil) {
-                isChecked.toggle()
                 onToggle?()
             }
         }) {

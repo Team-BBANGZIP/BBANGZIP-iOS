@@ -8,19 +8,23 @@
 import SwiftUI
 
 struct TaskBox: View {
-    @Binding var item: Todo
+    var item: TimerTodo
     var meatballTapped: () -> Void
     var showSeperator: Bool = true
-    var onToggleCompleted: ((Bool) -> Void)? = nil
+    var onToggleCompleted: (() -> Void)? = nil
     
     var body: some View {
         HStack(alignment: .center) {
-            Checkbox(isChecked: $item.isCompleted, color: $item.color) {
-                onToggleCompleted?(item.isCompleted)
-            }
+            Checkbox(
+                isChecked: item.isCompleted,
+                color: item.color,
+                onToggle: {
+                    onToggleCompleted?()
+                }
+            )
             
             VStack(spacing: 0) {
-                HStack (alignment: .center) {
+                HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(alignment: .center) {
                             Text(item.content)
@@ -65,11 +69,12 @@ struct TaskBox: View {
     }
 }
 
+
 ///사용법 예시
 //struct TaskBoxPreviewWrapper: View {
 //    @State var item: TodoItem
 //    var showSeperator: Bool = true
-//    
+//
 //    var body: some View {
 //        TaskBox(
 //            item: $item,
@@ -93,14 +98,14 @@ struct TaskBox: View {
 //                isCompleted: true,
 //                startTime: "10:00"
 //            ), showSeperator: true)
-//            
+//
 //            TaskBoxPreviewWrapper(item: TodoItem(
 //                todoId: 2,
 //                content: "기획안 작성 및 팀 노션 업데이트",
 //                isCompleted: false,
 //                startTime: "14:30"
 //            ))
-//            
+//
 //            TaskBoxPreviewWrapper(item: TodoItem(
 //                todoId: 3,
 //                content: "LLM 기반 챗봇 아키텍처 정리",
