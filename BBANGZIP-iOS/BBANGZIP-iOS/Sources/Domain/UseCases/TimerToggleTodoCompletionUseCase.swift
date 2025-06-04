@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Foundation
-
 protocol ToggleTodoCompletionUseCase {
     func execute(
         todoId: Int,
@@ -23,7 +21,10 @@ final class TimerToggleTodoCompletionUseCase: ToggleTodoCompletionUseCase {
         self.todoRepository = todoRepository
     }
 
-    func execute(todoId: Int, isCompleted: Bool) async throws {
+    func execute(
+        todoId: Int,
+        isCompleted: Bool
+    ) async throws {
         try await todoRepository.updateTodoCompletion(
             todoId: todoId,
             isCompleted: isCompleted
