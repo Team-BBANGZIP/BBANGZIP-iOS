@@ -9,15 +9,20 @@ public struct ContentView: View {
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
-
+    
     public var body: some View {
         TabView {
-            Text("빵굽기")
-                .tabItem {
-                    Image(.icTimer)
-                        .renderingMode(.template)
-                    Text("빵굽기")
-                }
+            CheckedOffView(
+                viewModel: TimerCheckedOffViewModel(
+                    repository: MockTodoRepository(),
+                    toggleUseCase: MockToggleUseCase()
+                )
+            )
+            .tabItem {
+                Image(.icTimer)
+                    .renderingMode(.template)
+                Text("빵굽기")
+            }
             Text("할 일")
                 .tabItem {
                     Image(.icBook)
