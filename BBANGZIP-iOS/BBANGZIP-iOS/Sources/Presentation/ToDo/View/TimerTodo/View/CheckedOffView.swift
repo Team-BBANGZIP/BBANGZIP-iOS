@@ -63,7 +63,7 @@ private extension CheckedOffView {
                 ForEach(viewModel.categories) { category in
                     VStack(alignment: .leading, spacing: 0) {
                         CategoryButton(
-                            color: .constant(category.color),
+                            color: .constant(category.colorType.color),
                             labelText: .constant(category.name),
                             isSheetPresented: $viewModel.isSheetPresented
                         )
@@ -96,14 +96,24 @@ private extension CheckedOffView {
                 print("30분 뒤 버튼 눌림!")
                 // TODO: 연장 기능 구현
             }
-            .buttonStyle(BbangButtonStyle(style: .secondary, rightIcon: Image(.icPlusThick)))
+            .buttonStyle(
+                BbangButtonStyle(
+                    style: .secondary,
+                    rightIcon: Image(.icPlusThick)
+                )
+            )
             .frame(width: 140)
             
             Button("종료하기") {
                 print("종료하기 버튼 눌림!!")
                 // TODO: 종료 로직 구현
             }
-            .buttonStyle(BbangButtonStyle(style: .primary, rightIcon: Image(.icQuit)))
+            .buttonStyle(
+                BbangButtonStyle(
+                    style: .primary,
+                    rightIcon: Image(.icQuit)
+                )
+            )
         }
         .padding(.horizontal, 20)
     }
@@ -120,23 +130,21 @@ struct CheckedOffView_Previews: PreviewProvider {
             Category(
                 id: 1,
                 name: "오늘 할 일",
-                color: Color(.todored1),
+                colorType: .Todored1,
                 todos: [
                     TimerTodo(
                         id: 101,
                         content: "할 일 1",
                         isCompleted: false,
                         startTime: "09:00",
-                        color: Color(
-                            .todored1
-                        )
+                        colorType: .Todored1
                     ),
                     TimerTodo(
                         id: 102,
                         content: "할 일 2",
                         isCompleted: true,
                         startTime: nil,
-                        color: Color(.todored1)
+                        colorType: .Todored1
                     )
                 ]
             )

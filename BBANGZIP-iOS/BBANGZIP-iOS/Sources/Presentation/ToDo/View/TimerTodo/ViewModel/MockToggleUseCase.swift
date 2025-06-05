@@ -8,11 +8,12 @@
 import Foundation
 
 struct MockToggleUseCase: ToggleTodoCompletionUseCase {
+    private let logger = LoggerFactory.create(category: .domain)
+    
     func execute(
         todoId: Int,
         isCompleted: Bool
     ) async throws {
-        print("✅ MockToggleUseCase executed: todoId=\(todoId), completed=\(isCompleted)")
+        logger.debug("✅ MockToggleUseCase 실행됨: todoId=\(todoId), isCompleted=\(isCompleted)")
     }
 }
-

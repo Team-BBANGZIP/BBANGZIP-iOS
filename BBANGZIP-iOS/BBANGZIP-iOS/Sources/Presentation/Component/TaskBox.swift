@@ -17,7 +17,7 @@ struct TaskBox: View {
         HStack(alignment: .center) {
             Checkbox(
                 isChecked: item.isCompleted,
-                color: item.color,
+                color: item.colorType.color,
                 onToggle: {
                     onToggleCompleted?()
                 }
