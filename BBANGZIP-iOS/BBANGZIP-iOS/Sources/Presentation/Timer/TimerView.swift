@@ -61,7 +61,7 @@ struct TimerView: View {
         return HStack(spacing: 1) {
             Image(.icBread)
                 .renderingMode(.template)
-                .foregroundStyle(Color.primaryLight)
+                .foregroundStyle(Color(.primaryLight))
                 .padding(.leading, 5)
             
             Text("\(viewModel.breadCount)")
@@ -71,7 +71,7 @@ struct TimerView: View {
                 .padding(.trailing, 10)
         }
         .overlay(Capsule()
-            .stroke(Color.secondaryStrong, lineWidth: 1)
+            .stroke(Color(.secondaryStrong), lineWidth: 1)
         )
         .opacity(opacity)
         .padding(.trailing, 20)
@@ -94,12 +94,12 @@ struct TimerView: View {
             ZStack {
                 Circle()
                     .stroke(lineWidth: lineWidth)
-                    .foregroundStyle(Color.secondaryNormal)
+                    .foregroundStyle(Color(.secondaryNormal))
                 
                 Circle()
                     .trim(from: 0, to: viewModel.progressPercentage)
                     .stroke(
-                        Color.primaryLight,
+                        Color(.primaryLight),
                         style: StrokeStyle(
                             lineWidth: lineWidth,
                             lineCap: .round,
@@ -141,7 +141,7 @@ struct TimerView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 26, height: 26)
-                .foregroundStyle(Color.primaryNormal)
+                .foregroundStyle(Color(.primaryNormal))
                 .opacity(0.6)
         }
         .disabled(disabled)
@@ -149,7 +149,7 @@ struct TimerView: View {
         .clipShape(.circle)
         .overlay(
             Circle()
-                .stroke(Color.secondaryStrong, lineWidth: 1)
+                .stroke(Color(.secondaryStrong), lineWidth: 1)
         )
         .opacity(opacity)
     }
@@ -202,8 +202,8 @@ struct TimerView: View {
     
     var timerControlButton: some View {
         let image: ImageResource = viewModel.state == .running ? .icPause : .icStart
-        let imageColor: Color = viewModel.state == .running ? Color.primaryNormal : Color.secondaryNormal
-        let backgroundColor: Color = viewModel.state == .running ? Color.secondaryStrong : Color.primaryStrong
+        let imageColor: Color = viewModel.state == .running ? Color(.primaryNormal) : Color(.secondaryNormal)
+        let backgroundColor: Color = viewModel.state == .running ? Color(.secondaryStrong) : Color(.primaryStrong)
         
         return Button {
             viewModel.timerControlButtonTapped()
@@ -228,14 +228,14 @@ struct TimerView: View {
         } label: {
             Image(.icStop)
                 .renderingMode(.template)
-                .foregroundStyle(Color.primaryNormal)
+                .foregroundStyle(Color(.primaryNormal))
                 .opacity(0.6)
         }
         .frame(width: 48, height: 48)
         .clipShape(.circle)
         .overlay(
             Circle()
-                .stroke(Color.secondaryStrong, lineWidth: 1)
+                .stroke(Color(.secondaryStrong), lineWidth: 1)
         )
     }
     
