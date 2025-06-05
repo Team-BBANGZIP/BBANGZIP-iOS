@@ -5,7 +5,7 @@
 //  Created by 송여경 on 5/29/25.
 //
 
-import SwiftUI
+import Foundation
 
 struct CategoryDTO: Decodable {
     let categoryId: Int
@@ -23,25 +23,25 @@ struct TodoDTO: Decodable {
 
 extension CategoryDTO {
     func toEntity() -> Category {
-        let mappedColor = Color(categoryColor ?? "gray")
+        let mappedColor = CategoryColor(rawValue: categoryColor ?? "Todored1") ?? .Todored1
         
         return Category(
             id: categoryId,
             name: categoryName,
-            color: mappedColor,
+            colorType: mappedColor,
             todos: todos.map { $0.toEntity(with: mappedColor) }
         )
     }
 }
 
 extension TodoDTO {
-    func toEntity(with color: Color) -> TimerTodo {
+    func toEntity(with colorType: CategoryColor) -> TimerTodo {
         return TimerTodo(
             id: todoId,
             content: content,
             isCompleted: isCompleted,
             startTime: startTime,
-            color: color
+            colorType: colorType
         )
     }
 }

@@ -5,14 +5,14 @@
 //  Created by 송여경 on 5/29/25.
 //
 
-import SwiftUI
+import Foundation
 
 struct TimerTodo: Identifiable, Equatable {
     let id: Int
     let content: String
     let isCompleted: Bool
     let startTime: String?
-    let color: Color
+    let colorType: CategoryColor
     
     func toggledCompleted() -> TimerTodo {
         return TimerTodo(
@@ -20,7 +20,7 @@ struct TimerTodo: Identifiable, Equatable {
             content: content,
             isCompleted: !isCompleted,
             startTime: startTime,
-            color: color
+            colorType: colorType
         )
     }
     
@@ -30,7 +30,7 @@ struct TimerTodo: Identifiable, Equatable {
             content: content,
             isCompleted: completed,
             startTime: startTime,
-            color: color
+            colorType: colorType
         )
     }
 }

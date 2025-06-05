@@ -8,14 +8,14 @@
 import Foundation
 
 enum CategoryColor: String, Codable, CaseIterable {
-    case red1
-    case yellow1
-    case green1
-    case blue1
-    case purple1
-    case red2
-    case yellow2
-    case green2
-    case blue2
-    case purple2
+    case Todored1
+    case Todoyellow1
+    case Todogreen1
+    case Todoblue1
+    case Todopurple1
+    case Todored2
+    case Todoyellow2
+    case Todogreen2
+    case Todoblue2
+    case Todopurple2
 }
