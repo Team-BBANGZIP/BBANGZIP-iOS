@@ -7,41 +7,6 @@
 
 import SwiftUI
 
-extension Color { // TODO: 밑에 Modifier와 함께 개선
-    static let accentColor = BBANGZIPAsset.Assets.accentColor.swiftUIColor
-    static let backgroundAlternative = BBANGZIPAsset.Assets.backgroundAlternative.swiftUIColor
-    static let backgroundDimmer = BBANGZIPAsset.Assets.backgroundDimmer.swiftUIColor
-    static let backgroundNomal = BBANGZIPAsset.Assets.backgroundNomal.swiftUIColor
-    static let backgroundStrong = BBANGZIPAsset.Assets.backgroundStrong.swiftUIColor
-    static let backgroundgray = BBANGZIPAsset.Assets.backgroundgray.swiftUIColor
-    static let componentAlternative = BBANGZIPAsset.Assets.componentAlternative.swiftUIColor
-    static let componentStrong = BBANGZIPAsset.Assets.componentStrong.swiftUIColor
-    static let labelAlternative = BBANGZIPAsset.Assets.labelAlternative.swiftUIColor
-    static let labelAssistive = BBANGZIPAsset.Assets.labelAssistive.swiftUIColor
-    static let labelDisable = BBANGZIPAsset.Assets.labelDisable.swiftUIColor
-    static let labelNeutral = BBANGZIPAsset.Assets.labelNeutral.swiftUIColor
-    static let labelNomal = BBANGZIPAsset.Assets.labelNomal.swiftUIColor
-    static let labelStrong = BBANGZIPAsset.Assets.labelStrong.swiftUIColor
-    static let primaryLight = BBANGZIPAsset.Assets.primaryLight.swiftUIColor
-    static let primaryNormal = BBANGZIPAsset.Assets.primaryNormal.swiftUIColor
-    static let primaryStrong = BBANGZIPAsset.Assets.primaryStrong.swiftUIColor
-    static let secondaryLight = BBANGZIPAsset.Assets.secondaryLight.swiftUIColor
-    static let secondaryNormal = BBANGZIPAsset.Assets.secondaryNormal.swiftUIColor
-    static let secondaryStrong = BBANGZIPAsset.Assets.secondaryStrong.swiftUIColor
-    static let staticblack = BBANGZIPAsset.Assets.staticblack.swiftUIColor
-    static let staticwhite = BBANGZIPAsset.Assets.staticwhite.swiftUIColor
-    static let todoblue1 = BBANGZIPAsset.Assets.todoblue1.swiftUIColor
-    static let todoblue2 = BBANGZIPAsset.Assets.todoblue2.swiftUIColor
-    static let todogreen1 = BBANGZIPAsset.Assets.todogreen1.swiftUIColor
-    static let todogreen2 = BBANGZIPAsset.Assets.todogreen2.swiftUIColor
-    static let todopurple2 = BBANGZIPAsset.Assets.todopurple2.swiftUIColor
-    static let todopurple1 = BBANGZIPAsset.Assets.todopurple1.swiftUIColor
-    static let todored1 = BBANGZIPAsset.Assets.todored1.swiftUIColor
-    static let todored2 = BBANGZIPAsset.Assets.todored2.swiftUIColor
-    static let todoyellow1 = BBANGZIPAsset.Assets.todoyellow1.swiftUIColor
-    static let todoyellow2 = BBANGZIPAsset.Assets.todoyellow2.swiftUIColor
-}
-
 enum BbangzipColor {
     case accentColor
     case backgroundAlternative
