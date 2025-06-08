@@ -12,11 +12,9 @@ enum TimerCase {
     var totalSeconds: Int {
         switch self {
         case .halfHour:
-//            return 30 * 60
-            return 4
+            return 30 * 60
         case .oneHour:
-//            return 60 * 60
-            return 6
+            return 60 * 60
         }
     }
 }
