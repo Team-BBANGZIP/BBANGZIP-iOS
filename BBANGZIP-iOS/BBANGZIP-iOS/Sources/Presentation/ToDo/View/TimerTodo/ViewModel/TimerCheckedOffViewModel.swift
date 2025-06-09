@@ -12,18 +12,21 @@ final class TimerCheckedOffViewModel: ObservableObject {
     @Published private(set) var categories: [Category] = []
     @Published var isSheetPresented: Bool = false
     
-    private let Todorepository: TodoRepository
+    private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     
-    init(repository: TodoRepository, toggleUseCase: ToggleTodoCompletionUseCase) {
-        self.Todorepository = repository
+    init(
+        fetchUseCase: FetchTimerTodosUseCase,
+        toggleUseCase: ToggleTodoCompletionUseCase
+    ) {
+        self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
     }
     
     func fetchData() {
         Task {
             do {
-                self.categories = try await Todorepository.fetchTimerTodos()
+                self.categories = try await fetchUseCase.execute()
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }
