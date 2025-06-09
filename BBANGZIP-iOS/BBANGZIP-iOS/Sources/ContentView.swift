@@ -11,8 +11,7 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        
-        return TabView {
+        TabView {
             Text("빵 굽기")
                 .tabItem {
                     Image(.icTimer)

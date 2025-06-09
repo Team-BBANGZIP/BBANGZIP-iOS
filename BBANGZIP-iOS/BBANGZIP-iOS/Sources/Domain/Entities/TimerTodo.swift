@@ -15,7 +15,7 @@ struct TimerTodo: Identifiable, Equatable {
     let colorType: CategoryColor
     
     func toggledCompleted() -> TimerTodo {
-        return TimerTodo(
+        TimerTodo(
             id: id,
             content: content,
             isCompleted: !isCompleted,
@@ -25,7 +25,7 @@ struct TimerTodo: Identifiable, Equatable {
     }
     
     func withUpdatedCompletion(_ completed: Bool) -> TimerTodo {
-        return TimerTodo(
+        TimerTodo(
             id: id,
             content: content,
             isCompleted: completed,
