@@ -14,7 +14,7 @@ struct TaskBox: View {
     
     var body: some View {
         HStack(alignment: .center) {
-            Checkbox(
+            CheckBox(
                 isChecked: viewModel.todo.isCompleted,
                 color: viewModel.todo.colorType.color,
                 onToggle: {

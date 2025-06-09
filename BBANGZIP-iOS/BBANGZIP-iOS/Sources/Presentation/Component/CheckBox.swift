@@ -1,5 +1,5 @@
 //
-//  Checkbox.swift
+//  CheckBox.swift
 //  BBANGZIP
 //
 //  Created by 김송희 on 5/13/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Checkbox: View {
+struct CheckBox: View {
     let isChecked: Bool
     let color: Color
     var onToggle: (() -> Void)? = nil
