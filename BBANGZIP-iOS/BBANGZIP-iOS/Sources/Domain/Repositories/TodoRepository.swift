@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol TodoRepository {
+protocol TodoRepository: Sendable {
     func fetchTimerTodos() async throws -> [Category]
     func updateTodoCompletion(
         todoId: Int,

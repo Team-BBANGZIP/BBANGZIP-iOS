@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ToggleTodoCompletionUseCase {
+protocol ToggleTodoCompletionUseCase: Sendable {
     func execute(
         todoId: Int,
         isCompleted: Bool

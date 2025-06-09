@@ -33,6 +33,7 @@ struct CheckedOffView: View {
 }
 
 private extension CheckedOffView {
+    
     var navBar: some View {
         HStack {
             Button(action: {
@@ -61,28 +62,7 @@ private extension CheckedOffView {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 ForEach(viewModel.categories) { category in
-                    VStack(alignment: .leading, spacing: 0) {
-                        CategoryButton(
-                            color: .constant(category.colorType.color),
-                            labelText: .constant(category.name),
-                            isSheetPresented: $viewModel.isSheetPresented
-                        )
-                        .padding(.leading, 20)
-                        
-                        ForEach(category.todos) { todo in
-                            TaskBox(
-                                item: todo,
-                                meatballTapped: {
-                                    handleMeatballTapped(for: todo)
-                                },
-                                showSeperator: todo.id != category.todos.last?.id,
-                                onToggleCompleted: {
-                                    viewModel.toggleCompletion(for: category.id, todoId: todo.id)
-                                }
-                            )
-                            .padding(.horizontal, 20)
-                        }
-                    }
+                    categorySection(for: category)
                 }
                 Spacer(minLength: 50)
             }
@@ -118,6 +98,41 @@ private extension CheckedOffView {
         .padding(.horizontal, 20)
     }
     
+    func categorySection(for category: Category) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            CategoryButton(
+                color: .constant(category.colorType.color),
+                labelText: .constant(category.name),
+                isSheetPresented: $viewModel.isSheetPresented
+            )
+            .padding(.leading, 20)
+            
+            ForEach(category.todos) { todo in
+                let isLast = todo.id == category.todos.last?.id
+                todoRow(
+                    for: todo,
+                    showSeperator: !isLast
+                )
+            }
+        }
+    }
+    
+    func todoRow(
+        for todo: TimerTodo,
+        showSeperator: Bool
+    ) -> some View {
+        let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
+        
+        return TaskBox(
+            viewModel: todoViewModel,
+            meatballTapped: {
+                handleMeatballTapped(for: todo)
+            },
+            showSeperator: showSeperator
+        )
+        .padding(.horizontal, 20)
+    }
+    
     func handleMeatballTapped(for todo: TimerTodo) {
         print("미트볼 버튼 눌림! - \(todo.content)")
         // TODO: 메뉴 또는 편집 기능 구현
@@ -126,32 +141,40 @@ private extension CheckedOffView {
 
 struct CheckedOffView_Previews: PreviewProvider {
     static var previews: some View {
-        let previewData = [
-            Category(
-                id: 1,
-                name: "오늘 할 일",
-                colorType: .Todored1,
-                todos: [
-                    TimerTodo(
-                        id: 101,
-                        content: "할 일 1",
-                        isCompleted: false,
-                        startTime: "09:00",
-                        colorType: .Todored1
-                    ),
-                    TimerTodo(
-                        id: 102,
-                        content: "할 일 2",
-                        isCompleted: true,
-                        startTime: nil,
-                        colorType: .Todored1
-                    )
-                ]
-            )
-        ]
-        
-        let previewViewModel = TimerCheckedOffViewModel(previewCategories: previewData)
+        let mockRepo = MockTodoRepository()
+        let mockUseCase = MockToggleUseCase()
+        let previewViewModel = TimerCheckedOffViewModel(
+            repository: mockRepo,
+            toggleUseCase: mockUseCase
+        )
         
         return CheckedOffView(viewModel: previewViewModel)
+    }
+}
+
+extension CategoryColor {
+    var color: Color {
+        switch self {
+        case .Todored1:
+            return Color(.todored1)
+        case .Todoyellow1:
+            return Color(.todoyellow1)
+        case .Todogreen1:
+            return Color(.todogreen1)
+        case .Todoblue1:
+            return Color(.todoblue1)
+        case .Todopurple1:
+            return Color(.todopurple1)
+        case .Todored2:
+            return Color(.todored2)
+        case .Todoyellow2:
+            return Color(.todoyellow2)
+        case .Todogreen2:
+            return Color(.todogreen2)
+        case .Todoblue2:
+            return Color(.todoblue2)
+        case .Todopurple2:
+            return Color(.todopurple2)
+        }
     }
 }
