@@ -12,7 +12,7 @@ public struct ContentView: View {
 
     public var body: some View {
         TabView {
-            Text("빵굽기")
+            TestTimerView()
                 .tabItem {
                     Image(.icTimer)
                         .renderingMode(.template)
