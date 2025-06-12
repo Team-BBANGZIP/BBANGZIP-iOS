@@ -22,8 +22,16 @@ struct CheckedOffView: View {
             bottomButtons
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
-            Text("카테고리 추가 시트")
-            // TODO: 바텀시트 UI 구현 예정
+            if #available(iOS 16.4, *) {
+                TaskAddView()
+                    .presentationDetents([.height(213)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+            } else {
+                TaskAddView()
+                    .presentationDetents([.height(213)])
+                    .presentationDragIndicator(.hidden)
+            }
         }
         .navigationBarHidden(true)
         .onAppear {
