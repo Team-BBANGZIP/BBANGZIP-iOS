@@ -11,6 +11,7 @@ import Foundation
 final class TimerCheckedOffViewModel: ObservableObject {
     @Published private(set) var categories: [Category] = []
     @Published var isSheetPresented: Bool = false
+    @Published var selectedCategoryIndex: Int?
     
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
@@ -38,5 +39,22 @@ final class TimerCheckedOffViewModel: ObservableObject {
             todo: todo,
             toggleUseCase: toggleUseCase
         )
+    }
+    
+    func addTodo(content: String, to index: Int) {
+        print("📌 selectedCategoryIndex = \(String(describing: index))")
+        guard categories.indices.contains(index) else { return }
+        
+        let newTodo = TimerTodo(
+            id: UUID().hashValue,
+            content: content,
+            isCompleted: false,
+            startTime: "00:00",
+            colorType: categories[index].colorType
+        )
+        
+        var updatedCategory = categories[index]
+        updatedCategory.todos.append(newTodo)
+        categories[index] = updatedCategory
     }
 }

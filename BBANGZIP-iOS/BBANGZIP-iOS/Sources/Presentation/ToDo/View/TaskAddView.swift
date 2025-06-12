@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct TaskAddView: View {
-    @State private var taskText = ""
+    @ObservedObject var viewModel: TaskAddViewModel
+    @Binding var isPresented: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -17,9 +18,12 @@ struct TaskAddView: View {
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 25)
             
-            TaskInputField(text: $taskText)
-                .padding(.top, 31)
-                .padding(.bottom, 16)
+            TaskInputField(text: $viewModel.newTaskText) {
+                viewModel.submitTask()
+                isPresented = false
+            }
+            .padding(.top, 31)
+            .padding(.bottom, 16)
             
             Rectangle()
                 .frame(height: 1)
@@ -56,8 +60,4 @@ struct TaskAddView: View {
                 .frame(width: 20, height: 20)
         }
     }
-}
-
-#Preview {
-    TaskAddView()
 }

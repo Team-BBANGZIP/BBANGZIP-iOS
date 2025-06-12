@@ -22,15 +22,26 @@ struct CheckedOffView: View {
             bottomButtons
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
+            let addViewModel = TaskAddViewModel { content in
+                guard let selectedIndex = viewModel.selectedCategoryIndex else { return }
+                viewModel.addTodo(content: content, to: selectedIndex)
+            }
+            
             if #available(iOS 16.4, *) {
-                TaskAddView()
-                    .presentationDetents([.height(213)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
             } else {
-                TaskAddView()
-                    .presentationDetents([.height(213)])
-                    .presentationDragIndicator(.hidden)
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationDragIndicator(.hidden)
             }
         }
         .navigationBarHidden(true)
@@ -69,8 +80,14 @@ private extension CheckedOffView {
     var scrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                ForEach(viewModel.categories) { category in
-                    categorySection(for: category)
+                ForEach(
+                    Array(viewModel.categories.enumerated()),
+                    id: \.element.id
+                ) { index, category in
+                    categorySection(
+                        for: category,
+                        at: index
+                    )
                 }
                 Spacer(minLength: 50)
             }
@@ -106,13 +123,20 @@ private extension CheckedOffView {
         .padding(.horizontal, 20)
     }
     
-    func categorySection(for category: Category) -> some View {
+    func categorySection(
+        for category: Category,
+        at index: Int
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             CategoryButton(
                 color: .constant(category.colorType.color),
                 labelText: .constant(category.name),
                 isSheetPresented: $viewModel.isSheetPresented
             )
+            .onTapGesture {
+                viewModel.selectedCategoryIndex = index
+                viewModel.isSheetPresented = true
+            }
             .padding(.leading, 20)
             
             ForEach(category.todos) { todo in

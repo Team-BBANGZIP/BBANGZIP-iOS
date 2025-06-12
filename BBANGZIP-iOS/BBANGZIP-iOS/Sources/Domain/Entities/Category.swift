@@ -11,5 +11,5 @@ struct Category: Identifiable, Equatable {
     let id: Int
     let name: String
     let colorType: CategoryColor
-    let todos: [TimerTodo]
+    var todos: [TimerTodo]
 }
