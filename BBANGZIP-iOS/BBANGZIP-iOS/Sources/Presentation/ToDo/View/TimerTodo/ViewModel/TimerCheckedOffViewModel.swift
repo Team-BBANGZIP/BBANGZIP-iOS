@@ -15,13 +15,16 @@ final class TimerCheckedOffViewModel: ObservableObject {
     
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
+    private let addUseCase: AddTodoUseCase
     
     init(
         fetchUseCase: FetchTimerTodosUseCase,
-        toggleUseCase: ToggleTodoCompletionUseCase
+        toggleUseCase: ToggleTodoCompletionUseCase,
+        addUseCase: AddTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
+        self.addUseCase = addUseCase
     }
     
     func fetchData() {
@@ -42,19 +45,19 @@ final class TimerCheckedOffViewModel: ObservableObject {
     }
     
     func addTodo(content: String) {
-        let selectedIndex = selectedCategoryIndex ?? 0
-        
-        // TODO: 시간 설정
-        let newTodo = TimerTodo(
-            id: UUID().hashValue,
-            content: content,
-            isCompleted: false,
-            startTime: "00:00",
-            colorType: categories[selectedIndex].colorType
-        )
-        
-        var updatedCategory = categories[selectedIndex]
-        updatedCategory.todos.append(newTodo)
-        categories[selectedIndex] = updatedCategory
+        guard let index = selectedCategoryIndex else { return }
+
+        let localAddUseCase = addUseCase
+        Task {
+            do {
+                try await localAddUseCase.execute(
+                    categoryIndex: index,
+                    content: content
+                )
+                fetchData()
+            } catch {
+                print("❌ 할 일 추가 실패: \(error)")
+            }
+        }
     }
 }

@@ -177,9 +177,10 @@ struct CheckedOffView_Previews: PreviewProvider {
         
         let previewViewModel = TimerCheckedOffViewModel(
             fetchUseCase: fetchUseCase,
-            toggleUseCase: toggleUseCase
+            toggleUseCase: toggleUseCase,
+            addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
-        
+
         return CheckedOffView(viewModel: previewViewModel)
     }
 }

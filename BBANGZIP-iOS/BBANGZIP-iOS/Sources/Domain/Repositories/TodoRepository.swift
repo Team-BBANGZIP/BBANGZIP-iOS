@@ -14,4 +14,9 @@ protocol TodoRepository: Sendable {
         todoId: Int,
         isCompleted: Bool
     ) async throws
+    
+    func addTodo(
+        categoryIndex: Int,
+        content: String
+    ) async throws
 }
