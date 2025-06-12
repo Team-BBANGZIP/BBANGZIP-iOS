@@ -129,8 +129,7 @@ private extension CheckedOffView {
         VStack(alignment: .leading, spacing: 0) {
             CategoryButton(
                 color: .constant(category.colorType.color),
-                labelText: .constant(category.name),
-                isSheetPresented: $viewModel.isSheetPresented
+                labelText: .constant(category.name)
             )
             .onTapGesture {
                 viewModel.selectedCategoryIndex = index

@@ -42,9 +42,9 @@ final class TimerCheckedOffViewModel: ObservableObject {
     }
     
     func addTodo(content: String) {
-        // TODO: selectedCategoryIndex에 따라 투두가 추가되도록
         let selectedIndex = selectedCategoryIndex ?? 0
         
+        // TODO: 시간 설정
         let newTodo = TimerTodo(
             id: UUID().hashValue,
             content: content,
@@ -53,7 +53,6 @@ final class TimerCheckedOffViewModel: ObservableObject {
             colorType: categories[selectedIndex].colorType
         )
         
-        // TODO: 임시 카테고리 번호 0으로 설정
         var updatedCategory = categories[selectedIndex]
         updatedCategory.todos.append(newTodo)
         categories[selectedIndex] = updatedCategory
