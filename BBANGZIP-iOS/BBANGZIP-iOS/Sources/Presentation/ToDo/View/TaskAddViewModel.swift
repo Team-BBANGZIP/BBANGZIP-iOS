@@ -16,9 +16,7 @@ final class TaskAddViewModel: ObservableObject {
         self.onAddTask = onAddTask
     }
 
-    func submitTask() {
-        print("✅ submitTask() called with: \(newTaskText)")
-        
+    func submitTask() {        
         let trimmed = newTaskText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         onAddTask(trimmed)

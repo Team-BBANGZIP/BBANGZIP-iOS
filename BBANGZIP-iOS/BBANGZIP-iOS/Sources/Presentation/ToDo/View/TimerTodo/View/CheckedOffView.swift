@@ -23,8 +23,7 @@ struct CheckedOffView: View {
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
             let addViewModel = TaskAddViewModel { content in
-                guard let selectedIndex = viewModel.selectedCategoryIndex else { return }
-                viewModel.addTodo(content: content, to: selectedIndex)
+                viewModel.addTodo(content: content)
             }
             
             if #available(iOS 16.4, *) {
