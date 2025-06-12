@@ -68,7 +68,7 @@ enum BbangzipColor {
         case .labelNeutral:
             return BBANGZIPAsset.Assets.labelNeutral.swiftUIColor
         case .labelNomal:
-            return BBANGZIPAsset.Assets.labelNomal.swiftUIColor
+            return BBANGZIPAsset.Assets.labelNormal.swiftUIColor
         case .labelStrong:
             return BBANGZIPAsset.Assets.labelStrong.swiftUIColor
         case .primaryLight:
