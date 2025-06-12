@@ -33,6 +33,9 @@ struct TaskAddView: View {
                 .padding(.top, 16)            
         }
         .padding(.horizontal, 20)
+        .onDisappear {
+            viewModel.submitTask()
+        }
     }
     
     // TODO: 시간 설정 바텀시트 오픈
