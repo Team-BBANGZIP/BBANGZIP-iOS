@@ -28,7 +28,7 @@ struct TaskBox: View {
                         HStack {
                             Text(viewModel.todo.content)
                                 .bbangFont(.body2)
-                                .foregroundColor(Color(.labelNomal))
+                                .foregroundColor(Color(.labelNormal))
                                 .multilineTextAlignment(.leading)
                             Spacer()
                         }

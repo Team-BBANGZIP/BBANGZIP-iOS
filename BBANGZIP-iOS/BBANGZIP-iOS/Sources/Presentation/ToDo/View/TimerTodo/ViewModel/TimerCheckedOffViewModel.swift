@@ -11,16 +11,20 @@ import Foundation
 final class TimerCheckedOffViewModel: ObservableObject {
     @Published private(set) var categories: [Category] = []
     @Published var isSheetPresented: Bool = false
+    @Published var selectedCategoryIndex: Int?
     
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
+    private let addUseCase: AddTodoUseCase
     
     init(
         fetchUseCase: FetchTimerTodosUseCase,
-        toggleUseCase: ToggleTodoCompletionUseCase
+        toggleUseCase: ToggleTodoCompletionUseCase,
+        addUseCase: AddTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
+        self.addUseCase = addUseCase
     }
     
     func fetchData() {
@@ -38,5 +42,22 @@ final class TimerCheckedOffViewModel: ObservableObject {
             todo: todo,
             toggleUseCase: toggleUseCase
         )
+    }
+    
+    func addTodo(content: String) {
+        guard let index = selectedCategoryIndex else { return }
+
+        let localAddUseCase = addUseCase
+        Task {
+            do {
+                try await localAddUseCase.execute(
+                    categoryIndex: index,
+                    content: content
+                )
+                fetchData()
+            } catch {
+                print("❌ 할 일 추가 실패: \(error)")
+            }
+        }
     }
 }

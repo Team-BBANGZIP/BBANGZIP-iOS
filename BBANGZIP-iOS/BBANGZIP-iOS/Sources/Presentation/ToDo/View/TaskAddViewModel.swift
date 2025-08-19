@@ -1,0 +1,25 @@
+//
+//  TaskAddViewModel.swift
+//  BBANGZIP
+//
+//  Created by 김송희 on 6/12/25.
+//
+
+import SwiftUI
+
+@MainActor
+final class TaskAddViewModel: ObservableObject {
+    @Published var newTaskText: String = ""
+    private let onAddTask: (String) -> Void
+
+    init(onAddTask: @escaping (String) -> Void) {
+        self.onAddTask = onAddTask
+    }
+
+    func submitTask() {        
+        let trimmed = newTaskText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        onAddTask(trimmed)
+        newTaskText = ""
+    }
+}

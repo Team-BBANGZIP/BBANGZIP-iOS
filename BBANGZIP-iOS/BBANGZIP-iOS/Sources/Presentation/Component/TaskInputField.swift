@@ -32,6 +32,9 @@ public struct TaskInputField: View {
         .padding(.vertical, 12)
         .background(Color(.componentStrong))
         .cornerRadius(8)
+        .keyboardType(.default)
+        .textInputAutocapitalization(.never)
+        .autocorrectionDisabled(true)
         .onSubmit {
             if isValidInput(text) {
                 onSubmit?()

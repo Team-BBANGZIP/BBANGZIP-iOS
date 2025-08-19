@@ -22,8 +22,26 @@ struct CheckedOffView: View {
             bottomButtons
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
-            Text("카테고리 추가 시트")
-            // TODO: 바텀시트 UI 구현 예정
+            let addViewModel = TaskAddViewModel { content in
+                viewModel.addTodo(content: content)
+            }
+            
+            if #available(iOS 16.4, *) {
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+            } else {
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationDragIndicator(.hidden)
+            }
         }
         .navigationBarHidden(true)
         .onAppear {
@@ -61,8 +79,14 @@ private extension CheckedOffView {
     var scrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                ForEach(viewModel.categories) { category in
-                    categorySection(for: category)
+                ForEach(
+                    Array(viewModel.categories.enumerated()),
+                    id: \.element.id
+                ) { index, category in
+                    categorySection(
+                        for: category,
+                        at: index
+                    )
                 }
                 Spacer(minLength: 50)
             }
@@ -98,13 +122,19 @@ private extension CheckedOffView {
         .padding(.horizontal, 20)
     }
     
-    func categorySection(for category: Category) -> some View {
+    func categorySection(
+        for category: Category,
+        at index: Int
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             CategoryButton(
                 color: .constant(category.colorType.color),
-                labelText: .constant(category.name),
-                isSheetPresented: $viewModel.isSheetPresented
+                labelText: .constant(category.name)
             )
+            .onTapGesture {
+                viewModel.selectedCategoryIndex = index
+                viewModel.isSheetPresented = true
+            }
             .padding(.leading, 20)
             
             ForEach(category.todos) { todo in
@@ -147,9 +177,10 @@ struct CheckedOffView_Previews: PreviewProvider {
         
         let previewViewModel = TimerCheckedOffViewModel(
             fetchUseCase: fetchUseCase,
-            toggleUseCase: toggleUseCase
+            toggleUseCase: toggleUseCase,
+            addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
-        
+
         return CheckedOffView(viewModel: previewViewModel)
     }
 }
