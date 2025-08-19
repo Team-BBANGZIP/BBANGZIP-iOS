@@ -10,7 +10,7 @@ import SwiftUI
 @MainActor
 final class TaskAddViewModel: ObservableObject {
     @Published var newTaskText: String = ""
-    let onAddTask: (String) -> Void
+    private let onAddTask: (String) -> Void
 
     init(onAddTask: @escaping (String) -> Void) {
         self.onAddTask = onAddTask
