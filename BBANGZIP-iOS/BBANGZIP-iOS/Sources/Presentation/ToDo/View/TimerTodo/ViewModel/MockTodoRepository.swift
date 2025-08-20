@@ -89,16 +89,26 @@ final class MockTodoRepository: TodoRepository {
     
     func addTodo(
         categoryIndex: Int,
-        content: String
+        content: String,
+        startTime: Date?
     ) async throws {
         let category = categories[categoryIndex]
+        
         let newTodo = TimerTodo(
             id: UUID().hashValue,
             content: content,
             isCompleted: false,
-            startTime: "00:00",
+            startTime: startTime != nil ? formatDate(startTime!) : nil,
             colorType: category.colorType
         )
         categories[categoryIndex].todos.append(newTodo)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
     }
 }
