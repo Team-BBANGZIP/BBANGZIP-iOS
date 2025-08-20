@@ -8,28 +8,9 @@
 import SwiftUI
 
 struct StartTimeView: View {
-    @Binding var selectedTime: Date?
+    @ObservedObject var viewModel: StartTimeViewModel
     @Binding var isSheetPresented: Bool
-    
-    @State private var tempTime: Date
-    
-    init(
-        selectedTime: Binding<Date?>,
-        isSheetPresented: Binding<Bool>
-    ) {
-        self._selectedTime = selectedTime
-        self._isSheetPresented = isSheetPresented
-        
-        if let existingTime = selectedTime.wrappedValue {
-            _tempTime = State(initialValue: existingTime)
-        } else {
-            var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-            components.hour = 12
-            components.minute = 0
-            let defaultTime = Calendar.current.date(from: components) ?? Date()
-            _tempTime = State(initialValue: defaultTime)
-        }
-    }
+    let onSelect: (Date?) -> Void
     
     var body: some View {
         Text("시작 시간 설정")
@@ -49,7 +30,7 @@ struct StartTimeView: View {
     var timePicker: some View {
         DatePicker(
             "",
-            selection: $tempTime,
+            selection: $viewModel.tempTime,
             displayedComponents: .hourAndMinute
         )
         .datePickerStyle(.wheel)
@@ -60,7 +41,7 @@ struct StartTimeView: View {
     var buttons: some View {
         HStack(spacing: 15) {
             Button("취소") {
-                selectedTime = nil
+                onSelect(nil)
                 isSheetPresented = false
             }
             .buttonStyle(
@@ -71,7 +52,7 @@ struct StartTimeView: View {
             )
             
             Button("설정") {
-                selectedTime = tempTime
+                onSelect(viewModel.tempTime)
                 isSheetPresented = false
             }
             .buttonStyle(

@@ -41,20 +41,25 @@ struct TaskAddView: View {
             viewModel.submitTask()
         }
         .sheet(isPresented: $isStartTimeSheetPresented) {
+            let startTimeViewModel = StartTimeViewModel(selectedTime: viewModel.startTime)
             
             if #available(iOS 16.4, *) {
                 StartTimeView(
-                    selectedTime: $viewModel.startTime,
+                    viewModel: startTimeViewModel,
                     isSheetPresented: $isStartTimeSheetPresented
-                )
+                ) { selected in
+                    viewModel.startTime = selected
+                }
                 .presentationDetents([.height(454)])
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
             } else {
                 StartTimeView(
-                    selectedTime: $viewModel.startTime,
+                    viewModel: startTimeViewModel,
                     isSheetPresented: $isStartTimeSheetPresented
-                )
+                ){ selected in
+                    viewModel.startTime = selected
+                }
                 .presentationDetents([.height(454)])
                 .presentationDragIndicator(.visible)
             }
