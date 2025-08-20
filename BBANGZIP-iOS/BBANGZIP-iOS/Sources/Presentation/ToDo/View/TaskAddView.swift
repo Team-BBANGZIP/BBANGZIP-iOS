@@ -31,6 +31,7 @@ struct TaskAddView: View {
                 .foregroundColor(Color(.secondaryNormal))
             
             startTime
+                .contentShape(Rectangle())
                 .onTapGesture {
                     isStartTimeSheetPresented = true
                 }
