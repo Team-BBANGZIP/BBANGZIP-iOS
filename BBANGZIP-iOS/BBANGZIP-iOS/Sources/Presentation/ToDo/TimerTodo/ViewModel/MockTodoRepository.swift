@@ -89,14 +89,16 @@ final class MockTodoRepository: TodoRepository {
     
     func addTodo(
         categoryIndex: Int,
-        content: String
+        content: String,
+        startTime: Date?
     ) async throws {
         let category = categories[categoryIndex]
+        
         let newTodo = TimerTodo(
             id: UUID().hashValue,
             content: content,
             isCompleted: false,
-            startTime: "00:00",
+            startTime: startTime.map { DateFormatter.repositoryTimeFormatter.string(from: $0) },
             colorType: category.colorType
         )
         categories[categoryIndex].todos.append(newTodo)

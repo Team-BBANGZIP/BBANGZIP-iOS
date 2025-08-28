@@ -10,6 +10,7 @@ import SwiftUI
 struct TaskAddView: View {
     @ObservedObject var viewModel: TaskAddViewModel
     @Binding var isPresented: Bool
+    @State private var isStartTimeSheetPresented: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -30,15 +31,42 @@ struct TaskAddView: View {
                 .foregroundColor(Color(.secondaryNormal))
             
             startTime
-                .padding(.top, 16)            
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isStartTimeSheetPresented = true
+                }
+                .padding(.top, 16)
         }
         .padding(.horizontal, 20)
         .onDisappear {
             viewModel.submitTask()
         }
+        .sheet(isPresented: $isStartTimeSheetPresented) {
+            let startTimeViewModel = StartTimeViewModel(selectedTime: viewModel.startTime)
+            
+            if #available(iOS 16.4, *) {
+                StartTimeView(
+                    viewModel: startTimeViewModel,
+                    isSheetPresented: $isStartTimeSheetPresented
+                ) { selected in
+                    viewModel.startTime = selected
+                }
+                .presentationDetents([.height(454)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+            } else {
+                StartTimeView(
+                    viewModel: startTimeViewModel,
+                    isSheetPresented: $isStartTimeSheetPresented
+                ){ selected in
+                    viewModel.startTime = selected
+                }
+                .presentationDetents([.height(454)])
+                .presentationDragIndicator(.visible)
+            }
+        }
     }
     
-    // TODO: 시간 설정 바텀시트 오픈
     var startTime: some View {
         HStack(spacing: 0) {
             Image(.icClock)
@@ -52,9 +80,9 @@ struct TaskAddView: View {
             
             Spacer()
             
-            Text("미설정")
+            Text(viewModel.startTime.map {formatDate($0)} ?? "미설정")
                 .bbangFont(.body2)
-                .foregroundStyle(Color(.labelAssistive))
+                .foregroundStyle(viewModel.startTime == nil ? Color(.labelAssistive) : Color(.labelAlternative))
                 .padding(.trailing, 8)
             
             Image(.icChevronRight)
@@ -63,5 +91,9 @@ struct TaskAddView: View {
                 .foregroundStyle(Color(.labelAssistive))
                 .frame(width: 20, height: 20)
         }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        DateFormatter.taskTimeFormatter.string(from: date)
     }
 }
