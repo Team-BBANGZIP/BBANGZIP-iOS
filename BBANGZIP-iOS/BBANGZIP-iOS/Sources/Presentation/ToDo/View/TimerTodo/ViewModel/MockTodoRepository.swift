@@ -98,17 +98,9 @@ final class MockTodoRepository: TodoRepository {
             id: UUID().hashValue,
             content: content,
             isCompleted: false,
-            startTime: startTime != nil ? formatDate(startTime!) : nil,
+            startTime: startTime.map { DateFormatter.repositoryTimeFormatter.string(from: $0) },
             colorType: category.colorType
         )
         categories[categoryIndex].todos.append(newTodo)
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
     }
 }

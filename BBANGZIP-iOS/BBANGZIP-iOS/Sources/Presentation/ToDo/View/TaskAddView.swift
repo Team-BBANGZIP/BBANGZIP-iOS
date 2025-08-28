@@ -94,10 +94,6 @@ struct TaskAddView: View {
     }
     
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        formatter.dateFormat = "a hh:mm"
-        return formatter.string(from: date)
+        DateFormatter.taskTimeFormatter.string(from: date)
     }
 }
