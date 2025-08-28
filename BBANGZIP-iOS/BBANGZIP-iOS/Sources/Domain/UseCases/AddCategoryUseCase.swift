@@ -7,14 +7,14 @@
 
 import Foundation
 
-protocol AddCategoryUseCaseProtocol {
+protocol AddCategoryUseCaseProtocol: Sendable {
     func addCategory(
         name: String,
         color: String
     ) async throws -> AddCategory
 }
 
-class AddCategoryUseCase: AddCategoryUseCaseProtocol {
+final class AddCategoryUseCase: AddCategoryUseCaseProtocol, @unchecked Sendable {
     private let repository: AddCategoryRepositoryProtocol
     
     init(repository: AddCategoryRepositoryProtocol = AddCategoryRepository()) {
