@@ -22,8 +22,8 @@ struct CheckedOffView: View {
             bottomButtons
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
-            let addViewModel = TaskAddViewModel { content in
-                viewModel.addTodo(content: content)
+            let addViewModel = TaskAddViewModel { content, startTime in
+                viewModel.addTodo(content: content, startTime: startTime)
             }
             
             if #available(iOS 16.4, *) {

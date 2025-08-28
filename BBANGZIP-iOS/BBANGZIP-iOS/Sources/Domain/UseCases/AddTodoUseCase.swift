@@ -8,7 +8,7 @@
 import Foundation
 
 protocol AddTodoUseCase {
-    func execute(categoryIndex: Int, content: String) async throws
+    func execute(categoryIndex: Int, content: String, startTime: Date?) async throws
 }
 
 final class DefaultAddTodoUseCase: AddTodoUseCase {
@@ -20,11 +20,13 @@ final class DefaultAddTodoUseCase: AddTodoUseCase {
 
     func execute(
         categoryIndex: Int,
-        content: String
+        content: String,
+        startTime: Date?
     ) async throws {
         try await repository.addTodo(
             categoryIndex: categoryIndex,
-            content: content
+            content: content,
+            startTime: startTime
         )
     }
 }

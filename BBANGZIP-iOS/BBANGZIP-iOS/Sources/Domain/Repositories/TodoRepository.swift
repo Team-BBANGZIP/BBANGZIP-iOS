@@ -18,6 +18,7 @@ protocol TodoRepository: Sendable {
     // TODO: targetDate 고려하여 추가
     func addTodo(
         categoryIndex: Int,
-        content: String
+        content: String,
+        startTime: Date?
     ) async throws
 }

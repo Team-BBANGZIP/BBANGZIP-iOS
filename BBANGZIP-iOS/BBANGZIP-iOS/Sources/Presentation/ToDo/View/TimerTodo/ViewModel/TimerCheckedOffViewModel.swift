@@ -44,7 +44,7 @@ final class TimerCheckedOffViewModel: ObservableObject {
         )
     }
     
-    func addTodo(content: String) {
+    func addTodo(content: String, startTime: Date?) {
         guard let index = selectedCategoryIndex else { return }
 
         let localAddUseCase = addUseCase
@@ -52,7 +52,8 @@ final class TimerCheckedOffViewModel: ObservableObject {
             do {
                 try await localAddUseCase.execute(
                     categoryIndex: index,
-                    content: content
+                    content: content,
+                    startTime: startTime
                 )
                 fetchData()
             } catch {
