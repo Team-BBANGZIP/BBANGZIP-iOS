@@ -23,7 +23,6 @@ struct CategoryAddView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                
                 HeaderBarView(
                     title: "카테고리 추가",
                     leftIcon: .icChevronLeft,
@@ -127,6 +126,7 @@ private struct UnderlineTextField: View {
                         .bbangFont(.body1)
                         .foregroundStyle(Color(.labelDisable))
                 }
+                
                 TextField("", text: $text)
                     .bbangFont(.body1)
                     .foregroundStyle(Color(.labelNormal))
