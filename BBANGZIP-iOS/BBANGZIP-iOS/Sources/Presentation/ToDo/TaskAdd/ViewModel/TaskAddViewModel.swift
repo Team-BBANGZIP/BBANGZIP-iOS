@@ -17,10 +17,10 @@ final class TaskAddViewModel: ObservableObject {
         self.onAddTask = onAddTask
     }
 
-    func submitTask() {        
+    func submitTask() {
         let trimmed = newTaskText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        
+
         onAddTask(trimmed, startTime)
         newTaskText = ""
         startTime = nil
