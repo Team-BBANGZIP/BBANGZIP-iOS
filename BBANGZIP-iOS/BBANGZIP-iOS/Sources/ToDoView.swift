@@ -13,6 +13,8 @@ struct ToDoView: View {
             messageView
                 .frame(height: 60)
                 .background(Color(.secondaryStrong))
+            
+            Spacer()
         }
     }
     
