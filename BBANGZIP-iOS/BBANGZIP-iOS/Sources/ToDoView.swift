@@ -29,7 +29,12 @@ struct ToDoView: View {
             .padding(.vertical, 12)
             .background(Color(.secondaryLight))
             
+            todoSummaryView
+                .padding(.trailing, 20)
+                .padding(.top, 20)
+            
             scrollContent
+                .padding(.top, 8)
             
             Spacer()
         }
@@ -44,7 +49,7 @@ struct ToDoView: View {
             
             HStack(spacing: 0) {
                 BbangText(
-                    "나만의 다짐을 적어보세요",
+                    "\(viewModel.todoData?.commitmentMessage ?? "나만의 다짐을 적어보세요")",
                     font: .body4,
                     color: Color(.labelAlternative)
                 )
@@ -107,6 +112,32 @@ struct ToDoView: View {
                     )
                 }
             }
+        }
+    }
+    
+    var todoSummaryView: some View {
+        HStack(spacing: 1.5) {
+            Spacer()
+            
+            ZStack {
+                Image(.icBread)
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(Color(.labelAlternative))
+                
+                Image(.icCheck)
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 8, height: 8)
+                    .foregroundColor(Color(.componentAlternative))
+            }
+            
+            BbangText(
+                "\(viewModel.todoData?.summary.completedCount ?? 0) / \(viewModel.todoData?.summary.totalCount ?? 0)",
+                font: .body4,
+                color: Color(.labelAlternative)
+            )
         }
     }
     

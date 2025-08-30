@@ -77,6 +77,27 @@ final class MockTodoRepository: TodoRepository {
                         isCompleted: true,
                         startTime: "16:00",
                         colorType: .Todoyellow1
+                    ),
+                    TimerTodo(
+                        id: 7,
+                        content: "기타",
+                        isCompleted: true,
+                        startTime: "16:00",
+                        colorType: .Todoyellow1
+                    ),
+                    TimerTodo(
+                        id: 8,
+                        content: "드럼",
+                        isCompleted: true,
+                        startTime: "16:00",
+                        colorType: .Todoyellow1
+                    ),
+                    TimerTodo(
+                        id: 9,
+                        content: "플룻",
+                        isCompleted: true,
+                        startTime: "16:00",
+                        colorType: .Todoyellow1
                     )
                 ]
             )
