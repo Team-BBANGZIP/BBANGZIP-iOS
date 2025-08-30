@@ -13,11 +13,13 @@ final class TodoViewModel: ObservableObject {
     @Published var dates: [Date] = []
     
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
+    
     private let calendar: Calendar = {
         var cal = Calendar.current
         cal.locale = Locale(identifier: "ko_KR")
         cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        cal.firstWeekday = 2 // Monday as first day
+        cal.firstWeekday = 2
+        
         return cal
     }()
     
@@ -29,6 +31,7 @@ final class TodoViewModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "yyyy년 M월"
+        
         return formatter.string(from: date)
     }
     
@@ -47,6 +50,7 @@ final class TodoViewModel: ObservableObject {
                 dates.append(date)
             }
         }
+        
         self.dates = dates
     }
     
@@ -54,11 +58,12 @@ final class TodoViewModel: ObservableObject {
         guard let dayIndex = daysOfWeek.firstIndex(of: day),
               !dates.isEmpty,
               dayIndex < dates.count else { return nil }
+        
         return dates[dayIndex]
     }
     
-    func moveMonth(by value: Int) {
-        if let newDate = calendar.date(byAdding: .month, value: value, to: currentDate) {
+    func moveWeek(by value: Int) {
+        if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
             updateDates()
         }

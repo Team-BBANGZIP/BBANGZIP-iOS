@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct ToDoView: View {
-    @StateObject private var todoViewModel = TodoViewModel()
+    @StateObject private var todoViewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
+    
+    init(todoViewModel: TodoViewModel, selectedDate: Date? = nil) {
+        _todoViewModel = StateObject(wrappedValue: todoViewModel)
+        self.selectedDate = selectedDate
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -59,14 +64,14 @@ struct ToDoView: View {
             )
             .padding(.leading, 20)
             
-            Button(action: { todoViewModel.moveMonth(by: -1) }) {
+            Button(action: { todoViewModel.moveWeek(by: -1) }) {
                 Image(.icChevronLeft)
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color(.labelAlternative))
             }
             
-            Button(action: { todoViewModel.moveMonth(by: 1) }) {
+            Button(action: { todoViewModel.moveWeek(by: 1) }) {
                 Image(.icChevronRight)
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
@@ -102,5 +107,5 @@ struct ToDoView: View {
 }
 
 #Preview {
-    ToDoView()
+    ToDoView(todoViewModel: TodoViewModel())
 }
