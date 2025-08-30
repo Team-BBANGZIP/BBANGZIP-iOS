@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ToDoView: View {
-    @StateObject private var todoViewModel: TodoViewModel
+    @StateObject private var viewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
     
-    init(todoViewModel: TodoViewModel, selectedDate: Date? = nil) {
-        _todoViewModel = StateObject(wrappedValue: todoViewModel)
+    init(viewModel: TodoViewModel, selectedDate: Date? = nil) {
+        _viewModel = StateObject(wrappedValue: viewModel)
         self.selectedDate = selectedDate
     }
     
@@ -29,7 +29,12 @@ struct ToDoView: View {
             .padding(.vertical, 12)
             .background(Color(.secondaryLight))
             
+            scrollContent
+            
             Spacer()
+        }
+        .onAppear {
+            viewModel.fetchData()
         }
     }
     
@@ -58,20 +63,20 @@ struct ToDoView: View {
     private var calendarHeaderView: some View {
         HStack(spacing: 20) {
             BbangText(
-                todoViewModel.monthYearFormatter(date: todoViewModel.currentDate),
+                viewModel.monthYearFormatter(date: viewModel.currentDate),
                 font: .subtitle1,
                 color: Color(.labelNeutral)
             )
             .padding(.leading, 20)
             
-            Button(action: { todoViewModel.moveWeek(by: -1) }) {
+            Button(action: { viewModel.moveWeek(by: -1) }) {
                 Image(.icChevronLeft)
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color(.labelAlternative))
             }
             
-            Button(action: { todoViewModel.moveWeek(by: 1) }) {
+            Button(action: { viewModel.moveWeek(by: 1) }) {
                 Image(.icChevronRight)
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
@@ -92,9 +97,9 @@ struct ToDoView: View {
     
     private var calendarBodyView: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-            ForEach(todoViewModel.daysOfWeek.indices, id: \.self) { index in
-                let day = todoViewModel.daysOfWeek[index]
-                if let date = todoViewModel.calculateDateForDay(day) {
+            ForEach(viewModel.daysOfWeek.indices, id: \.self) { index in
+                let day = viewModel.daysOfWeek[index]
+                if let date = viewModel.calculateDateForDay(day) {
                     CalendarCellView(
                         day: day,
                         date: date,
@@ -104,8 +109,81 @@ struct ToDoView: View {
             }
         }
     }
+    
+    var scrollContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                if let categories = viewModel.todoData?.categories {
+                    ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
+                        categorySection(for: category, at: index)
+                    }
+                }
+
+                Spacer(minLength: 50)
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+    
+    func categorySection(
+        for category: Category,
+        at index: Int
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            CategoryButton(
+                color: .constant(category.colorType.color),
+                labelText: .constant(category.name)
+            )
+            .onTapGesture {
+                viewModel.selectedCategoryIndex = index
+                viewModel.isSheetPresented = true
+            }
+            .padding(.leading, 20)
+            
+            ForEach(category.todos) { todo in
+                let isLast = todo.id == category.todos.last?.id
+                todoRow(
+                    for: todo,
+                    showSeperator: !isLast
+                )
+            }
+        }
+    }
+    
+    func todoRow(
+        for todo: TimerTodo,
+        showSeperator: Bool
+    ) -> some View {
+        let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
+        
+        return TaskBox(
+            viewModel: todoViewModel,
+            meatballTapped: {
+                handleMeatballTapped(for: todo)
+            },
+            showSeperator: showSeperator
+        )
+        .padding(.horizontal, 20)
+    }
+    
+    func handleMeatballTapped(for todo: TimerTodo) {
+        print("미트볼 버튼 눌림! - \(todo.content)")
+        // TODO: 메뉴 또는 편집 기능 구현
+    }
 }
 
-#Preview {
-    ToDoView(todoViewModel: TodoViewModel())
+struct TodoView_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockRepo = MockTodoRepository()
+        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: mockRepo)
+        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
+        
+        let previewViewModel = TodoViewModel(
+            fetchUseCase: fetchUseCase,
+            toggleUseCase: toggleUseCase,
+            addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
+        )
+
+        return ToDoView(viewModel: previewViewModel)
+    }
 }

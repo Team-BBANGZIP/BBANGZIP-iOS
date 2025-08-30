@@ -11,6 +11,9 @@ import SwiftUI
 final class TodoViewModel: ObservableObject {
     @Published var currentDate: Date = Date()
     @Published var dates: [Date] = []
+    @Published var todoData: TodoData?
+    @Published var isSheetPresented: Bool = false
+    @Published var selectedCategoryIndex: Int?
     
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
     
@@ -23,8 +26,54 @@ final class TodoViewModel: ObservableObject {
         return cal
     }()
     
-    init() {
+    private let fetchUseCase: FetchTimerTodosUseCase
+    private let toggleUseCase: ToggleTodoCompletionUseCase
+    private let addUseCase: AddTodoUseCase
+    
+    init(
+        fetchUseCase: FetchTimerTodosUseCase,
+        toggleUseCase: ToggleTodoCompletionUseCase,
+        addUseCase: AddTodoUseCase
+    ) {
+        self.fetchUseCase = fetchUseCase
+        self.toggleUseCase = toggleUseCase
+        self.addUseCase = addUseCase
+        
         updateDates()
+    }
+    
+    func fetchData() {
+        Task {
+            do {
+                self.todoData = try await fetchUseCase.execute()
+            } catch {
+                print("❌ 데이터 가져오기 실패: \(error)")
+            }
+        }
+    }
+    
+    func makeTodoViewModel(todo: TimerTodo) -> TimerTodoViewModel {
+        TimerTodoViewModel(
+            todo: todo,
+            toggleUseCase: toggleUseCase
+        )
+    }
+    
+    func addTodo(content: String) {
+        guard let index = selectedCategoryIndex else { return }
+
+        let localAddUseCase = addUseCase
+        Task {
+            do {
+                try await localAddUseCase.execute(
+                    categoryIndex: index,
+                    content: content
+                )
+                fetchData()
+            } catch {
+                print("❌ 할 일 추가 실패: \(error)")
+            }
+        }
     }
     
     func monthYearFormatter(date: Date) -> String {

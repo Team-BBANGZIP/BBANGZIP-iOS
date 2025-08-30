@@ -8,7 +8,7 @@
 import Foundation
 
 protocol TodoRepository: Sendable {
-    func fetchTimerTodos() async throws -> [Category]
+    func fetchTimerTodos() async throws -> TodoData
     
     func updateTodoCompletion(
         todoId: Int,

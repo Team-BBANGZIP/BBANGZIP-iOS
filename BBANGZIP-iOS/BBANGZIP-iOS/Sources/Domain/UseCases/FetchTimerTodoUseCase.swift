@@ -8,7 +8,7 @@
 import Foundation
 
 protocol FetchTimerTodosUseCase: Sendable {
-    func execute() async throws -> [Category]
+    func execute() async throws -> TodoData
 }
 
 final class DefaultFetchTimerTodosUseCase: FetchTimerTodosUseCase {
@@ -18,7 +18,7 @@ final class DefaultFetchTimerTodosUseCase: FetchTimerTodosUseCase {
         self.todoRepository = repository
     }
     
-    func execute() async throws -> [Category] {
+    func execute() async throws -> TodoData {
         try await todoRepository.fetchTimerTodos()
     }
 }

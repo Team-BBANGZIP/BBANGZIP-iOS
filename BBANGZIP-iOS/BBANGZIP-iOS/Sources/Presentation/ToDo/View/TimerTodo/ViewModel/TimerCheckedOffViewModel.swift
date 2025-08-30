@@ -30,7 +30,7 @@ final class TimerCheckedOffViewModel: ObservableObject {
     func fetchData() {
         Task {
             do {
-                self.categories = try await fetchUseCase.execute()
+                self.categories = try await fetchUseCase.execute().categories
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }
