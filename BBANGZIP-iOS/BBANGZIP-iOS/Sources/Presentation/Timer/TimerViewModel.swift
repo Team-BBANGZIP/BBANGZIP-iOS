@@ -10,7 +10,7 @@ import Combine
 
 @MainActor
 final class TimerViewModel: ObservableObject {
-    enum TimerState {
+    public enum TimerState {
         case initial
         case running
         case paused
