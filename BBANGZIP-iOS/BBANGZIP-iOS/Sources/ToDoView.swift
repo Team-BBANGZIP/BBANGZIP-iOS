@@ -90,7 +90,45 @@ struct ToDoView: View {
             
             Spacer()
             
-            Button(action: {}) {
+            // TODO: Custom화 필요
+            Menu {
+                Button {
+                    print("카테고리 추가")
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(.icPlusThin)
+                            .renderingMode(.template)
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(Color(.labelNormal))
+                        
+                        BbangText(
+                            "카테고리 추가",
+                            font: .body2,
+                            color: Color(.labelNormal)
+                        )
+                    }
+                }
+                
+                Divider()
+                    .frame(width: 109, height: 1)
+                
+                Button {
+                    print("카테고리 관리")
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(.icPencil)
+                            .renderingMode(.template)
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(Color(.labelNormal))
+                        
+                        BbangText(
+                            "카테고리 관리",
+                            font: .body2,
+                            color: Color(.labelNormal)
+                        )
+                    }
+                }
+            } label: {
                 Image(.icMenu)
                     .renderingMode(.template)
                     .frame(width: 32, height: 32)
