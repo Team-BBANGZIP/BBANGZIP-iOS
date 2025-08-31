@@ -108,10 +108,24 @@ struct TimerView: View {
                     )
                     .rotationEffect(.degrees(-90))
                 
-                Text(viewModel.leftTimeText)
-                    .bbangFont(.timer)
-                    .bbangColor(textColor)
-                    .monospacedDigit()
+                VStack(spacing: 8) {
+                    Spacer()
+                    Text(viewModel.leftTimeText)
+                        .bbangFont(.timer)
+                        .bbangColor(textColor)
+                        .monospacedDigit()
+                    
+                    if viewModel.state == .initial {
+                        ArrowView()
+                            .padding(.top, 3)
+                        
+                        Image(.itemSaltBread)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 115, height: 84)
+                            .padding(.bottom, 10)
+                    }
+                }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
@@ -119,7 +133,7 @@ struct TimerView: View {
         .padding(.horizontal, 38)
         .padding(.vertical, 6)
     }
-
+    
     var timeToggleButton: some View {
         let opacity: Double = viewModel.state == .initial ? 1 : 0
         let disabled = viewModel.state != .initial
@@ -308,7 +322,7 @@ struct TimerView: View {
                 .frame(width: .infinity)
                 .padding(.horizontal, 4)
                 .padding(.bottom, 42)
-                
+            
             GeometryReader { geometry in
                 let width = geometry.size.width
                 HStack(spacing: 8) {
@@ -340,6 +354,25 @@ struct TimerView: View {
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+    }
+}
+
+struct ArrowView: View {
+    @State private var animationOffset: CGFloat = 0
+    
+    var body: some View {
+        Image(.icTriangleDown)
+            .renderingMode(.template)
+            .foregroundStyle(Color(.primaryLight))
+            .offset(y: animationOffset)
+            .onAppear {
+                withAnimation(
+                    .easeInOut(duration: 1.5)
+                    .repeatForever(autoreverses: true)
+                ) {
+                    animationOffset = 8
+                }
+            }
     }
 }
 
