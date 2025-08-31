@@ -90,8 +90,6 @@ struct TimerView: View {
         GeometryReader { geometry in
             let lineWidth = min(geometry.size.width, geometry.size.height) * 0.035
             let textColor: BbangzipColor = viewModel.state == .running ? .primaryNormal : viewModel.state == .done ? .primaryStrong : .primaryLight
-            let circleSize = min(geometry.size.width, geometry.size.height)
-            let breadImageSize = circleSize * 0.25
             
             ZStack {
                 Circle()
@@ -110,7 +108,7 @@ struct TimerView: View {
                     )
                     .rotationEffect(.degrees(-90))
                 
-                VStack(spacing: 8) {
+                VStack(spacing: 0) {
                     Spacer()
                     
                     Text(viewModel.leftTimeText)
@@ -118,11 +116,9 @@ struct TimerView: View {
                         .bbangColor(textColor)
                         .monospacedDigit()
                     
-                    if viewModel.state == .initial {
-                        ArrowView()
-                            .padding(.top, 3)
-                            .opacity(viewModel.state == .initial ? 1 : 0)
-                    }
+                    ArrowView()
+                        .padding(.top, 3)
+                        .opacity(viewModel.state == .initial ? 1 : 0)
                     
                     breadImage
                         .resizable()
@@ -290,7 +286,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.prize2)
+            Image(.prize)
                 .resizable()
                 .frame(width: .infinity)
                 .padding(.horizontal, 4)
