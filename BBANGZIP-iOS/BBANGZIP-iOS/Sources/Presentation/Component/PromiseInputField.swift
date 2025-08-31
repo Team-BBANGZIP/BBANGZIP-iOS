@@ -19,42 +19,53 @@ public struct PromiseInputField: View {
     public var body: some View {
         VStack(spacing: 10) {
             ZStack(alignment: .topLeading) {
-                TextEditor(text: $text)
-                    .frame(minHeight: 90, maxHeight: 90)
-                    .scrollContentBackground(.hidden)
-                    .padding(12)
-                    .lineSpacing(4)
-                    .lineLimit(3)
-                    .bbangFont(.body1)
-                    .foregroundColor(Color(.labelNormal))
-                    .background(Color(.componentStrong))
-                    .tint(.clear)
-                    .cornerRadius(8)
-                    .keyboardType(.default)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .onChange(of: text) { newValue in
-                        if newValue.count > maxLength {
-                            text = String(newValue.prefix(maxLength))
-                        }
-                    }
+                textField
                 
-                if text.isEmpty {
-                    Text("나만의 다짐을 적어보세요")
-                        .foregroundColor(Color(.labelAssistive))
-                        .bbangFont(.body1)
-                        .padding(16)
+                if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    placeholder
                 }
             }
             
             HStack {
                 Spacer()
                 
-                Text("\(text.count)/\(maxLength)")
-                    .bbangFont(.body3)
-                    .foregroundColor(Color(.labelAlternative))
+                lengthCounter
             }
         }
+    }
+    
+    var textField: some View {
+        TextEditor(text: $text)
+            .frame(minHeight: 90, maxHeight: 90)
+            .scrollContentBackground(.hidden)
+            .padding(12)
+            .lineSpacing(4)
+            .bbangFont(.body1)
+            .foregroundColor(Color(.labelNormal))
+            .background(Color(.componentStrong))
+            .tint(.clear)
+            .cornerRadius(8)
+            .keyboardType(.default)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled(true)
+            .onChange(of: text) { newValue in
+                if newValue.count > maxLength {
+                    text = String(newValue.prefix(maxLength))
+                }
+            }
+    }
+    
+    var placeholder: some View {
+        Text("나만의 다짐을 적어보세요")
+            .foregroundStyle(Color(.labelAssistive))
+            .bbangFont(.body1)
+            .padding(16)
+    }
+    
+    var lengthCounter: some View {
+        Text("\(text.count)/\(maxLength)")
+            .bbangFont(.body3)
+            .foregroundColor(Color(.labelAlternative))
     }
     
     private func isValidInput(_ input: String) -> Bool {

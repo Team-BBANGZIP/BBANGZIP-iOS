@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MyPromiseView: View {
-    @State private var promiseText: String = ""
+    @State private var promiseText: String = "나만의 다짐을 적어보세요"
     
     var body: some View {
         VStack(spacing: 0) {
