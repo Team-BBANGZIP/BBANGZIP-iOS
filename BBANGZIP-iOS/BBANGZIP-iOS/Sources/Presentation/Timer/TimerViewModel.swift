@@ -24,6 +24,7 @@ final class TimerViewModel: ObservableObject {
     @Published var state: TimerState = .initial
     @Published var isHour: Bool = false
     @Published var resetSheetLeftTimeText: String = "" // TODO: 초기값 어케함?
+    @Published var currentBreadLevel: Int = 1
     
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
@@ -53,6 +54,7 @@ final class TimerViewModel: ObservableObject {
                 leftSeconds = isHour ? 3600 : 1800
                 leftTimeText = formatTime(seconds: leftSeconds)
                 resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
+                currentBreadLevel = 1
             }
             .store(in: &cancellables)
     }
@@ -87,12 +89,14 @@ final class TimerViewModel: ObservableObject {
                 let progress = 1 - CGFloat(remainingSeconds) / CGFloat(isHour ? 3600 : 1800)
                 progressPercentage = progress <= 0.01 ? 0.01 : progress
                 resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
+                currentBreadLevel = calculateBreadLevel(remainingSeconds: remainingSeconds)
             }
             if leftSeconds == 0 {
                 state = .done
                 announceText = "빵이 완성됐어요!"
+                currentBreadLevel = 5
                 loadBreadCount()
-                isCompleteSheetOn = true // TODO: 바로 시트 띄우지 말고 서버 요청을 보내고 요청 성공 시에 시트 띄워야 함
+                isCompleteSheetOn = true
             }
         }
     }
@@ -103,6 +107,7 @@ final class TimerViewModel: ObservableObject {
         leftSeconds = isHour ? 3600 : 1800
         leftTimeText = formatTime(seconds: leftSeconds)
         progressPercentage = 0.01
+        currentBreadLevel = 1
         resumeTimer()
     }
 
@@ -113,6 +118,7 @@ final class TimerViewModel: ObservableObject {
         leftSeconds = isHour ? 3600 : 1800
         leftTimeText = formatTime(seconds: leftSeconds)
         progressPercentage = 0.01
+        currentBreadLevel = 1
         announceText = "오늘의 빵을 구워보세요!"
     }
 
@@ -120,6 +126,38 @@ final class TimerViewModel: ObservableObject {
         let minutes = seconds / 60
         let seconds = seconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    private func calculateBreadLevel(remainingSeconds: Int) -> Int {
+        if isHour {
+            let elapsedSeconds = 3600 - remainingSeconds
+            switch elapsedSeconds {
+            case 0..<900:
+                return 1
+            case 900..<1800:
+                return 2
+            case 1800..<2700:
+                return 3
+            case 2700..<3600:
+                return 4
+            default:
+                return 5
+            }
+        } else {
+            let elapsedSeconds = 1800 - remainingSeconds
+            switch elapsedSeconds {
+            case 0..<450:
+                return 1
+            case 450..<900:
+                return 2
+            case 900..<1350:
+                return 3
+            case 1350..<1800:
+                return 4
+            default:
+                return 5
+            }
+        }
     }
 }
 
