@@ -80,7 +80,7 @@ final class MockTodoRepository: TodoRepository {
                     ),
                     TimerTodo(
                         id: 7,
-                        content: "기타",
+                        content: "기타 \n 플룻",
                         isCompleted: true,
                         startTime: "16:00",
                         colorType: .Todoyellow1

@@ -129,7 +129,7 @@ struct ToDoView: View {
                 Image(.icCheck)
                     .renderingMode(.template)
                     .resizable()
-                    .frame(width: 8, height: 8)
+                    .frame(width: 12, height: 12)
                     .foregroundColor(Color(.componentAlternative))
             }
             
@@ -142,18 +142,51 @@ struct ToDoView: View {
     }
     
     var scrollContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                if let categories = viewModel.todoData?.categories {
-                    ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
-                        categorySection(for: category, at: index)
+        List {
+            if let categories = viewModel.todoData?.categories {
+                ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
+                    Section {
+                        CategoryButton(
+                            color: .constant(category.colorType.color),
+                            labelText: .constant(category.name)
+                        )
+                        .onTapGesture {
+                            viewModel.selectedCategoryIndex = index
+                            viewModel.isSheetPresented = true
+                        }
+                        .padding(.leading, 20)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        
+                        ForEach(category.todos) { todo in
+                            let isLast = todo.id == category.todos.last?.id
+                            todoRow(
+                                for: todo,
+                                in: category,
+                                categoryIndex: index,
+                                showSeperator: !isLast
+                            )
+                            .padding(.bottom, isLast ? 20 : 0)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .contentShape(Rectangle())
+                        }
                     }
                 }
-
-                Spacer(minLength: 50)
             }
+            
+            Spacer(minLength: 50)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
         }
+        .listStyle(.plain)
         .scrollIndicators(.hidden)
+        .environment(\.defaultMinListRowHeight, 0)
+        .contentShape(Rectangle())
+        .gesture(DragGesture().onChanged { _ in })
     }
     
     func categorySection(
@@ -175,6 +208,8 @@ struct ToDoView: View {
                 let isLast = todo.id == category.todos.last?.id
                 todoRow(
                     for: todo,
+                    in: category,
+                    categoryIndex: index,
                     showSeperator: !isLast
                 )
             }
@@ -183,6 +218,8 @@ struct ToDoView: View {
     
     func todoRow(
         for todo: TimerTodo,
+        in category: Category,
+        categoryIndex: Int,
         showSeperator: Bool
     ) -> some View {
         let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
@@ -195,6 +232,7 @@ struct ToDoView: View {
             showSeperator: showSeperator
         )
         .padding(.horizontal, 20)
+        .buttonStyle(PlainButtonStyle())
     }
     
     func handleMeatballTapped(for todo: TimerTodo) {
