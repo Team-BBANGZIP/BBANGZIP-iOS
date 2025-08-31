@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol BreadCountRepository {
+protocol BreadCountRepository: Sendable {
     func getTodayBreadCount() async throws -> BreadCount
 }
 

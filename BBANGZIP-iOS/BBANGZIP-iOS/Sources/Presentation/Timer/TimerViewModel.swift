@@ -30,14 +30,20 @@ final class TimerViewModel: ObservableObject {
     @Published var isCompleteSheetOn: Bool = false
     
     private let timerUseCase: TimerUseCase
+    private let breadCountUseCase: BreadCountUseCase
     private var timerTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     
     private lazy var leftSeconds: Int = isHour ? 3600: 1800
     
-    init(timerUseCase: TimerUseCase) {
+    init(
+        timerUseCase: TimerUseCase,
+        breadCountUseCase: BreadCountUseCase
+    ) {
         self.timerUseCase = timerUseCase
+        self.breadCountUseCase = breadCountUseCase
         bind()
+        loadBreadCount()
     }
     
     private func bind() {
@@ -49,6 +55,20 @@ final class TimerViewModel: ObservableObject {
                 resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
             }
             .store(in: &cancellables)
+    }
+    
+    private func loadBreadCount() {
+        Task {
+            do {
+                let count = try await breadCountUseCase.getTodayBreadCount()
+                await MainActor.run {
+                    breadCount = count
+                }
+            } catch {
+                LoggerFactory.create(category: .data)
+                    .error("Failed to load bread count: \(error.localizedDescription)")
+            }
+        }
     }
 
     private func pauseTimer() {
@@ -71,6 +91,7 @@ final class TimerViewModel: ObservableObject {
             if leftSeconds == 0 {
                 state = .done
                 announceText = "빵이 완성됐어요!"
+                loadBreadCount()
                 isCompleteSheetOn = true // TODO: 바로 시트 띄우지 말고 서버 요청을 보내고 요청 성공 시에 시트 띄워야 함
             }
         }

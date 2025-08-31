@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol BreadCountUseCase {
+protocol BreadCountUseCase: Sendable {
     func getTodayBreadCount() async throws -> Int
 }
 

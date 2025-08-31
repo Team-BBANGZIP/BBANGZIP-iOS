@@ -71,7 +71,7 @@ struct TimerView: View {
                 .padding(.trailing, 10)
         }
         .overlay(Capsule()
-            .stroke(Color(.secondaryStrong), lineWidth: 1)
+            .stroke(Color(.primaryLight), lineWidth: 1)
         )
         .opacity(opacity)
         .padding(.trailing, 20)
@@ -345,6 +345,6 @@ struct TimerView: View {
 
 #Preview {
     TimerView(
-        viewModel: TimerViewModel(timerUseCase: TimerUseCaseImpl())
+        viewModel: TimerViewModel(timerUseCase: TimerUseCaseImpl(), breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()))
     )
 }
