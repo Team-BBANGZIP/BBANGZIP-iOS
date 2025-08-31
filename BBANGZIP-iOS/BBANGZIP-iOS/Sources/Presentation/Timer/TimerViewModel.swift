@@ -16,7 +16,7 @@ final class TimerViewModel: ObservableObject {
         case paused
         case done
     }
-
+    
     @Published var breadCount: Int = 0
     @Published var announceText: String = "오늘의 빵을 구워보세요!"
     @Published var leftTimeText: String = "" // TODO: 초기값 어케함?
@@ -72,16 +72,17 @@ final class TimerViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func pauseTimer() {
         state = .paused
         announceText = "잠시 쉬는 중..."
         timerUseCase.stop()
         timerTask?.cancel()
     }
-
+    
     private func resumeTimer() {
         state = .running
+        currentBreadLevel = calculateBreadLevel(remainingSeconds: leftSeconds)
         timerTask = Task {
             for await remainingSeconds in timerUseCase.timerStream(from: leftSeconds) {
                 leftSeconds = remainingSeconds
@@ -110,7 +111,7 @@ final class TimerViewModel: ObservableObject {
         currentBreadLevel = 1
         resumeTimer()
     }
-
+    
     private func resetTimer() {
         state = .initial
         timerUseCase.stop()
@@ -121,7 +122,7 @@ final class TimerViewModel: ObservableObject {
         currentBreadLevel = 1
         announceText = "오늘의 빵을 구워보세요!"
     }
-
+    
     private func formatTime(seconds: Int) -> String {
         let minutes = seconds / 60
         let seconds = seconds % 60
@@ -132,28 +133,32 @@ final class TimerViewModel: ObservableObject {
         if isHour {
             let elapsedSeconds = 3600 - remainingSeconds
             switch elapsedSeconds {
-            case 0..<900:
-                return 1
-            case 900..<1800:
+            case 0..<1:
                 return 2
-            case 1800..<2700:
+            case 1..<900:
+                return 2
+            case 900..<1800:
                 return 3
-            case 2700..<3600:
+            case 1800..<2700:
                 return 4
+            case 2700..<3600:
+                return 5
             default:
                 return 5
             }
         } else {
             let elapsedSeconds = 1800 - remainingSeconds
             switch elapsedSeconds {
-            case 0..<450:
-                return 1
-            case 450..<900:
+            case 0..<1:
                 return 2
-            case 900..<1350:
+            case 1..<450:
+                return 2
+            case 450..<900:
                 return 3
-            case 1350..<1800:
+            case 900..<1350:
                 return 4
+            case 1350..<1800:
+                return 5
             default:
                 return 5
             }

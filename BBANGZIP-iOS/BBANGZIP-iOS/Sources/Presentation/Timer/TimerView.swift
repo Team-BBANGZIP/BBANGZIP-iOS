@@ -90,6 +90,8 @@ struct TimerView: View {
         GeometryReader { geometry in
             let lineWidth = min(geometry.size.width, geometry.size.height) * 0.035
             let textColor: BbangzipColor = viewModel.state == .running ? .primaryNormal : viewModel.state == .done ? .primaryStrong : .primaryLight
+            let circleSize = min(geometry.size.width, geometry.size.height)
+            let breadImageSize = circleSize * 0.25
             
             ZStack {
                 Circle()
@@ -110,6 +112,7 @@ struct TimerView: View {
                 
                 VStack(spacing: 8) {
                     Spacer()
+                    
                     Text(viewModel.leftTimeText)
                         .bbangFont(.timer)
                         .bbangColor(textColor)
@@ -118,13 +121,15 @@ struct TimerView: View {
                     if viewModel.state == .initial {
                         ArrowView()
                             .padding(.top, 3)
-                        
-                        Image(.itemSaltBread)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 115, height: 84)
-                            .padding(.bottom, 10)
+                            .opacity(viewModel.state == .initial ? 1 : 0)
                     }
+                    
+                    breadImage
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 115, height: 84)
+                        .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
+                        .padding(.bottom, 10)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -132,6 +137,23 @@ struct TimerView: View {
         .aspectRatio(1, contentMode: .fit)
         .padding(.horizontal, 38)
         .padding(.vertical, 6)
+    }
+    
+    private var breadImage: Image {
+        switch viewModel.currentBreadLevel {
+        case 1:
+            return Image(.itemSaltBread)
+        case 2:
+            return Image(.breadLevel1)
+        case 3:
+            return Image(.breadLevel2)
+        case 4:
+            return Image(.breadLevel3)
+        case 5:
+            return Image(.breadLevel4)
+        default:
+            return Image(.itemSaltBread)
+        }
     }
     
     var timeToggleButton: some View {
@@ -181,7 +203,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.icPerson) // TODO: 이미지 빵으로 변경
+            Image(.prize) // TODO: 이미지 빵으로 변경
                 .resizable()
                 .frame(width: .infinity)
                 .padding(.horizontal, 4)
@@ -268,7 +290,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.icPerson) // TODO: 이미지 빵으로 변경
+            Image(.prize2)
                 .resizable()
                 .frame(width: .infinity)
                 .padding(.horizontal, 4)
