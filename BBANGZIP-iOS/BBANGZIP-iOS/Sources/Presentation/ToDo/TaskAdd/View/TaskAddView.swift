@@ -5,6 +5,7 @@
 //  Created by 김송희 on 6/12/25.
 //
 
+import Foundation
 import SwiftUI
 
 struct TaskAddView: View {
@@ -94,6 +95,6 @@ struct TaskAddView: View {
     }
     
     private func formatDate(_ date: Date) -> String {
-        DateFormatter.taskTimeFormatter.string(from: date)
+        Foundation.DateFormatter.taskTimeFormatter.string(from: date)
     }
 }
