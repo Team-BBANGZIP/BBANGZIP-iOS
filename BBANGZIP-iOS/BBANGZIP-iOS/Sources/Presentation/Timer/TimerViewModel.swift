@@ -164,6 +164,43 @@ final class TimerViewModel: ObservableObject {
             }
         }
     }
+    
+    private func canGetBreadReward() -> (count: Int, imageName: String) {
+        let totalSeconds = isHour ? 3600 : 1800
+        let elapsedSeconds = totalSeconds - leftSeconds
+        let halfTime = totalSeconds / 2
+        
+        if isHour {
+            if elapsedSeconds >= halfTime {
+                return (2, "prize2")
+            } else {
+                return (1, "prize")
+            }
+        } else {
+            if elapsedSeconds >= halfTime {
+                return (1, "prize")
+            } else {
+                return (1, "prize")
+            }
+        }
+    }
+    
+    var resetSheetBreadCount: String {
+        let reward = canGetBreadReward()
+        return reward.count == 1 ? "한" : "두"
+    }
+    
+    var resetSheetImageName: String {
+        return canGetBreadReward().imageName
+    }
+    
+    var completeSheetBreadCount: String {
+        return isHour ? "두" : "한"
+    }
+    
+    var completeSheetImageName: String {
+        return isHour ? "prize2" : "prize"
+    }
 }
 
 // MARK: - User Interaction
