@@ -11,8 +11,7 @@ public struct PromiseInputField: View {
     @Binding public var text: String
     private let maxLength: Int = 50
     
-    public init(text: Binding<String>
-    ) {
+    public init(text: Binding<String>) {
         self._text = text
     }
     
