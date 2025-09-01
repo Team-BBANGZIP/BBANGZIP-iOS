@@ -11,7 +11,7 @@ struct CategoryAddView: View {
     @StateObject private var viewModel = CategoryAddViewModel()
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
-    @State private var showColorPicker = false
+    @State private var isColorPickerPresented = false
     
     private var isErrorPresented: Binding<Bool> {
         Binding(
@@ -45,7 +45,7 @@ struct CategoryAddView: View {
                         selectedColor: viewModel.selectedColor,
                         onTap: {
                             isTextFieldFocused = false
-                            showColorPicker = true
+                            isColorPickerPresented = true
                         }
                     )
                     
@@ -64,10 +64,17 @@ struct CategoryAddView: View {
             .onChange(of: viewModel.isCompleted) { isCompleted in
                 if isCompleted { dismiss() }
             }
-            .sheet(isPresented: $showColorPicker) {
-                // TODO: 바텀시트 구현
-                Text("바텀시트~")
-                    .padding()
+            .sheet(isPresented: $isColorPickerPresented) {
+                if #available(iOS 16.4, *) {
+                    PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+                    .presentationDetents([.height(273)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+                } else {
+                    PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+                    .presentationDetents([.height(273)])
+                    .presentationDragIndicator(.visible)
+                }
             }
         }
         .toolbar(.hidden, for: .navigationBar)
