@@ -22,7 +22,6 @@ struct ToDoView: View {
             
             VStack(spacing: 16) {
                 calendarHeaderView
-                
                 calendarBodyView
                     .padding(.horizontal, 20)
             }
@@ -43,10 +42,10 @@ struct ToDoView: View {
         }
     }
     
+    // MARK: - 상단 메시지
     private var messageView: some View {
         ZStack {
             Color(.secondaryStrong)
-            
             HStack(spacing: 0) {
                 BbangText(
                     "\(viewModel.todoData?.commitmentMessage ?? "나만의 다짐을 적어보세요")",
@@ -65,6 +64,7 @@ struct ToDoView: View {
         .frame(height: 60)
     }
     
+    // MARK: - 캘린더 헤더
     private var calendarHeaderView: some View {
         HStack(spacing: 20) {
             BbangText(
@@ -90,7 +90,6 @@ struct ToDoView: View {
             
             Spacer()
             
-            // TODO: Custom화 필요
             Menu {
                 Button {
                     print("카테고리 추가")
@@ -100,17 +99,11 @@ struct ToDoView: View {
                             .renderingMode(.template)
                             .frame(width: 16, height: 16)
                             .foregroundStyle(Color(.labelNormal))
-                        
-                        BbangText(
-                            "카테고리 추가",
-                            font: .body2,
-                            color: Color(.labelNormal)
-                        )
+                        BbangText("카테고리 추가", font: .body2, color: Color(.labelNormal))
                     }
                 }
                 
-                Divider()
-                    .frame(width: 109, height: 1)
+                Divider().frame(width: 109, height: 1)
                 
                 Button {
                     print("카테고리 관리")
@@ -120,12 +113,7 @@ struct ToDoView: View {
                             .renderingMode(.template)
                             .frame(width: 16, height: 16)
                             .foregroundStyle(Color(.labelNormal))
-                        
-                        BbangText(
-                            "카테고리 관리",
-                            font: .body2,
-                            color: Color(.labelNormal)
-                        )
+                        BbangText("카테고리 관리", font: .body2, color: Color(.labelNormal))
                     }
                 }
             } label: {
@@ -138,6 +126,7 @@ struct ToDoView: View {
         }
     }
     
+    // MARK: - 캘린더 바디
     private var calendarBodyView: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
             ForEach(viewModel.daysOfWeek.indices, id: \.self) { index in
@@ -153,6 +142,7 @@ struct ToDoView: View {
         }
     }
     
+    // MARK: - 요약
     var todoSummaryView: some View {
         HStack(spacing: 1.5) {
             Spacer()
@@ -178,104 +168,116 @@ struct ToDoView: View {
             )
         }
     }
-    
+
+    // MARK: - 목록 (indices 기반 + 자연 드래그)
     var scrollContent: some View {
         List {
-            if let categories = viewModel.todoData?.categories {
-                ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
-                    Section {
-                        CategoryButton(
-                            color: .constant(category.colorType.color),
-                            labelText: .constant(category.name)
-                        )
-                        .onTapGesture {
-                            viewModel.selectedCategoryIndex = index
-                            viewModel.isSheetPresented = true
-                        }
-                        .padding(.leading, 20)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        
-                        ForEach(category.todos) { todo in
-                            let isLast = todo.id == category.todos.last?.id
-                            todoRow(
-                                for: todo,
-                                in: category,
-                                categoryIndex: index,
-                                showSeperator: !isLast
-                            )
-                            .padding(.bottom, isLast ? 20 : 0)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .contentShape(Rectangle())
-                        }
-                    }
+            if let cats = viewModel.todoData?.categories {
+                ForEach(cats.indices, id: \.self) { cIndex in
+                    let category = cats[cIndex]
+                    categorySection(for: category, at: cIndex)
                 }
             }
-            
             Spacer(minLength: 50)
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
+                .moveDisabled(true) // 스페이서는 이동 불가, 그대로 유지
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .environment(\.defaultMinListRowHeight, 0)
         .contentShape(Rectangle())
-        .gesture(DragGesture().onChanged { _ in })
     }
-    
-    func categorySection(
-        for category: Category,
-        at index: Int
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+
+    // MARK: - 섹션 (카테고리 고정 + Todo 자연 드래그-드롭)
+    // 동일 섹션 내 재정렬만 가능
+    @ViewBuilder
+    func categorySection(for category: Category, at cIndex: Int) -> some View {
+        Section {
+            // 카테고리 버튼(고정) - 변경 없음, 이동 불가 설정 추가
             CategoryButton(
                 color: .constant(category.colorType.color),
                 labelText: .constant(category.name)
             )
             .onTapGesture {
-                viewModel.selectedCategoryIndex = index
+                viewModel.selectedCategoryIndex = cIndex
                 viewModel.isSheetPresented = true
             }
             .padding(.leading, 20)
-            
-            ForEach(category.todos) { todo in
-                let isLast = todo.id == category.todos.last?.id
-                todoRow(
-                    for: todo,
-                    in: category,
-                    categoryIndex: index,
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .moveDisabled(true) // NEW: 카테고리 헤더는 이동 불가로 고정
+
+            // 행은 id 기반 ForEach - .onMove로 드래그앤드롭 활성화
+            ForEach(category.todos, id: \.id) { todo in
+                let isLast = (todo.id == category.todos.last?.id)
+                let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
+                TaskBox(
+                    viewModel: todoViewModel,
+                    meatballTapped: { handleMeatballTapped(for: todo) },
                     showSeperator: !isLast
                 )
+                .padding(.horizontal, 20)
+                .buttonStyle(PlainButtonStyle())
+                .asTodoListRow(isLast: isLast) // 기존 스타일 헬퍼 유지
             }
+            .onMove { fromOffsets, toOffset in // NEW: 시스템 드래그앤드롭, 아이템 벌어짐 애니메이션 포함
+                withAnimation(.easeInOut) {
+                    viewModel.moveTodos(inCategoryAt: cIndex, from: fromOffsets, to: toOffset)
+                }
+            }
+
+            // 섹션 맨 아래 투명 드롭 영역(선택) - 섹션 끝 드롭을 위해 유지
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: 12)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .dropDestination(for: String.self) { items, _ in // CHANGED: .onMove가 주로 처리, 이건 끝 드롭 보장용
+                    guard let idStr = items.first, let draggingID = Int(idStr),
+                          let cats = viewModel.todoData?.categories,
+                          cats.indices.contains(cIndex) else { return false }
+                    let todos = cats[cIndex].todos
+                    guard let from = todos.firstIndex(where: { $0.id == draggingID }) else { return false }
+                    let to = todos.count
+                    if from != to - 1 {
+                        withAnimation(.easeInOut) {
+                            viewModel.moveTodos(inCategoryAt: cIndex, from: IndexSet(integer: from), to: to)
+                        }
+                    }
+                    return true
+                }
         }
     }
-    
-    func todoRow(
-        for todo: TimerTodo,
-        in category: Category,
-        categoryIndex: Int,
-        showSeperator: Bool
-    ) -> some View {
+
+    // MARK: - 행 뷰
+    func todoRow(for todo: TimerTodo, in category: Category, categoryIndex: Int, showSeperator: Bool) -> some View {
         let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
-        
         return TaskBox(
             viewModel: todoViewModel,
-            meatballTapped: {
-                handleMeatballTapped(for: todo)
-            },
+            meatballTapped: { handleMeatballTapped(for: todo) },
             showSeperator: showSeperator
         )
         .padding(.horizontal, 20)
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     func handleMeatballTapped(for todo: TimerTodo) {
         print("미트볼 버튼 눌림! - \(todo.content)")
-        // TODO: 메뉴 또는 편집 기능 구현
+    }
+}
+
+// MARK: - 공통 modifier 헬퍼
+private extension View {
+    func asTodoListRow(isLast: Bool) -> some View {
+        self
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .contentShape(Rectangle())
     }
 }
 

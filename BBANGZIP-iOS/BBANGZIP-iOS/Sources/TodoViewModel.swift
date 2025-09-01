@@ -118,3 +118,15 @@ final class TodoViewModel: ObservableObject {
         }
     }
 }
+
+extension TodoViewModel {
+    func moveTodos(inCategoryAt categoryIndex: Int, from source: IndexSet, to destination: Int) {
+        guard var data = todoData,
+              data.categories.indices.contains(categoryIndex) else { return }
+
+        var todos = data.categories[categoryIndex].todos
+        todos.move(fromOffsets: source, toOffset: destination)
+        data.categories[categoryIndex].todos = todos
+        todoData = data
+    }
+}
