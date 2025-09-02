@@ -16,7 +16,7 @@ class CategoryManageViewModel: ObservableObject {
     @Published var isCompleted: Bool = false
     @Published var isStopped: Bool
     
-    private let useCase: AddCategoryUseCaseProtocol
+    private let useCase: UpdateCategoryUseCaseProtocol
     private let original: Category
         
     var isCompleteButtonEnabled: Bool {
@@ -25,7 +25,7 @@ class CategoryManageViewModel: ObservableObject {
     
     init(
         category: Category,
-        useCase: AddCategoryUseCaseProtocol = AddCategoryUseCase()
+        useCase: UpdateCategoryUseCaseProtocol = UpdateCategoryUseCase()
     ) {
         self.categoryName = category.name
         self.selectedColor = category.colorType
@@ -54,9 +54,11 @@ class CategoryManageViewModel: ObservableObject {
             
             do {
                 let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-                _ = try await useCase.addCategory(
+                let updated = try await useCase.updateCategory(
+                    id: original.id,
                     name: trimmedName,
-                    color: selectedColor.apiValue
+                    color: selectedColor.apiValue,
+                    isStopped: isStopped
                 )
                 isCompleted = true
             } catch {

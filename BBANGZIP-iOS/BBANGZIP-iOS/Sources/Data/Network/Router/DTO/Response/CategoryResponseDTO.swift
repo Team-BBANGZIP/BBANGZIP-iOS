@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CategoryAddResponseDTO: Decodable {
+struct CategoryResponseDTO: Decodable {
     let code: Int
     let data: CategoryDataDTO
 }

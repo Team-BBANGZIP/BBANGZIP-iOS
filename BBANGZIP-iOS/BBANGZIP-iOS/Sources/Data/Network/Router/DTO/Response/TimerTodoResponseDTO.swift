@@ -12,6 +12,7 @@ struct CategoryDTO: Decodable {
     let categoryName: String
     let categoryColor: String?
     let todos: [TodoDTO]
+    let isStopped: Bool
 }
 
 struct TodoDTO: Decodable {
@@ -30,7 +31,7 @@ extension CategoryDTO {
             name: categoryName,
             colorType: mappedColor,
             todos: todos.map { $0.toEntity(with: mappedColor) },
-            isStopped: false
+            isStopped: isStopped
         )
     }
 }

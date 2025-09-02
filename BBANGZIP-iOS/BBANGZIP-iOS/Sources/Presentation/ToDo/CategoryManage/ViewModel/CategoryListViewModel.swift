@@ -31,7 +31,6 @@ final class CategoryListViewModel: ObservableObject {
         
         do {
             categories = try await repository.fetchTimerTodos()
-            print("after fetch", categories[0].isStopped)
             makeSections()
         } catch {
         }
