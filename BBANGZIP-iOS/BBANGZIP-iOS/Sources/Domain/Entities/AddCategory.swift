@@ -11,5 +11,5 @@ struct AddCategory {
     let categoryId: Int
     let name: String
     let color: String
-    let isVisible: Bool
+    let isStopped: Bool
 }

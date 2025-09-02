@@ -11,32 +11,37 @@ struct CategoryListView: View {
     @StateObject private var viewModel = CategoryListViewModel(
         repository: MockTodoRepository()
     )
+    @Environment(\.dismiss) private var dismiss
+    @State private var isNavigatingToAddView = false
+    @State private var selectedCategory: Category?
     
     var body: some View {
-        VStack(spacing: 0) {
-            HeaderBarView(
-                title: "카테고리 관리",
-                leftIcon: .icChevronLeft,
-                rightIcon: .icPlusThick
-            )
-            .padding(.bottom, 32)
-            
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 20) {
-                    ForEach(viewModel.categories) { category in
-                        CategoryButton(
-                            color: .constant(category.colorType.color),
-                            labelText: .constant(category.name)
-                        )
-                    }
+        NavigationStack {
+            VStack(spacing: 0) {
+                HeaderBarView(
+                    title: "카테고리 관리",
+                    leftIcon: .icChevronLeft,
+                    rightIcon: .icPlusThick,
+                    onTapLeft: { dismiss() },
+                    onTapRight: { isNavigatingToAddView = true }
+                )
+                .padding(.bottom, 32)
+                
+                ScrollView {
+                    Categories
+                        .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
+                
+                Spacer()
             }
-            
-            Spacer()
-        }
-        .task {
-            await viewModel.fetchCategories()
+            .onAppear {
+                Task {
+                    await viewModel.fetchCategories()
+                }
+            }
+            .navigationDestination(isPresented: $isNavigatingToAddView) {
+                CategoryAddView()
+            }
         }
     }
     
@@ -44,13 +49,13 @@ struct CategoryListView: View {
         let title: String
         let leftIcon: ImageResource
         let rightIcon: ImageResource
-//        let onTapLeft: () -> Void
-//        let onTapRight: () -> Void
+        let onTapLeft: () -> Void
+        let onTapRight: () -> Void
         
         var body: some View {
             HStack {
                 Button(action: {
-                    // TODO: 뒤로가기
+                    onTapLeft()
                 }) {
                     Image(leftIcon)
                         .resizable()
@@ -62,14 +67,14 @@ struct CategoryListView: View {
                 Spacer()
                 
                 Button(action: {
-                    // TODO: 카테고리 추가 뷰 연결
+                    onTapRight()
                 }) {
                     Image(rightIcon)
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: 24, height: 24)
                 }
-                .foregroundStyle(Color(.labelDisable))
+                .foregroundStyle(Color(.labelAssistive))
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
@@ -79,6 +84,47 @@ struct CategoryListView: View {
                     .bbangFont(.title2)
                     .foregroundStyle(Color(.labelNormal))
                     .allowsHitTesting(false)
+            }
+        }
+    }
+    
+    var Categories: some View {
+        LazyVStack(alignment: .leading, spacing: 20) {
+            
+            let active = viewModel.categories.filter { !$0.isStopped }
+            if !active.isEmpty {
+                ForEach(active) { category in
+                    NavigationLink {
+                        CategoryManageView(category: category) { updated in
+                            viewModel.updateCategory(updated)
+                        }
+                    } label: {
+                        CategoryButton(
+                            color: .constant(category.colorType.color),
+                            labelText: .constant(category.name)
+                        )
+                    }
+                }
+            }
+            
+            let stopped = viewModel.categories.filter { $0.isStopped }
+            if !stopped.isEmpty {
+                Text("종료한 카테고리")
+                    .bbangFont(.body2)
+                    .foregroundStyle(Color(.labelAssistive))
+                
+                ForEach(stopped) { category in
+                    NavigationLink {
+                        CategoryManageView(category: category) { updated in
+                            viewModel.updateCategory(updated)
+                        }
+                    } label: {
+                        CategoryButton(
+                            color: .constant(category.colorType.color),
+                            labelText: .constant(category.name)
+                        )
+                    }
+                }
             }
         }
     }

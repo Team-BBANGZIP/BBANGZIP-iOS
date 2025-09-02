@@ -29,7 +29,8 @@ extension CategoryDTO {
             id: categoryId,
             name: categoryName,
             colorType: mappedColor,
-            todos: todos.map { $0.toEntity(with: mappedColor) }
+            todos: todos.map { $0.toEntity(with: mappedColor) },
+            isStopped: false
         )
     }
 }

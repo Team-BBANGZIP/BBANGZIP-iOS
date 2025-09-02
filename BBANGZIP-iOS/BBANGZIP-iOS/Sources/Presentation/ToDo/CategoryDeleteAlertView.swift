@@ -22,12 +22,12 @@ struct CategoryDeleteAlertView: View {
             .padding(.vertical, 60)
         
         buttons
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 20)
             .padding(.bottom, 12)
     }
     
     var buttons: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 15) {
             Button("돌아가기") {
                 // TODO: 바텀 시트 내리기
             }

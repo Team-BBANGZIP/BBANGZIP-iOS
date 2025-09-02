@@ -29,7 +29,8 @@ final class MockTodoRepository: TodoRepository {
                     startTime: nil,
                     colorType: .Todogreen1
                 )
-            ]
+            ],
+            isStopped: false
         ),
         Category(
             id: 2,
@@ -57,7 +58,8 @@ final class MockTodoRepository: TodoRepository {
                     startTime: nil,
                     colorType: .Todopurple1
                 )
-            ]
+            ],
+            isStopped: true
         ),
         Category(
             id: 3,
@@ -71,7 +73,8 @@ final class MockTodoRepository: TodoRepository {
                     startTime: "16:00",
                     colorType: .Todoyellow1
                 )
-            ]
+            ],
+            isStopped: false
         )
     ]
     
