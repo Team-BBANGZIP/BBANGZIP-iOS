@@ -57,37 +57,47 @@ final class TodoViewModel: ObservableObject {
 
         var items = todoItems
 
-        let movingTodos = source.compactMap { idx -> TimerTodo? in
+        let movingTodos: [TimerTodo] = source.compactMap { idx in
             if case .todo(let t) = items[idx] { return t }
             return nil
         }
+        
         if movingTodos.isEmpty { return }
 
         items.remove(atOffsets: source)
 
-        let adjusted = max(0, min(destination - source.filter { $0 < destination }.count, items.count))
+        let adjusted = max(
+            0,
+            min(
+                destination - source.filter { $0 < destination
+                }.count,
+                items.count)
+        )
 
         func indexOfCategoryHeader(_ ci: Int) -> Int? {
             items.firstIndex {
                 if case .category(_, let idx) = $0 { return idx == ci }
+                
                 return false
             }
         }
         
         func indexAfterHeader(_ ci: Int) -> Int? {
             guard let header = indexOfCategoryHeader(ci) else { return nil }
+            
             return min(header + 1, items.count)
         }
         
         func indexOfTailDropZone(_ ci: Int) -> Int? {
             items.firstIndex {
                 if case .tailDropZone(let idx) = $0 { return idx == ci }
+                
                 return false
             }
         }
 
-        // 삽입 위치 계산
         var insertIndex = adjusted
+        
         if adjusted < items.count {
             switch items[adjusted] {
             case .headDropZone(let ci):
@@ -103,14 +113,48 @@ final class TodoViewModel: ObservableObject {
             insertIndex = items.count
         }
 
-        // 삽입
+        func targetCategoryInfo(for insertIndex: Int, in items: [TodoItem]) -> (categoryIndex: Int, color: CategoryColor)? {
+            let start = min(max(insertIndex - 1, 0), max(items.count - 1, 0))
+            
+            if items.indices.contains(start) {
+                for i in stride(from: start, through: 0, by: -1) {
+                    if case .category(let cat, let ci) = items[i] {
+                        
+                        return (ci, cat.colorType)
+                    }
+                }
+            }
+            
+            if items.indices.contains(insertIndex) {
+                for i in insertIndex..<items.count {
+                    if case .category(let cat, let ci) = items[i] {
+                        
+                        return (ci, cat.colorType)
+                    }
+                }
+            }
+            
+            return nil
+        }
+
+        let targetInfo = targetCategoryInfo(for: insertIndex, in: items)
+
         for (offset, todo) in movingTodos.enumerated() {
-            items.insert(.todo(todo), at: insertIndex + offset)
+            let updated: TodoItem
+            
+            if let info = targetInfo {
+                let colored = todo.withUpdatedColorType(info.color)
+                updated = .todo(colored)
+            } else {
+                updated = .todo(todo)
+            }
+            
+            items.insert(updated, at: insertIndex + offset)
         }
 
         var newCategories: [Category] = []
         var currentCat: Category?
-
+        
         for item in items {
             switch item {
             case .category(let cat, _):
@@ -122,6 +166,7 @@ final class TodoViewModel: ObservableObject {
                 break
             }
         }
+        
         if let last = currentCat { newCategories.append(last) }
 
         todoData?.categories = newCategories
