@@ -15,9 +15,15 @@ struct CategoryManageView: View {
     @State private var isDeleteAlertPresented = false
     
     private let onSaved: (Category) -> Void
+    private let onDeleted: (_ categoryID: Int) -> Void
     
-    init(category: Category, onSaved: @escaping (Category) -> Void) {
+    init(
+        category: Category,
+        onSaved: @escaping (Category) -> Void,
+        onDeleted: @escaping (_ categoryId: Int) -> Void
+    ) {
         self.onSaved = onSaved
+        self.onDeleted = onDeleted
         _viewModel = StateObject(
             wrappedValue: CategoryManageViewModel(
                 category: category
@@ -98,13 +104,23 @@ struct CategoryManageView: View {
                 }
             }
             .sheet(isPresented: $isDeleteAlertPresented) {
+                let sheet = CategoryDeleteAlertView(
+                    isPresented: $isDeleteAlertPresented,
+                    categoryName: viewModel.categoryName,
+                    onDelete: {
+                        // TODO: 삭제 API 연결
+                        onDeleted(viewModel.categoryId)
+                        dismiss()
+                    }
+                )
+                
                 if #available(iOS 16.4, *) {
-                    CategoryDeleteAlertView()
+                    sheet
                         .presentationDetents([.height(364)])
                         .presentationCornerRadius(48)
                         .presentationDragIndicator(.visible)
                 } else {
-                    CategoryDeleteAlertView()
+                    sheet
                         .presentationDetents([.height(364)])
                         .presentationDragIndicator(.visible)
                 }

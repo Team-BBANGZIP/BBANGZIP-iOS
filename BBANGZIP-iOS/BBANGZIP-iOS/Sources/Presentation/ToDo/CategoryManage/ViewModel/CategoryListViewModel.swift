@@ -42,12 +42,26 @@ final class CategoryListViewModel: ObservableObject {
         }
     }
     
+    func removeCategory(id: Int) {
+        categories.removeAll(where: { $0.id == id })
+        makeSections()
+    }
+    
     // TODO: mock 업데이트용이므로 서버 API 연결 시 삭제
     func persistCategory(_ category: Category) async {
         do {
             try await repository.updateCategory(category)
         } catch {
             print("카테고리 업데이트 저장 실패: \(error)")
+        }
+    }
+    
+    // TODO: mock 삭제용이므로 서버 API 연결 시 삭제
+    func persistDeleteCategory(id: Int) async {
+        do {
+            try await repository.deleteCategory(id: id)
+        } catch {
+            print("카테고리 삭제 저장 실패: \(error)")
         }
     }
     

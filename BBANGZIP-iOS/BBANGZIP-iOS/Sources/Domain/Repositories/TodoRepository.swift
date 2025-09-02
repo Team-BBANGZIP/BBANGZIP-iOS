@@ -23,4 +23,5 @@ protocol TodoRepository: Sendable {
     ) async throws
     
     func updateCategory(_ category: Category) async throws
+    func deleteCategory(id: Int) async throws
 }

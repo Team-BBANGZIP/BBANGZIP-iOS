@@ -112,4 +112,8 @@ final class MockTodoRepository: TodoRepository {
             categories[idx] = category
         }
     }
+    
+    func deleteCategory(id: Int) async throws {
+        categories.removeAll { $0.id == id }
+    }
 }

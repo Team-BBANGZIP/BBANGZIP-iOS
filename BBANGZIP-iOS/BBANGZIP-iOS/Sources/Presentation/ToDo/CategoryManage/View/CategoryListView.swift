@@ -94,13 +94,23 @@ struct CategoryListView: View {
             if !viewModel.activeCategories.isEmpty {
                 ForEach(viewModel.activeCategories) { category in
                     NavigationLink {
-                        CategoryManageView(category: category) { updated in
-                            viewModel.updateCategory(updated)
-                            // TODO: 서버 연결 후 persistCategory 삭제
-                            Task {
-                                await viewModel.persistCategory(updated)
+                        
+                        // TODO: persist는 로컬 레포용이므로 서버 연결 후 삭제
+                        CategoryManageView(
+                            category: category,
+                            onSaved: { updated in
+                                withAnimation(.spring()) {
+                                    viewModel.updateCategory(updated)
+                                }
+                                Task { await viewModel.persistCategory(updated) }
+                            },
+                            onDeleted: { id in
+                                withAnimation(.spring()) {
+                                    viewModel.removeCategory(id: id)
+                                }
+                                Task { await viewModel.persistDeleteCategory(id: id) }
                             }
-                        }
+                        )
                     } label: {
                         CategoryButton(
                             color: .constant(category.colorType.color),
@@ -117,13 +127,22 @@ struct CategoryListView: View {
                 
                 ForEach(viewModel.stoppedCategories) { category in
                     NavigationLink {
-                        CategoryManageView(category: category) { updated in
-                            viewModel.updateCategory(updated)
-                            // TODO: 서버 연결 후 persistCategory 삭제
-                            Task {
-                                await viewModel.persistCategory(updated)
+                        
+                        // TODO: persist는 로컬 레포용이므로 서버 연결 후 삭제
+                        CategoryManageView(
+                            category: category,
+                            onSaved: { updated in
+                                withAnimation(.spring()) {
+                                    viewModel.updateCategory(updated)                                }
+                                Task { await viewModel.persistCategory(updated) }
+                            },
+                            onDeleted: { id in
+                                withAnimation(.spring()) {
+                                    viewModel.removeCategory(id: id)
+                                }
+                                Task { await viewModel.persistDeleteCategory(id: id) }
                             }
-                        }
+                        )
                     } label: {
                         CategoryButton(
                             color: .constant(category.colorType.color),

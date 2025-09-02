@@ -18,6 +18,7 @@ class CategoryManageViewModel: ObservableObject {
     
     private let useCase: UpdateCategoryUseCaseProtocol
     private let original: Category
+    var categoryId: Int { original.id }
         
     var isCompleteButtonEnabled: Bool {
         !categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isLoading
@@ -54,7 +55,7 @@ class CategoryManageViewModel: ObservableObject {
             
             do {
                 let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-                let updated = try await useCase.updateCategory(
+                _ = try await useCase.updateCategory(
                     id: original.id,
                     name: trimmedName,
                     color: selectedColor.apiValue,
