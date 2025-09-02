@@ -21,4 +21,6 @@ protocol TodoRepository: Sendable {
         content: String,
         startTime: Date?
     ) async throws
+    
+    func updateCategory(_ category: Category) async throws
 }

@@ -20,7 +20,7 @@ final class AddCategoryRepository: AddCategoryRepositoryProtocol {
             categoryId: Int.random(in: 1...1000),
             name: request.name,
             color: request.color,
-            isStopped: true
+            isStopped: false
         )
     }
 }

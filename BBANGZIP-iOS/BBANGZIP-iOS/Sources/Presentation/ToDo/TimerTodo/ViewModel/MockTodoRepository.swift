@@ -106,4 +106,10 @@ final class MockTodoRepository: TodoRepository {
         )
         categories[categoryIndex].todos.append(newTodo)
     }
+    
+    func updateCategory(_ category: Category) async throws {
+        if let idx = categories.firstIndex(where: { $0.id == category.id }) {
+            categories[idx] = category
+        }
+    }
 }

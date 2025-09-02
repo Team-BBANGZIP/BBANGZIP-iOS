@@ -10,6 +10,8 @@ import SwiftUI
 @MainActor
 final class CategoryListViewModel: ObservableObject {
     @Published var categories: [Category] = []
+    @Published var activeCategories: [Category] = []
+    @Published var stoppedCategories: [Category] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -29,14 +31,30 @@ final class CategoryListViewModel: ObservableObject {
         
         do {
             categories = try await repository.fetchTimerTodos()
+            print("after fetch", categories[0].isStopped)
+            makeSections()
         } catch {
-            print("카테고리 불러오기 실패: \(error)")
         }
     }
     
     func updateCategory(_ updated: Category) {
         if let index = categories.firstIndex(where: { $0.id == updated.id }) { categories[index] = updated
+            makeSections()
         }
+    }
+    
+    // TODO: mock 업데이트용이므로 서버 API 연결 시 삭제
+    func persistCategory(_ category: Category) async {
+        do {
+            try await repository.updateCategory(category)
+        } catch {
+            print("카테고리 업데이트 저장 실패: \(error)")
+        }
+    }
+    
+    private func makeSections() {
+        activeCategories = categories.filter{ !$0.isStopped }
+        stoppedCategories = categories.filter{ $0.isStopped }
     }
 }
 

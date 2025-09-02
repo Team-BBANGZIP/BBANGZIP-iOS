@@ -91,12 +91,15 @@ struct CategoryListView: View {
     var Categories: some View {
         LazyVStack(alignment: .leading, spacing: 20) {
             
-            let active = viewModel.categories.filter { !$0.isStopped }
-            if !active.isEmpty {
-                ForEach(active) { category in
+            if !viewModel.activeCategories.isEmpty {
+                ForEach(viewModel.activeCategories) { category in
                     NavigationLink {
                         CategoryManageView(category: category) { updated in
                             viewModel.updateCategory(updated)
+                            // TODO: 서버 연결 후 persistCategory 삭제
+                            Task {
+                                await viewModel.persistCategory(updated)
+                            }
                         }
                     } label: {
                         CategoryButton(
@@ -107,16 +110,19 @@ struct CategoryListView: View {
                 }
             }
             
-            let stopped = viewModel.categories.filter { $0.isStopped }
-            if !stopped.isEmpty {
+            if !viewModel.stoppedCategories.isEmpty {
                 Text("종료한 카테고리")
                     .bbangFont(.body2)
                     .foregroundStyle(Color(.labelAssistive))
                 
-                ForEach(stopped) { category in
+                ForEach(viewModel.stoppedCategories) { category in
                     NavigationLink {
                         CategoryManageView(category: category) { updated in
                             viewModel.updateCategory(updated)
+                            // TODO: 서버 연결 후 persistCategory 삭제
+                            Task {
+                                await viewModel.persistCategory(updated)
+                            }
                         }
                     } label: {
                         CategoryButton(
