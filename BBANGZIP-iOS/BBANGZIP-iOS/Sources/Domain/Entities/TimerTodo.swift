@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TimerTodo: Identifiable, Equatable {
+struct TimerTodo: Identifiable, Equatable, Codable {
     let id: Int
     let content: String
     let isCompleted: Bool
@@ -29,6 +29,18 @@ struct TimerTodo: Identifiable, Equatable {
             id: id,
             content: content,
             isCompleted: completed,
+            startTime: startTime,
+            colorType: colorType
+        )
+    }
+}
+
+extension TimerTodo {
+    func withUpdatedColorType(_ colorType: CategoryColor) -> TimerTodo {
+        TimerTodo(
+            id: id,
+            content: content,
+            isCompleted: isCompleted,
             startTime: startTime,
             colorType: colorType
         )

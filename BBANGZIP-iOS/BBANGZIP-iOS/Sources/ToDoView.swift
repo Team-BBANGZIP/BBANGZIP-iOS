@@ -33,7 +33,7 @@ struct ToDoView: View {
                 .padding(.top, 20)
             
             scrollContent
-                .padding(.top, 8)
+                .padding(.bottom, 8)
             
             Spacer()
         }
@@ -42,7 +42,6 @@ struct ToDoView: View {
         }
     }
     
-    // MARK: - 상단 메시지
     private var messageView: some View {
         ZStack {
             Color(.secondaryStrong)
@@ -64,7 +63,6 @@ struct ToDoView: View {
         .frame(height: 60)
     }
     
-    // MARK: - 캘린더 헤더
     private var calendarHeaderView: some View {
         HStack(spacing: 20) {
             BbangText(
@@ -126,7 +124,6 @@ struct ToDoView: View {
         }
     }
     
-    // MARK: - 캘린더 바디
     private var calendarBodyView: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
             ForEach(viewModel.daysOfWeek.indices, id: \.self) { index in
@@ -142,7 +139,6 @@ struct ToDoView: View {
         }
     }
     
-    // MARK: - 요약
     var todoSummaryView: some View {
         HStack(spacing: 1.5) {
             Spacer()
@@ -169,115 +165,55 @@ struct ToDoView: View {
         }
     }
 
-    // MARK: - 목록 (indices 기반 + 자연 드래그)
     var scrollContent: some View {
         List {
-            if let cats = viewModel.todoData?.categories {
-                ForEach(cats.indices, id: \.self) { cIndex in
-                    let category = cats[cIndex]
-                    categorySection(for: category, at: cIndex)
+            ForEach(viewModel.todoItems, id: \.stableID) { item in
+                if let (category, index) = item.asCategory {
+                    CategoryButton(
+                        color: .constant(category.colorType.color),
+                        labelText: .constant(category.name)
+                    )
+                    .padding(.leading, 20)
+                    .padding(.top, 16)
+                    .onTapGesture {
+                        viewModel.selectedCategoryIndex = index
+                        viewModel.isSheetPresented = true
+                    }
+                    .moveDisabled(true)
+
+                } else if let todo = item.asTodo {
+                    let todoVM = viewModel.makeTodoViewModel(todo: todo)
+                    TaskBox(
+                        viewModel: todoVM,
+                        meatballTapped: { handleMeatballTapped(for: todo) },
+                        showSeperator: true
+                    )
+                    .padding(.horizontal, 20)
+                    .buttonStyle(PlainButtonStyle())
+
+                } else {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(minHeight: 4)
+                        .padding(.horizontal, 20)
                 }
             }
-            Spacer(minLength: 50)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .moveDisabled(true) // 스페이서는 이동 불가, 그대로 유지
+            .onMove { fromOffsets, toOffset in
+                withAnimation(.easeInOut) {
+                    viewModel.moveFlatItems(from: fromOffsets, to: toOffset)
+                }
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .environment(\.defaultMinListRowHeight, 0)
-        .contentShape(Rectangle())
-    }
-
-    // MARK: - 섹션 (카테고리 고정 + Todo 자연 드래그-드롭)
-    // 동일 섹션 내 재정렬만 가능
-    @ViewBuilder
-    func categorySection(for category: Category, at cIndex: Int) -> some View {
-        Section {
-            // 카테고리 버튼(고정) - 변경 없음, 이동 불가 설정 추가
-            CategoryButton(
-                color: .constant(category.colorType.color),
-                labelText: .constant(category.name)
-            )
-            .onTapGesture {
-                viewModel.selectedCategoryIndex = cIndex
-                viewModel.isSheetPresented = true
-            }
-            .padding(.leading, 20)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .moveDisabled(true) // NEW: 카테고리 헤더는 이동 불가로 고정
-
-            // 행은 id 기반 ForEach - .onMove로 드래그앤드롭 활성화
-            ForEach(category.todos, id: \.id) { todo in
-                let isLast = (todo.id == category.todos.last?.id)
-                let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
-                TaskBox(
-                    viewModel: todoViewModel,
-                    meatballTapped: { handleMeatballTapped(for: todo) },
-                    showSeperator: !isLast
-                )
-                .padding(.horizontal, 20)
-                .buttonStyle(PlainButtonStyle())
-                .asTodoListRow(isLast: isLast) // 기존 스타일 헬퍼 유지
-            }
-            .onMove { fromOffsets, toOffset in // NEW: 시스템 드래그앤드롭, 아이템 벌어짐 애니메이션 포함
-                withAnimation(.easeInOut) {
-                    viewModel.moveTodos(inCategoryAt: cIndex, from: fromOffsets, to: toOffset)
-                }
-            }
-
-            // 섹션 맨 아래 투명 드롭 영역(선택) - 섹션 끝 드롭을 위해 유지
-            Rectangle()
-                .fill(Color.clear)
-                .frame(height: 12)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .dropDestination(for: String.self) { items, _ in // CHANGED: .onMove가 주로 처리, 이건 끝 드롭 보장용
-                    guard let idStr = items.first, let draggingID = Int(idStr),
-                          let cats = viewModel.todoData?.categories,
-                          cats.indices.contains(cIndex) else { return false }
-                    let todos = cats[cIndex].todos
-                    guard let from = todos.firstIndex(where: { $0.id == draggingID }) else { return false }
-                    let to = todos.count
-                    if from != to - 1 {
-                        withAnimation(.easeInOut) {
-                            viewModel.moveTodos(inCategoryAt: cIndex, from: IndexSet(integer: from), to: to)
-                        }
-                    }
-                    return true
-                }
-        }
-    }
-
-    // MARK: - 행 뷰
-    func todoRow(for todo: TimerTodo, in category: Category, categoryIndex: Int, showSeperator: Bool) -> some View {
-        let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
-        return TaskBox(
-            viewModel: todoViewModel,
-            meatballTapped: { handleMeatballTapped(for: todo) },
-            showSeperator: showSeperator
-        )
-        .padding(.horizontal, 20)
-        .buttonStyle(PlainButtonStyle())
     }
 
     func handleMeatballTapped(for todo: TimerTodo) {
         print("미트볼 버튼 눌림! - \(todo.content)")
-    }
-}
-
-// MARK: - 공통 modifier 헬퍼
-private extension View {
-    func asTodoListRow(isLast: Bool) -> some View {
-        self
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .contentShape(Rectangle())
     }
 }
 
@@ -294,5 +230,52 @@ struct TodoView_Previews: PreviewProvider {
         )
 
         return ToDoView(viewModel: previewViewModel)
+    }
+}
+
+enum TodoItem: Identifiable, Equatable {
+    case category(Category, index: Int)
+    case todo(TimerTodo)
+    case headDropZone(categoryIndex: Int)
+    case tailDropZone(categoryIndex: Int)
+    case globalTail
+
+    var id: Int {
+        switch self {
+        case .category(_, let index):
+            return -(index + 1)
+        case .todo(let todo):
+            return todo.id
+        case .headDropZone(let ci):
+            return -(30_000 + ci)
+        case .tailDropZone(let ci):
+            return -(40_000 + ci)
+        case .globalTail:
+            return -999_999
+        }
+    }
+
+    var stableID: String {
+        switch self {
+        case .category(_, let idx):           
+            return "cat-\(idx)"
+        case .todo(let t):                    
+            return "todo-\(t.id)"
+        case .headDropZone(let ci):           
+            return "drop-head-\(ci)"
+        case .tailDropZone(let ci):          
+            return "drop-tail-\(ci)"
+        case .globalTail:                     
+            return "drop-global"
+        }
+    }
+
+    var asCategory: (Category, index: Int)? {
+        if case .category(let c, let i) = self { return (c, i) }
+        return nil
+    }
+    var asTodo: TimerTodo? {
+        if case .todo(let t) = self { return t }
+        return nil
     }
 }

@@ -51,6 +51,82 @@ final class TodoViewModel: ObservableObject {
             }
         }
     }
+
+    func moveFlatItems(from source: IndexSet, to destination: Int) {
+        guard todoData?.categories != nil else { return }
+
+        var items = todoItems
+
+        let movingTodos = source.compactMap { idx -> TimerTodo? in
+            if case .todo(let t) = items[idx] { return t }
+            return nil
+        }
+        if movingTodos.isEmpty { return }
+
+        items.remove(atOffsets: source)
+
+        let adjusted = max(0, min(destination - source.filter { $0 < destination }.count, items.count))
+
+        func indexOfCategoryHeader(_ ci: Int) -> Int? {
+            items.firstIndex {
+                if case .category(_, let idx) = $0 { return idx == ci }
+                return false
+            }
+        }
+        
+        func indexAfterHeader(_ ci: Int) -> Int? {
+            guard let header = indexOfCategoryHeader(ci) else { return nil }
+            return min(header + 1, items.count)
+        }
+        
+        func indexOfTailDropZone(_ ci: Int) -> Int? {
+            items.firstIndex {
+                if case .tailDropZone(let idx) = $0 { return idx == ci }
+                return false
+            }
+        }
+
+        // 삽입 위치 계산
+        var insertIndex = adjusted
+        if adjusted < items.count {
+            switch items[adjusted] {
+            case .headDropZone(let ci):
+                if let head = indexAfterHeader(ci) { insertIndex = head }
+            case .tailDropZone(let ci):
+                if let tail = indexOfTailDropZone(ci) { insertIndex = tail }
+            case .globalTail:
+                insertIndex = items.count
+            case .category, .todo:
+                break
+            }
+        } else {
+            insertIndex = items.count
+        }
+
+        // 삽입
+        for (offset, todo) in movingTodos.enumerated() {
+            items.insert(.todo(todo), at: insertIndex + offset)
+        }
+
+        var newCategories: [Category] = []
+        var currentCat: Category?
+
+        for item in items {
+            switch item {
+            case .category(let cat, _):
+                if let existing = currentCat { newCategories.append(existing) }
+                currentCat = Category(id: cat.id, name: cat.name, colorType: cat.colorType, todos: [])
+            case .todo(let todo):
+                currentCat?.todos.append(todo)
+            case .headDropZone, .tailDropZone, .globalTail:
+                break
+            }
+        }
+        if let last = currentCat { newCategories.append(last) }
+
+        todoData?.categories = newCategories
+        objectWillChange.send()
+    }
     
     func makeTodoViewModel(todo: TimerTodo) -> TimerTodoViewModel {
         TimerTodoViewModel(
@@ -120,13 +196,20 @@ final class TodoViewModel: ObservableObject {
 }
 
 extension TodoViewModel {
-    func moveTodos(inCategoryAt categoryIndex: Int, from source: IndexSet, to destination: Int) {
-        guard var data = todoData,
-              data.categories.indices.contains(categoryIndex) else { return }
-
-        var todos = data.categories[categoryIndex].todos
-        todos.move(fromOffsets: source, toOffset: destination)
-        data.categories[categoryIndex].todos = todos
-        todoData = data
+    var todoItems: [TodoItem] {
+        guard let categories = todoData?.categories else { return [] }
+        var result: [TodoItem] = []
+        for (idx, cat) in categories.enumerated() {
+            result.append(.category(cat, index: idx))
+            result.append(.headDropZone(categoryIndex: idx))
+            
+            for todo in cat.todos {
+                result.append(.todo(todo))
+            }
+            
+            result.append(.tailDropZone(categoryIndex: idx))
+        }
+        result.append(.globalTail)
+        return result
     }
 }
