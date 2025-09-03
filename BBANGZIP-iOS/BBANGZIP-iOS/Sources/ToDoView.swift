@@ -87,14 +87,18 @@ struct ToDoView: View {
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color(.labelAlternative))
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
             
             Button(action: { viewModel.moveWeek(by: 1) }) {
                 Image(.icChevronRight)
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color(.labelAlternative))
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
             
             Spacer()
             
