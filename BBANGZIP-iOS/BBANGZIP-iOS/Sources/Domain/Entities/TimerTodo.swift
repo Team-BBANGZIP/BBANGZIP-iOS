@@ -10,7 +10,7 @@ import Foundation
 struct TimerTodo: Identifiable, Equatable, Codable {
     let id: Int
     let content: String
-    let isCompleted: Bool
+    var isCompleted: Bool
     let startTime: String?
     let colorType: CategoryColor
     

@@ -52,7 +52,7 @@ final class TodoViewModel: ObservableObject {
         }
     }
 
-    func moveFlatItems(from source: IndexSet, to destination: Int) {
+    func moveTodoItems(from source: IndexSet, to destination: Int) {
         guard todoData?.categories != nil else { return }
 
         var items = todoItems
@@ -176,7 +176,10 @@ final class TodoViewModel: ObservableObject {
     func makeTodoViewModel(todo: TimerTodo) -> TimerTodoViewModel {
         TimerTodoViewModel(
             todo: todo,
-            toggleUseCase: toggleUseCase
+            toggleUseCase: toggleUseCase,
+            onUpdate: { [weak self] updatedTodo in
+                self?.updateTodoCompletion(updatedTodo)
+            }
         )
     }
     
@@ -236,6 +239,13 @@ final class TodoViewModel: ObservableObject {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
             updateDates()
+        }
+    }
+    
+    func updateTodoCompletion(_ updatedTodo: TimerTodo) {
+        if let cIndex = todoData?.categories.firstIndex(where: { $0.todos.contains(where: { $0.id == updatedTodo.id }) }),
+           let tIndex = todoData?.categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
+            todoData?.categories[cIndex].todos[tIndex] = updatedTodo
         }
     }
 }

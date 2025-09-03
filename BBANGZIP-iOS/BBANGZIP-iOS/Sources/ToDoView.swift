@@ -221,7 +221,7 @@ struct ToDoView: View {
         }
         .onMove { fromOffsets, toOffset in
             withAnimation(.easeInOut) {
-                viewModel.moveFlatItems(from: fromOffsets, to: toOffset)
+                viewModel.moveTodoItems(from: fromOffsets, to: toOffset)
             }
         }
     }
