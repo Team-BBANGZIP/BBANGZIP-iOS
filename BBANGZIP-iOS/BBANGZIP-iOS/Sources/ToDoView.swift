@@ -11,7 +11,6 @@ struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
-    @State private var menuPosition: CGRect = .zero
     
     init(
         viewModel: TodoViewModel,
@@ -127,21 +126,18 @@ struct ToDoView: View {
             
             Spacer()
             
-            GeometryReader { geo in
-                Button(action: {
-                    withAnimation {
-                        isShowMenu.toggle()
-                    }
-                }) {
-                    Image(.icMenu)
-                        .renderingMode(.template)
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(Color(.labelAlternative))
+            Button(action: {
+                withAnimation {
+                    isShowMenu.toggle()
                 }
-                .buttonStyle(.plain)
+            }) {
+                Image(.icMenu)
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(Color(.labelAlternative))
             }
-            .frame(width: 24, height: 24)
+            .buttonStyle(.plain)
             .padding(.trailing, 24)
         }
     }
