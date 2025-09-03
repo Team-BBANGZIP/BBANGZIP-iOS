@@ -10,44 +10,66 @@ import SwiftUI
 struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
+    @State private var isShowMenu: Bool = false
+    @State private var menuPosition: CGRect = .zero
     
-    init(viewModel: TodoViewModel, selectedDate: Date? = nil) {
+    init(
+        viewModel: TodoViewModel,
+        selectedDate: Date? = nil,
+        isShowMenu: Bool = false
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.selectedDate = selectedDate
+        self.isShowMenu = isShowMenu
     }
     
     var body: some View {
-        List {
-            // 상단 메시지 + 캘린더 + 요약
-            VStack(spacing: 0) {
-                messageView
-                
-                VStack(spacing: 16) {
-                    calendarHeaderView
-                    calendarBodyView
-                        .padding(.horizontal, 20)
+        ZStack(alignment: .topTrailing) {
+            List {
+                VStack(spacing: 0) {
+                    messageView
+                    
+                    VStack(spacing: 16) {
+                        calendarHeaderView
+                        calendarBodyView
+                            .padding(.horizontal, 20)
+                    }
+                    .padding(.vertical, 16)
+                    .background(Color(.secondaryLight))
+                    
+                    todoSummaryView
+                        .padding(.trailing, 20)
+                        .padding(.top, 20)
                 }
-                .padding(.vertical, 12)
-                .background(Color(.secondaryLight))
-                
-                todoSummaryView
-                    .padding(.trailing, 20)
-                    .padding(.top, 20)
-            }
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-            
-            TodoContentView
                 .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
-        }
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .environment(\.defaultMinListRowHeight, 0)
-        .onAppear {
-            viewModel.fetchData()
+                
+                TodoContentView
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+            }
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
+            .environment(\.defaultMinListRowHeight, 0)
+            .onAppear {
+                viewModel.fetchData()
+            }
+            
+            if isShowMenu {
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            isShowMenu = false
+                        }
+                    }
+                                    
+                CustomMenu()
+                    .padding(.top, 112)
+                    .padding(.trailing, 20)
+            }
         }
     }
 
@@ -81,10 +103,12 @@ struct ToDoView: View {
                 color: Color(.labelNeutral)
             )
             .padding(.leading, 20)
+            .padding(.vertical, 6)
             
             Button(action: { viewModel.moveWeek(by: -1) }) {
                 Image(.icChevronLeft)
                     .renderingMode(.template)
+                    .resizable()
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color(.labelAlternative))
                     .contentShape(Rectangle())
@@ -94,6 +118,7 @@ struct ToDoView: View {
             Button(action: { viewModel.moveWeek(by: 1) }) {
                 Image(.icChevronRight)
                     .renderingMode(.template)
+                    .resizable()
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color(.labelAlternative))
                     .contentShape(Rectangle())
@@ -102,39 +127,22 @@ struct ToDoView: View {
             
             Spacer()
             
-            Menu {
-                Button {
-                    print("카테고리 추가")
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(.icPlusThin)
-                            .renderingMode(.template)
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Color(.labelNormal))
-                        BbangText("카테고리 추가", font: .body2, color: Color(.labelNormal))
+            GeometryReader { geo in
+                Button(action: {
+                    withAnimation {
+                        isShowMenu.toggle()
                     }
+                }) {
+                    Image(.icMenu)
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color(.labelAlternative))
                 }
-                
-                Divider().frame(width: 109, height: 1)
-                
-                Button {
-                    print("카테고리 관리")
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(.icPencil)
-                            .renderingMode(.template)
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Color(.labelNormal))
-                        BbangText("카테고리 관리", font: .body2, color: Color(.labelNormal))
-                    }
-                }
-            } label: {
-                Image(.icMenu)
-                    .renderingMode(.template)
-                    .frame(width: 32, height: 32)
-                    .foregroundStyle(Color(.labelAlternative))
+                .buttonStyle(.plain)
             }
-            .padding(.trailing, 20)
+            .frame(width: 24, height: 24)
+            .padding(.trailing, 24)
         }
     }
     
