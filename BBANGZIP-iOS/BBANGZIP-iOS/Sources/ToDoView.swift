@@ -17,30 +17,40 @@ struct ToDoView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            messageView
-            
-            VStack(spacing: 16) {
-                calendarHeaderView
-                calendarBodyView
-                    .padding(.horizontal, 20)
+        List {
+            // 상단 메시지 + 캘린더 + 요약
+            VStack(spacing: 0) {
+                messageView
+                
+                VStack(spacing: 16) {
+                    calendarHeaderView
+                    calendarBodyView
+                        .padding(.horizontal, 20)
+                }
+                .padding(.vertical, 12)
+                .background(Color(.secondaryLight))
+                
+                todoSummaryView
+                    .padding(.trailing, 20)
+                    .padding(.top, 20)
             }
-            .padding(.vertical, 12)
-            .background(Color(.secondaryLight))
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
             
-            todoSummaryView
-                .padding(.trailing, 20)
-                .padding(.top, 20)
-            
-            scrollContent
-                .padding(.bottom, 8)
-            
-            Spacer()
+            TodoContentView
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
         }
+        .listStyle(.plain)
+        .scrollIndicators(.hidden)
+        .environment(\.defaultMinListRowHeight, 0)
         .onAppear {
             viewModel.fetchData()
         }
     }
+
     
     private var messageView: some View {
         ZStack {
@@ -165,51 +175,43 @@ struct ToDoView: View {
         }
     }
 
-    var scrollContent: some View {
-        List {
-            ForEach(viewModel.todoItems, id: \.stableID) { item in
-                if let (category, index) = item.asCategory {
-                    CategoryButton(
-                        color: .constant(category.colorType.color),
-                        labelText: .constant(category.name)
-                    )
-                    .padding(.leading, 20)
-                    .padding(.top, 16)
-                    .onTapGesture {
-                        viewModel.selectedCategoryIndex = index
-                        viewModel.isSheetPresented = true
-                    }
-                    .moveDisabled(true)
-
-                } else if let todo = item.asTodo {
-                    let todoVM = viewModel.makeTodoViewModel(todo: todo)
-                    TaskBox(
-                        viewModel: todoVM,
-                        meatballTapped: { handleMeatballTapped(for: todo) },
-                        showSeperator: true
-                    )
+    var TodoContentView: some View {
+        ForEach(viewModel.todoItems, id: \.stableID) { item in
+            if let (category, index) = item.asCategory {
+                CategoryButton(
+                    color: .constant(category.colorType.color),
+                    labelText: .constant(category.name)
+                )
+                .padding(.leading, 20)
+                .padding(.top, 16)
+                .onTapGesture {
+                    viewModel.selectedCategoryIndex = index
+                    viewModel.isSheetPresented = true
+                }
+                .moveDisabled(true)
+                
+            } else if let todo = item.asTodo {
+                let todoVM = viewModel.makeTodoViewModel(todo: todo)
+                TaskBox(
+                    viewModel: todoVM,
+                    meatballTapped: { handleMeatballTapped(for: todo) },
+                    showSeperator: true
+                )
+                .padding(.horizontal, 20)
+                .buttonStyle(PlainButtonStyle())
+                
+            } else {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(minHeight: 4)
                     .padding(.horizontal, 20)
-                    .buttonStyle(PlainButtonStyle())
-
-                } else {
-                    Rectangle()
-                        .fill(Color.clear)
-                        .frame(minHeight: 4)
-                        .padding(.horizontal, 20)
-                }
             }
-            .onMove { fromOffsets, toOffset in
-                withAnimation(.easeInOut) {
-                    viewModel.moveFlatItems(from: fromOffsets, to: toOffset)
-                }
-            }
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
         }
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .environment(\.defaultMinListRowHeight, 0)
+        .onMove { fromOffsets, toOffset in
+            withAnimation(.easeInOut) {
+                viewModel.moveFlatItems(from: fromOffsets, to: toOffset)
+            }
+        }
     }
 
     func handleMeatballTapped(for todo: TimerTodo) {
@@ -230,52 +232,5 @@ struct TodoView_Previews: PreviewProvider {
         )
 
         return ToDoView(viewModel: previewViewModel)
-    }
-}
-
-enum TodoItem: Identifiable, Equatable {
-    case category(Category, index: Int)
-    case todo(TimerTodo)
-    case headDropZone(categoryIndex: Int)
-    case tailDropZone(categoryIndex: Int)
-    case globalTail
-
-    var id: Int {
-        switch self {
-        case .category(_, let index):
-            return -(index + 1)
-        case .todo(let todo):
-            return todo.id
-        case .headDropZone(let ci):
-            return -(30_000 + ci)
-        case .tailDropZone(let ci):
-            return -(40_000 + ci)
-        case .globalTail:
-            return -999_999
-        }
-    }
-
-    var stableID: String {
-        switch self {
-        case .category(_, let idx):           
-            return "cat-\(idx)"
-        case .todo(let t):                    
-            return "todo-\(t.id)"
-        case .headDropZone(let ci):           
-            return "drop-head-\(ci)"
-        case .tailDropZone(let ci):          
-            return "drop-tail-\(ci)"
-        case .globalTail:                     
-            return "drop-global"
-        }
-    }
-
-    var asCategory: (Category, index: Int)? {
-        if case .category(let c, let i) = self { return (c, i) }
-        return nil
-    }
-    var asTodo: TimerTodo? {
-        if case .todo(let t) = self { return t }
-        return nil
     }
 }
