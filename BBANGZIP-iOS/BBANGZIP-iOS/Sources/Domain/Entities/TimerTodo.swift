@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TimerTodo: Identifiable, Equatable, Codable {
+struct TimerTodo: Identifiable, Equatable, Hashable, Codable {
     let id: Int
     let content: String
     var isCompleted: Bool

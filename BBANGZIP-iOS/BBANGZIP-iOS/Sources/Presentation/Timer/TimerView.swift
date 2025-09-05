@@ -71,7 +71,7 @@ struct TimerView: View {
                 .padding(.trailing, 10)
         }
         .overlay(Capsule()
-            .stroke(Color(.secondaryStrong), lineWidth: 1)
+            .stroke(Color(.primaryLight), lineWidth: 1)
         )
         .opacity(opacity)
         .padding(.trailing, 20)
@@ -108,10 +108,25 @@ struct TimerView: View {
                     )
                     .rotationEffect(.degrees(-90))
                 
-                Text(viewModel.leftTimeText)
-                    .bbangFont(.timer)
-                    .bbangColor(textColor)
-                    .monospacedDigit()
+                VStack(spacing: 0) {
+                    Spacer()
+                    
+                    Text(viewModel.leftTimeText)
+                        .bbangFont(.timer)
+                        .bbangColor(textColor)
+                        .monospacedDigit()
+                    
+                    ArrowView()
+                        .padding(.bottom, 8)
+                        .opacity(viewModel.state == .initial ? 1 : 0)
+                    
+                    breadImage
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 115, height: 84)
+                        .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
+                        .padding(.bottom, 10)
+                }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
@@ -119,7 +134,24 @@ struct TimerView: View {
         .padding(.horizontal, 38)
         .padding(.vertical, 6)
     }
-
+    
+    private var breadImage: Image {
+        switch viewModel.currentBreadLevel {
+        case 1:
+            return Image(.itemSaltBread)
+        case 2:
+            return Image(.breadLevel1)
+        case 3:
+            return Image(.breadLevel2)
+        case 4:
+            return Image(.breadLevel3)
+        case 5:
+            return Image(.breadLevel4)
+        default:
+            return Image(.itemSaltBread)
+        }
+    }
+    
     var timeToggleButton: some View {
         let opacity: Double = viewModel.state == .initial ? 1 : 0
         let disabled = viewModel.state != .initial
@@ -167,7 +199,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.icPerson) // TODO: 이미지 빵으로 변경
+            Image(.prize) // TODO: 이미지 빵으로 변경
                 .resizable()
                 .frame(width: .infinity)
                 .padding(.horizontal, 4)
@@ -198,6 +230,7 @@ struct TimerView: View {
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+        .modifier(CornerRadiusModifier())
     }
     
     var timerControlButton: some View {
@@ -240,8 +273,6 @@ struct TimerView: View {
     }
     
     var resetSheet: some View  {
-        let breadCount = viewModel.isHour ? "두" : "한"
-        
         return VStack(spacing: 0) {
             Text("정말 종료 하시겠어요?")
                 .bbangFont(.title1)
@@ -249,12 +280,12 @@ struct TimerView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("\(viewModel.resetSheetLeftTimeText)만 더 하면 빵 \(breadCount) 개를 얻을 수 있어요")
+            Text("\(viewModel.resetSheetLeftTimeText)만 더 하면 빵 \(viewModel.resetSheetBreadCount) 개를 얻을 수 있어요")
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.icPerson) // TODO: 이미지 빵으로 변경
+            Image(viewModel.resetSheetImageName)
                 .resizable()
                 .frame(width: .infinity)
                 .padding(.horizontal, 4)
@@ -285,66 +316,102 @@ struct TimerView: View {
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+        .modifier(CornerRadiusModifier())
     }
     
     var completeSheet: some View {
-        let breadCount = viewModel.isHour ? "두" : "한"
-        let minute = viewModel.isHour ? "60" : "30"
-        
-        return VStack(spacing: 0) {
-            Text("역시 사장님은 제빵왕!")
-                .bbangFont(.title1)
-                .bbangColor(.primaryNormal)
-                .padding(.top, 40)
-                .padding(.bottom, 4)
+            let minute = viewModel.isHour ? "60" : "30"
             
-            Text("빵 \(breadCount) 개를 흭득했어요")
-                .bbangFont(.body1)
-                .bbangColor(.labelAlternative)
-                .padding(.bottom, 28)
-            
-            Image(.icPerson) // TODO: 이미지 빵으로 변경
-                .resizable()
-                .frame(width: .infinity)
-                .padding(.horizontal, 4)
-                .padding(.bottom, 42)
+            return VStack(spacing: 0) {
+                Text("역시 사장님은 제빵왕!")
+                    .bbangFont(.title1)
+                    .bbangColor(.primaryNormal)
+                    .padding(.top, 40)
+                    .padding(.bottom, 4)
                 
-            GeometryReader { geometry in
-                let width = geometry.size.width
-                HStack(spacing: 8) {
-                    Button("\(minute)분 더") {
-                        viewModel.completeSheetMoreButtonTapped()
-                    }
-                    .buttonStyle(
-                        BbangButtonStyle(
-                            style: .secondary,
-                            rightIcon: Image(.icPlusThick)
+                Text("빵 \(viewModel.completeSheetBreadCount) 개를 흭득했어요")
+                    .bbangFont(.body1)
+                    .bbangColor(.labelAlternative)
+                    .padding(.bottom, 28)
+                
+                Image(viewModel.completeSheetImageName)
+                    .resizable()
+                    .frame(width: .infinity)
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 42)
+                
+                GeometryReader { geometry in
+                    let width = geometry.size.width
+                    HStack(spacing: 8) {
+                        Button("\(minute)분 더") {
+                            viewModel.completeSheetMoreButtonTapped()
+                        }
+                        .buttonStyle(
+                            BbangButtonStyle(
+                                style: .secondary,
+                                rightIcon: Image(.icPlusThick)
+                            )
                         )
-                    )
-                    .frame(width: width * 130 / 370)
-                    
-                    Button("완료한 일 체크") {
-                        viewModel.completeSheetCompleteButtonTapped()
-                    }
-                    .buttonStyle(
-                        BbangButtonStyle(
-                            style: .primary,
-                            rightIcon: Image(.icBook)
+                        .frame(width: width * 130 / 370)
+                        
+                        Button("완료한 일 체크") {
+                            viewModel.completeSheetCompleteButtonTapped()
+                        }
+                        .buttonStyle(
+                            BbangButtonStyle(
+                                style: .primary,
+                                rightIcon: Image(.icBook)
+                            )
                         )
-                    )
+                    }
                 }
-            }
             .frame(height: 48)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+        .modifier(CornerRadiusModifier())
+    }
+}
+
+struct CornerRadiusModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16.4, *) {
+            content.presentationCornerRadius(48)
+        } else {
+            content.background(
+                RoundedRectangle(
+                    cornerRadius: 48,
+                    style: .continuous
+                )
+                    .fill(Color(.systemBackground))
+            )
+        }
+    }
+}
+
+struct ArrowView: View {
+    @State private var animationOffset: CGFloat = 0
+    
+    var body: some View {
+        Image(.icTriangleDown)
+            .renderingMode(.template)
+            .foregroundStyle(Color(.primaryNormal))
+            .offset(y: animationOffset)
+            .onAppear {
+                withAnimation(
+                    .easeInOut(duration: 1.5)
+                    .repeatForever(autoreverses: true)
+                ) {
+                    animationOffset = 8
+                }
+            }
     }
 }
 
 #Preview {
     TimerView(
-        viewModel: TimerViewModel(timerUseCase: TimerUseCaseImpl())
+        viewModel: TimerViewModel(timerUseCase: TimerUseCaseImpl(), breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()))
     )
 }

@@ -10,16 +10,19 @@ import SwiftUI
 @MainActor
 final class TaskAddViewModel: ObservableObject {
     @Published var newTaskText: String = ""
-    private let onAddTask: (String) -> Void
+    @Published var startTime: Date? = nil
+    private let onAddTask: (String, Date?) -> Void
 
-    init(onAddTask: @escaping (String) -> Void) {
+    init(onAddTask: @escaping (String, Date?) -> Void) {
         self.onAddTask = onAddTask
     }
 
-    func submitTask() {        
+    func submitTask() {
         let trimmed = newTaskText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        onAddTask(trimmed)
+
+        onAddTask(trimmed, startTime)
         newTaskText = ""
+        startTime = nil
     }
 }
