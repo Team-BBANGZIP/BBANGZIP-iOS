@@ -11,6 +11,7 @@ struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
+    @State private var navigationPath = NavigationPath()
     
     init(
         viewModel: TodoViewModel,
@@ -23,51 +24,67 @@ struct ToDoView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            List {
-                VStack(spacing: 0) {
-                    messageView
-                    
-                    VStack(spacing: 16) {
-                        calendarHeaderView
-                        calendarBodyView
-                            .padding(.horizontal, 20)
+        NavigationStack(path: $navigationPath) {
+            ZStack(alignment: .topTrailing) {
+                List {
+                    VStack(spacing: 0) {
+                        messageView
+                        
+                        VStack(spacing: 16) {
+                            calendarHeaderView
+                            calendarBodyView
+                                .padding(.horizontal, 20)
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color(.secondaryLight))
+                        
+                        todoSummaryView
+                            .padding(.trailing, 20)
+                            .padding(.top, 20)
                     }
-                    .padding(.vertical, 16)
-                    .background(Color(.secondaryLight))
-                    
-                    todoSummaryView
-                        .padding(.trailing, 20)
-                        .padding(.top, 20)
-                }
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                
-                TodoContentView
                     .listRowInsets(EdgeInsets())
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
-            }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .environment(\.defaultMinListRowHeight, 0)
-            .onAppear {
-                viewModel.fetchData()
-            }
-            
-            if isShowMenu {
-                Color.black.opacity(0.001)
-                    .ignoresSafeArea()
-                    .onTapGesture {
+                    
+                    TodoContentView
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .environment(\.defaultMinListRowHeight, 0)
+                .onAppear {
+                    viewModel.fetchData()
+                }
+                
+                if isShowMenu {
+                    Color.black.opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                        }
+                    
+                    CustomMenu(onAddCategoryTapped: {
                         withAnimation(.easeOut(duration: 0.3)) {
                             isShowMenu = false
                         }
-                    }
-                
-                CustomMenu()
-                    .padding(.top, 112)
-                    .padding(.trailing, 20)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            navigationPath.append("CategoryAdd")
+                        }
+                    })
+                        .padding(.top, 112)
+                        .padding(.trailing, 20)
+                }
+            }
+            .navigationDestination(for: String.self) { destination in
+                if destination == "CategoryAdd" {
+                    CategoryAddView(onDismiss: {
+                        viewModel.fetchData()
+                    })
+                }
             }
         }
     }

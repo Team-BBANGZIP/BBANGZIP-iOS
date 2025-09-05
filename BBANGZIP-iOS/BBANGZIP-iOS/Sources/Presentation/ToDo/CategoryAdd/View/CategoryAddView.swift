@@ -13,6 +13,8 @@ struct CategoryAddView: View {
     @FocusState private var isTextFieldFocused: Bool
     @State private var isColorPickerPresented = false
     
+    var onDismiss: (() -> Void)?
+    
     private var isErrorPresented: Binding<Bool> {
         Binding(
             get: { viewModel.errorMessage != nil },
@@ -21,63 +23,75 @@ struct CategoryAddView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                HeaderBarView(
-                    title: "카테고리 추가",
-                    leftIcon: .icChevronLeft,
-                    onTapLeft: { dismiss() },
-                    rightTitle: "완료",
-                    rightEnabled: viewModel.isCompleteButtonEnabled,
-                    onTapRight: { viewModel.addCategory() }
+        VStack(spacing: 0) {
+            HeaderBarView(
+                title: "카테고리 추가",
+                leftIcon: .icChevronLeft,
+                onTapLeft: {
+                    isTextFieldFocused = false
+                    onDismiss?()
+                    dismiss()
+                },
+                
+                rightTitle: "완료",
+                rightEnabled: viewModel.isCompleteButtonEnabled,
+                onTapRight: {
+                    isTextFieldFocused = false
+                    viewModel.addCategory()
+                }
+            )
+            .navigationBarHidden(true)
+            
+            VStack(spacing: 20) {
+                
+                UnderlineTextField(
+                    text: $viewModel.categoryName,
+                    placeholder: "카테고리명 입력",
+                    isFocused: $isTextFieldFocused
+                )
+                .padding(.top, 8)
+                
+                ColorPickerRow(
+                    selectedColor: viewModel.selectedColor,
+                    onTap: {
+                        isTextFieldFocused = false
+                        isColorPickerPresented = true
+                    }
                 )
                 
-                VStack(spacing: 20) {
-                    
-                    UnderlineTextField(
-                        text: $viewModel.categoryName,
-                        placeholder: "카테고리명 입력",
-                        isFocused: $isTextFieldFocused
-                    )
-                    .padding(.top, 8)
-                    
-                    ColorPickerRow(
-                        selectedColor: viewModel.selectedColor,
-                        onTap: {
-                            isTextFieldFocused = false
-                            isColorPickerPresented = true
-                        }
-                    )
-                    
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 32)
+                Spacer()
             }
-            .contentShape(Rectangle())
-            .onTapGesture { isTextFieldFocused = false }
-            .alert("오류", isPresented: isErrorPresented) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
+            .padding(.horizontal, 20)
+            .padding(.top, 32)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isTextFieldFocused = false
+        }
+        .alert("오류", isPresented: isErrorPresented) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+        .onChange(of: viewModel.isCompleted) { isCompleted in
+            if isCompleted {
+                isTextFieldFocused = false
+                onDismiss?()
+                dismiss()
             }
-            .onChange(of: viewModel.isCompleted) { isCompleted in
-                if isCompleted { dismiss() }
-            }
-            .sheet(isPresented: $isColorPickerPresented) {
-                if #available(iOS 16.4, *) {
-                    PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+        }
+        .sheet(isPresented: $isColorPickerPresented) {
+            if #available(iOS 16.4, *) {
+                PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
                     .presentationDetents([.height(273)])
                     .presentationCornerRadius(48)
                     .presentationDragIndicator(.visible)
-                } else {
-                    PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+            } else {
+                PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
                     .presentationDetents([.height(273)])
                     .presentationDragIndicator(.visible)
-                }
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -141,6 +155,11 @@ private struct UnderlineTextField: View {
                     .submitLabel(.done)
                     .textInputAutocapitalization(.none)
                     .disableAutocorrection(true)
+                    .onSubmit {
+                        if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            isFocused = false
+                        }
+                    }
             }
             .padding(.vertical, 8)
             .overlay(alignment: .bottom) {
