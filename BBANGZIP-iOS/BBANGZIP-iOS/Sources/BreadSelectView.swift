@@ -28,7 +28,7 @@ struct BreadSelectView: View {
                 .padding(.top, 41)
             
             // TODO: 서버에서 총 빵의 개수 받아오도록 API 연결
-            Text("오늘까지 총 N개의 빵을 모았어요!")
+            Text("오늘까지 총 1개의 빵을 모았어요!")
                 .bbangFont(.subtitle1)
                 .foregroundColor(Color(.labelAlternative))
                 .padding(.horizontal, 16)

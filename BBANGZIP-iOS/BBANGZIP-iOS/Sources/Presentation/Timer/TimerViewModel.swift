@@ -29,6 +29,7 @@ final class TimerViewModel: ObservableObject {
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
     @Published var isCompleteSheetOn: Bool = false
+    @Published var isBreadSelectSheetOn: Bool = false
     
     private let timerUseCase: TimerUseCase
     private let breadCountUseCase: BreadCountUseCase
@@ -261,5 +262,11 @@ extension TimerViewModel {
     
     func completeSheetCompleteButtonTapped() {
         // TODO: 페이지 이동 변수 컨트롤
+    }
+    
+    func breadImageTapped() {
+        if state == .initial {
+            isBreadSelectSheetOn = true
+        }
     }
 }
