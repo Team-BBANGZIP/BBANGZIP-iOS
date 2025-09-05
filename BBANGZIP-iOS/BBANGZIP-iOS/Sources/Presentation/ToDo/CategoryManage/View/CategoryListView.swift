@@ -16,32 +16,31 @@ struct CategoryListView: View {
     @State private var selectedCategory: Category?
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                HeaderBarView(
-                    title: "카테고리 관리",
-                    leftIcon: .icChevronLeft,
-                    rightIcon: .icPlusThick,
-                    onTapLeft: { dismiss() },
-                    onTapRight: { isNavigatingToAddView = true }
-                )
-                .padding(.bottom, 32)
-                
-                ScrollView {
-                    Categories
-                        .padding(.horizontal, 20)
-                }
-                
-                Spacer()
+        VStack(spacing: 0) {
+            HeaderBarView(
+                title: "카테고리 관리",
+                leftIcon: .icChevronLeft,
+                rightIcon: .icPlusThick,
+                onTapLeft: { dismiss() },
+                onTapRight: { isNavigatingToAddView = true }
+            )
+            .padding(.bottom, 32)
+            
+            ScrollView {
+                Categories
+                    .padding(.horizontal, 20)
             }
-            .onAppear {
-                Task {
-                    await viewModel.fetchCategories()
-                }
+            
+            Spacer()
+        }
+        .navigationBarHidden(true)
+        .onAppear {
+            Task {
+                await viewModel.fetchCategories()
             }
-            .navigationDestination(isPresented: $isNavigatingToAddView) {
-                CategoryAddView()
-            }
+        }
+        .navigationDestination(isPresented: $isNavigatingToAddView) {
+            CategoryAddView()
         }
     }
     

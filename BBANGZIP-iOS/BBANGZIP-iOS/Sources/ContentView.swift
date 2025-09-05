@@ -7,8 +7,8 @@ public struct ContentView: View {
     )
     
     @Environment(\.scenePhase) private var scenePhase
-    
     @State private var wasPausedByLock = false
+    @State private var showCheckedOffView = false
     
     public init() {
         let appearance = UITabBarAppearance()
@@ -22,56 +22,112 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        ZStack {
-            if timerViewModel.state == .running || timerViewModel.state == .paused {
-                TimerView(viewModel: timerViewModel)
-                    .transition(.opacity)
-            } else {
-                TabView {
+        NavigationStack {
+            ZStack {
+                if showCheckedOffView {
+                    checkedOffView
+                        .transition(.move(edge: .trailing))
+                } else if timerViewModel.state == .running || timerViewModel.state == .paused {
                     TimerView(viewModel: timerViewModel)
-                        .tabItem {
-                            Image(.icTimer)
-                                .renderingMode(.template)
-                            Text("빵굽기")
-                        }
-                    
-                    Text("할 일")
-                        .tabItem {
-                            Image(.icBook)
-                                .renderingMode(.template)
-                            Text("할 일")
-                        }
-                    
-                    Text("이웃")
-                        .tabItem {
-                            Image(.icChat)
-                                .renderingMode(.template)
-                            Text("이웃")
-                        }
-                    
-                    Text("마이")
-                        .tabItem {
-                            Image(.icPerson)
-                                .renderingMode(.template)
-                            Text("마이")
-                        }
+                        .transition(.opacity)
+                } else {
+                    mainTabView
+                        .transition(.opacity)
                 }
-                .accentColor(Color(.staticblack))
-                .toolbarBackground(
-                    Color(.componentAlternative),
-                    for: .tabBar
-                )
-                .transition(.opacity)
             }
+            .animation(.easeInOut(duration: 0.3), value: timerViewModel.state)
+            .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
         }
-        .animation(.easeInOut(duration: 0.3), value: timerViewModel.state)
         .onChange(of: scenePhase) { newPhase in
             handleScenePhaseChange(newPhase)
         }
         .onChange(of: timerViewModel.state) { newState in
             handleTimerStateChange(newState)
         }
+        .onReceive(timerViewModel.$shouldShowCheckedOffView) { shouldShow in
+            if shouldShow {
+                showCheckedOffView = true
+                timerViewModel.resetCheckedOffViewFlag()
+            }
+        }
     }
+    
+    
+    private var mainTabView: some View {
+        TabView {
+            TimerView(viewModel: timerViewModel)
+                .tabItem {
+                    Image(.icTimer)
+                        .renderingMode(.template)
+                    Text("빵굽기")
+                }
+            
+            ToDoView(viewModel: makeTodoViewModel())
+                .tabItem {
+                    Image(.icBook)
+                        .renderingMode(.template)
+                    Text("할 일")
+                }
+            
+            Text("이웃")
+                .tabItem {
+                    Image(.icChat)
+                        .renderingMode(.template)
+                    Text("이웃")
+                }
+            
+            Text("마이")
+                .tabItem {
+                    Image(.icPerson)
+                        .renderingMode(.template)
+                    Text("마이")
+                }
+        }
+        .accentColor(Color(.staticblack))
+        .toolbarBackground(
+            Color(.componentAlternative),
+            for: .tabBar
+        )
+    }
+    
+    
+    private var checkedOffView: some View {
+        let mockRepo = MockTodoRepository()
+        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: mockRepo)
+        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
+        let addUseCase = DefaultAddTodoUseCase(repository: mockRepo)
+        
+        let checkedOffViewModel = TimerCheckedOffViewModel(
+            fetchUseCase: fetchUseCase,
+            toggleUseCase: toggleUseCase,
+            addUseCase: addUseCase
+        )
+        
+        return CheckedOffView(
+            viewModel: checkedOffViewModel,
+            onBackToTimer: {
+                showCheckedOffView = false
+                timerViewModel.resetToInitial()
+            },
+            onStartAdditionalTimer: {
+                showCheckedOffView = false
+                timerViewModel.startAdditionalTimer()
+            }
+        )
+    }
+    
+    private func makeTodoViewModel() -> TodoViewModel {
+        let repo = MockTodoRepository()
+        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: repo)
+        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
+        let addUseCase = DefaultAddTodoUseCase(repository: repo)
+        return TodoViewModel(
+            fetchUseCase: fetchUseCase,
+            toggleUseCase: toggleUseCase,
+            addUseCase: addUseCase
+        )
+    }
+    
     
     private func handleScenePhaseChange(_ phase: ScenePhase) {
         switch phase {
@@ -79,43 +135,29 @@ public struct ContentView: View {
             if wasPausedByLock {
                 wasPausedByLock = false
             }
-            
         case .inactive:
             if timerViewModel.state == .running {
                 timerViewModel.pauseForLock()
                 wasPausedByLock = true
             }
-            
         case .background:
             break
-            
         @unknown default:
             break
         }
     }
     
-    private func handleTimerStateChange(_ state:  TimerViewModel.TimerState) {
+    private func handleTimerStateChange(_ state: TimerViewModel.TimerState) {
         switch state {
         case .running:
             UIApplication.shared.isIdleTimerDisabled = true
-            
         case .initial, .done:
             UIApplication.shared.isIdleTimerDisabled = false
             wasPausedByLock = false
-            
         case .paused:
             UIApplication.shared.isIdleTimerDisabled = false
-            
         @unknown default:
             break
-        }
-    }
-}
-
-extension TimerViewModel {
-    func pauseForLock() {
-        if state == .running {
-            timerControlButtonTapped()
         }
     }
 }

@@ -19,16 +19,18 @@ final class TimerViewModel: ObservableObject {
     
     @Published var breadCount: Int = 0
     @Published var announceText: String = "오늘의 빵을 구워보세요!"
-    @Published var leftTimeText: String = "" // TODO: 초기값 어케함?
+    @Published var leftTimeText: String = ""
     @Published var progressPercentage: CGFloat = 0.01
     @Published var state: TimerState = .initial
     @Published var isHour: Bool = false
-    @Published var resetSheetLeftTimeText: String = "" // TODO: 초기값 어케함?
+    @Published var resetSheetLeftTimeText: String = ""
     @Published var currentBreadLevel: Int = 1
     
     @Published var isRefreshSheetOn: Bool = false
     @Published var isResetSheetOn: Bool = false
     @Published var isCompleteSheetOn: Bool = false
+    @Published var isBreadSelectSheetOn: Bool = false
+    @Published var shouldShowCheckedOffView: Bool = false
     
     private let timerUseCase: TimerUseCase
     private let breadCountUseCase: BreadCountUseCase
@@ -47,6 +49,26 @@ final class TimerViewModel: ObservableObject {
         loadBreadCount()
     }
     
+    func resetToInitial() {
+        resetTimer()
+    }
+    
+    func startAdditionalTimer() {
+        isHour = false
+        resumeTimer()
+    }
+    
+    func resetCheckedOffViewFlag() {
+        shouldShowCheckedOffView = false
+    }
+    
+    func pauseForLock() {
+        if state == .running {
+            timerControlButtonTapped()
+        }
+    }
+    
+    // MARK: - Private Methods
     private func bind() {
         $isHour
             .sink { [weak self] isHour in
@@ -255,11 +277,20 @@ extension TimerViewModel {
     }
     
     func completeSheetMoreButtonTapped() {
+        // 30분/60분 더 하기
         timerControlButtonTapped()
         isCompleteSheetOn = false
     }
     
     func completeSheetCompleteButtonTapped() {
-        // TODO: 페이지 이동 변수 컨트롤
+        // 완료한 일 체크 버튼 - CheckedOffView로 이동
+        shouldShowCheckedOffView = true
+        isCompleteSheetOn = false
+    }
+    
+    func breadImageTapped() {
+        if state == .initial {
+            isBreadSelectSheetOn = true
+        }
     }
 }

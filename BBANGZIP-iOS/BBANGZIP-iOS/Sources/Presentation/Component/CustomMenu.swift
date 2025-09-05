@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct CustomMenu: View {
+    let onAddCategoryTapped: () -> Void
+    let onManageCategoryTapped: () -> Void
     
     var body: some View {
         VStack(spacing: 12) {
             Button {
-                print("카테고리 추가")
+                onAddCategoryTapped()
             } label: {
                 HStack(spacing: 8) {
                     Image(.icPlusThin)
@@ -38,7 +40,7 @@ struct CustomMenu: View {
                 .opacity(0.3)
             
             Button {
-                print("카테고리 관리")
+                onManageCategoryTapped()
             } label: {
                 HStack(spacing: 8) {
                     Image(.icPencil)
@@ -66,10 +68,16 @@ struct CustomMenu: View {
             x: 0,
             y: 2
         )
-        
     }
 }
 
 #Preview {
-    CustomMenu()
+    CustomMenu(
+        onAddCategoryTapped: {
+            print("카테고리 추가 버튼 눌림")
+        },
+        onManageCategoryTapped: {
+            print("카테고리 관리 버튼 눌림")
+        }
+    )
 }

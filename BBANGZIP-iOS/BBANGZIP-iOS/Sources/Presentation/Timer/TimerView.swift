@@ -53,6 +53,9 @@ struct TimerView: View {
         .sheet(isPresented: $viewModel.isCompleteSheetOn) {
             completeSheet
         }
+        .sheet(isPresented: $viewModel.isBreadSelectSheetOn) {
+            breadSelectSheet
+        }
     }
     
     var breadCountChip: some View {
@@ -120,12 +123,17 @@ struct TimerView: View {
                         .padding(.bottom, 8)
                         .opacity(viewModel.state == .initial ? 1 : 0)
                     
-                    breadImage
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 115, height: 84)
-                        .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
-                        .padding(.bottom, 10)
+                    Button(action: {
+                        viewModel.breadImageTapped()
+                    }) {
+                        breadImage
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 115, height: 84)
+                            .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
+                    }
+                    .disabled(viewModel.state != .initial)
+                    .padding(.bottom, 10)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -288,8 +296,6 @@ struct TimerView: View {
             Image(viewModel.resetSheetImageName)
                 .resizable()
                 .frame(width: .infinity)
-                .padding(.horizontal, 4)
-                .padding(.bottom, 42)
             HStack(spacing: 8) {
                 Button("돌아가기") {
                     viewModel.resetSheetBackButtonTapped()
@@ -372,6 +378,13 @@ struct TimerView: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .modifier(CornerRadiusModifier())
+    }
+    
+    var breadSelectSheet: some View {
+        BreadSelectView()
+            .presentationDetents([.height(604)])
+            .presentationDragIndicator(.visible)
+            .modifier(CornerRadiusModifier())
     }
 }
 

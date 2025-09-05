@@ -11,6 +11,7 @@ struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
+    @State private var navigationPath = NavigationPath()
     
     init(
         viewModel: TodoViewModel,
@@ -23,55 +24,82 @@ struct ToDoView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            List {
-                VStack(spacing: 0) {
-                    messageView
-                    
-                    VStack(spacing: 16) {
-                        calendarHeaderView
-                        calendarBodyView
-                            .padding(.horizontal, 20)
+        NavigationStack(path: $navigationPath) {
+            ZStack(alignment: .topTrailing) {
+                List {
+                    VStack(spacing: 0) {
+                        messageView
+                        
+                        VStack(spacing: 16) {
+                            calendarHeaderView
+                            calendarBodyView
+                                .padding(.horizontal, 20)
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color(.secondaryLight))
+                        
+                        todoSummaryView
+                            .padding(.trailing, 20)
+                            .padding(.top, 20)
                     }
-                    .padding(.vertical, 16)
-                    .background(Color(.secondaryLight))
-                    
-                    todoSummaryView
-                        .padding(.trailing, 20)
-                        .padding(.top, 20)
-                }
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                
-                TodoContentView
                     .listRowInsets(EdgeInsets())
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
-            }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .environment(\.defaultMinListRowHeight, 0)
-            .onAppear {
-                viewModel.fetchData()
-            }
-            
-            if isShowMenu {
-                Color.black.opacity(0.001)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            isShowMenu = false
+                    
+                    TodoContentView
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .environment(\.defaultMinListRowHeight, 0)
+                .onAppear {
+                    viewModel.fetchData()
+                }
+                
+                if isShowMenu {
+                    Color.black.opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
                         }
-                    }
-                                    
-                CustomMenu()
+                    
+                    CustomMenu(
+                        onAddCategoryTapped: {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                navigationPath.append("CategoryAdd")
+                            }
+                        },
+                        onManageCategoryTapped: {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                navigationPath.append("CategoryList")
+                            }
+                        }
+                    )
                     .padding(.top, 112)
                     .padding(.trailing, 20)
+                }
+            }
+            .navigationDestination(for: String.self) { destination in
+                if destination == "CategoryAdd" {
+                    CategoryAddView(onDismiss: {
+                        viewModel.fetchData()
+                    })
+                } else if destination == "CategoryList" {
+                    CategoryListView()
+                }
             }
         }
     }
-
     
     private var messageView: some View {
         ZStack {
@@ -182,7 +210,7 @@ struct ToDoView: View {
             )
         }
     }
-
+    
     var TodoContentView: some View {
         ForEach(viewModel.todoItems, id: \.stableID) { item in
             if let (category, index) = item.asCategory {
@@ -221,7 +249,7 @@ struct ToDoView: View {
             }
         }
     }
-
+    
     func handleMeatballTapped(for todo: TimerTodo) {
         print("미트볼 버튼 눌림! - \(todo.content)")
     }
@@ -238,7 +266,7 @@ struct TodoView_Previews: PreviewProvider {
             toggleUseCase: toggleUseCase,
             addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
-
+        
         return ToDoView(viewModel: previewViewModel)
     }
 }
