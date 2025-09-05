@@ -296,8 +296,6 @@ struct TimerView: View {
             Image(viewModel.resetSheetImageName)
                 .resizable()
                 .frame(width: .infinity)
-                .padding(.horizontal, 4)
-                .padding(.bottom, 42)
             HStack(spacing: 8) {
                 Button("돌아가기") {
                     viewModel.resetSheetBackButtonTapped()

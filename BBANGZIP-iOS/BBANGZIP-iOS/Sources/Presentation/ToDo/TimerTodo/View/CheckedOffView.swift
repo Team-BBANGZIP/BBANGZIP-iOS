@@ -9,9 +9,17 @@ import SwiftUI
 
 struct CheckedOffView: View {
     @StateObject private var viewModel: TimerCheckedOffViewModel
+    let onBackToTimer: () -> Void
+    let onStartAdditionalTimer: () -> Void
     
-    init(viewModel: TimerCheckedOffViewModel) {
+    init(
+        viewModel: TimerCheckedOffViewModel,
+        onBackToTimer: @escaping () -> Void,
+        onStartAdditionalTimer: @escaping () -> Void
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.onBackToTimer = onBackToTimer
+        self.onStartAdditionalTimer = onStartAdditionalTimer
     }
     
     var body: some View {
@@ -55,7 +63,7 @@ private extension CheckedOffView {
     var navBar: some View {
         HStack {
             Button(action: {
-                // TODO: 뒤로가기 구현
+                onBackToTimer()
             }) {
                 Image(.icChevronLeft)
                     .foregroundColor(Color(.labelAlternative))
@@ -98,7 +106,7 @@ private extension CheckedOffView {
         HStack(spacing: 8) {
             Button("30분 더") {
                 print("30분 뒤 버튼 눌림!")
-                // TODO: 연장 기능 구현
+                onStartAdditionalTimer()
             }
             .buttonStyle(
                 BbangButtonStyle(
@@ -110,7 +118,7 @@ private extension CheckedOffView {
             
             Button("종료하기") {
                 print("종료하기 버튼 눌림!!")
-                // TODO: 종료 로직 구현
+                onBackToTimer()
             }
             .buttonStyle(
                 BbangButtonStyle(
@@ -181,7 +189,15 @@ struct CheckedOffView_Previews: PreviewProvider {
             addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
 
-        return CheckedOffView(viewModel: previewViewModel)
+        return CheckedOffView(
+            viewModel: previewViewModel,
+            onBackToTimer: {
+                print("Preview: Back to timer")
+            },
+            onStartAdditionalTimer: {
+                print("Preview: Start additional timer")
+            }
+        )
     }
 }
 

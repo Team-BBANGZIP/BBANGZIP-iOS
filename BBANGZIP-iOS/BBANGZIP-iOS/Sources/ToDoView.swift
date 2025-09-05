@@ -64,14 +64,13 @@ struct ToDoView: View {
                             isShowMenu = false
                         }
                     }
-                                    
+                
                 CustomMenu()
                     .padding(.top, 112)
                     .padding(.trailing, 20)
             }
         }
     }
-
     
     private var messageView: some View {
         ZStack {
@@ -182,7 +181,7 @@ struct ToDoView: View {
             )
         }
     }
-
+    
     var TodoContentView: some View {
         ForEach(viewModel.todoItems, id: \.stableID) { item in
             if let (category, index) = item.asCategory {
@@ -221,7 +220,7 @@ struct ToDoView: View {
             }
         }
     }
-
+    
     func handleMeatballTapped(for todo: TimerTodo) {
         print("미트볼 버튼 눌림! - \(todo.content)")
     }
@@ -238,7 +237,7 @@ struct TodoView_Previews: PreviewProvider {
             toggleUseCase: toggleUseCase,
             addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
-
+        
         return ToDoView(viewModel: previewViewModel)
     }
 }
