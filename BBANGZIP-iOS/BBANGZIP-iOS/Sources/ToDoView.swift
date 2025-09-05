@@ -67,16 +67,26 @@ struct ToDoView: View {
                             }
                         }
                     
-                    CustomMenu(onAddCategoryTapped: {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            isShowMenu = false
+                    CustomMenu(
+                        onAddCategoryTapped: {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                navigationPath.append("CategoryAdd")
+                            }
+                        },
+                        onManageCategoryTapped: {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                navigationPath.append("CategoryList")
+                            }
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            navigationPath.append("CategoryAdd")
-                        }
-                    })
-                        .padding(.top, 112)
-                        .padding(.trailing, 20)
+                    )
+                    .padding(.top, 112)
+                    .padding(.trailing, 20)
                 }
             }
             .navigationDestination(for: String.self) { destination in
@@ -84,6 +94,8 @@ struct ToDoView: View {
                     CategoryAddView(onDismiss: {
                         viewModel.fetchData()
                     })
+                } else if destination == "CategoryList" {
+                    CategoryListView()
                 }
             }
         }
