@@ -12,18 +12,22 @@ final class TimerTodoViewModel: ObservableObject, Identifiable {
     let id: Int
     @Published private(set) var todo: TimerTodo
     private let toggleUseCase: ToggleTodoCompletionUseCase
+    private let onUpdate: (TimerTodo) -> Void
     
     init(
         todo: TimerTodo,
-        toggleUseCase: ToggleTodoCompletionUseCase
+        toggleUseCase: ToggleTodoCompletionUseCase,
+        onUpdate: @escaping (TimerTodo) -> Void
     ) {
         self.id = todo.id
         self.todo = todo
         self.toggleUseCase = toggleUseCase
+        self.onUpdate = onUpdate
     }
     
     func toggleCompletion() {
         todo = todo.toggledCompleted()
+        onUpdate(todo)
         
         Task {
             do {

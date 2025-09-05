@@ -7,6 +7,23 @@
 
 import Foundation
 
+struct TodoResponseDTO: Decodable {
+    let code: Int
+    let data: TodoDataDTO
+}
+
+struct TodoDataDTO: Decodable {
+    let commitmentMessage: String
+    let todoSummary: TodoSummaryDTO
+    let categories: [CategoryDTO]
+}
+
+struct TodoSummaryDTO: Decodable {
+    let date: String
+    let totalCount: Int
+    let completedCount: Int
+}
+
 struct CategoryDTO: Decodable {
     let categoryId: Int
     let categoryName: String
@@ -20,6 +37,26 @@ struct TodoDTO: Decodable {
     let content: String
     let isCompleted: Bool
     let startTime: String?
+}
+
+extension TodoResponseDTO {
+    func toEntity() -> TodoData {
+        TodoData(
+            commitmentMessage: data.commitmentMessage,
+            summary: data.todoSummary.toEntity(),
+            categories: data.categories.map { $0.toEntity() }
+        )
+    }
+}
+
+extension TodoSummaryDTO {
+    func toEntity() -> TodoSummary {
+        TodoSummary(
+            date: date,
+            totalCount: totalCount,
+            completedCount: completedCount
+        )
+    }
 }
 
 extension CategoryDTO {
