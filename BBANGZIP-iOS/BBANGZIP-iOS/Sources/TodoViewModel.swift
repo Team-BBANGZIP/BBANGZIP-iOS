@@ -159,7 +159,7 @@ final class TodoViewModel: ObservableObject {
             switch item {
             case .category(let cat, _):
                 if let existing = currentCat { newCategories.append(existing) }
-                currentCat = Category(id: cat.id, name: cat.name, colorType: cat.colorType, todos: [])
+                currentCat = Category(id: cat.id, name: cat.name, colorType: cat.colorType, todos: [], isStopped: false)
             case .todo(let todo):
                 currentCat?.todos.append(todo)
             case .headDropZone, .tailDropZone, .globalTail:
@@ -191,7 +191,8 @@ final class TodoViewModel: ObservableObject {
             do {
                 try await localAddUseCase.execute(
                     categoryIndex: index,
-                    content: content
+                    content: content,
+                    startTime: currentDate
                 )
                 fetchData()
             } catch {

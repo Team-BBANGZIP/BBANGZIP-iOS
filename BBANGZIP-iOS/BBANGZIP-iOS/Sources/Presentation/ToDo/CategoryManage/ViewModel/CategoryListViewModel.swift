@@ -10,6 +10,7 @@ import SwiftUI
 @MainActor
 final class CategoryListViewModel: ObservableObject {
     @Published var categories: [Category] = []
+    @Published var todoData: TodoData?
     @Published var activeCategories: [Category] = []
     @Published var stoppedCategories: [Category] = []
     @Published var isLoading: Bool = false
@@ -30,7 +31,7 @@ final class CategoryListViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            categories = try await repository.fetchTimerTodos()
+            todoData = try await repository.fetchTimerTodos()
             makeSections()
         } catch {
         }
