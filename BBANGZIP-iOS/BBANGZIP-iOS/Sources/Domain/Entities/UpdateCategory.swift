@@ -1,13 +1,13 @@
 //
-//  AddCategory.swift
+//  UpdateCategory.swift
 //  BBANGZIP
 //
-//  Created by 송여경 on 8/28/25.
+//  Created by 김송희 on 9/2/25.
 //
 
 import Foundation
 
-struct AddCategory {
+struct UpdateCategory {
     let categoryId: Int
     let name: String
     let color: String

@@ -7,9 +7,10 @@
 
 import Foundation
 
-struct Category: Identifiable, Equatable {
+struct Category: Identifiable, Equatable, Hashable {
     let id: Int
     let name: String
     let colorType: CategoryColor
     var todos: [TimerTodo]
+    var isStopped: Bool
 }

@@ -29,7 +29,8 @@ final class MockTodoRepository: TodoRepository {
                     startTime: nil,
                     colorType: .Todogreen1
                 )
-            ]
+            ],
+            isStopped: false
         ),
         Category(
             id: 2,
@@ -57,7 +58,8 @@ final class MockTodoRepository: TodoRepository {
                     startTime: nil,
                     colorType: .Todopurple1
                 )
-            ]
+            ],
+            isStopped: true
         ),
         Category(
             id: 3,
@@ -71,7 +73,8 @@ final class MockTodoRepository: TodoRepository {
                     startTime: "16:00",
                     colorType: .Todoyellow1
                 )
-            ]
+            ],
+            isStopped: false
         )
     ]
     
@@ -102,5 +105,15 @@ final class MockTodoRepository: TodoRepository {
             colorType: category.colorType
         )
         categories[categoryIndex].todos.append(newTodo)
+    }
+    
+    func updateCategory(_ category: Category) async throws {
+        if let idx = categories.firstIndex(where: { $0.id == category.id }) {
+            categories[idx] = category
+        }
+    }
+    
+    func deleteCategory(id: Int) async throws {
+        categories.removeAll { $0.id == id }
     }
 }
