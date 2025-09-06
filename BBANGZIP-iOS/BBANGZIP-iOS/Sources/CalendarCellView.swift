@@ -50,13 +50,23 @@ struct CalendarCellView: View {
             return isSameDay(selectedDate, date)
         }
     }
-    
+
     private func isToday(date: Date) -> Bool {
-        calendar.isDateInToday(date)
+        let adjustedNow = adjustedToday()
+        return calendar.isDate(date, inSameDayAs: adjustedNow)
     }
-    
+
     private func isSameDay(_ date1: Date?, _ date2: Date) -> Bool {
         guard let date1 = date1 else { return false }
         return calendar.isDate(date1, equalTo: date2, toGranularity: .day)
+    }
+
+    private func adjustedToday() -> Date {
+        let now = Date()
+        let hour = calendar.component(.hour, from: now)
+        if hour < 5 {
+            return calendar.date(byAdding: .day, value: -1, to: now) ?? now
+        }
+        return now
     }
 }

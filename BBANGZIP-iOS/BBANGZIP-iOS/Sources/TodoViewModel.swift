@@ -233,9 +233,19 @@ final class TodoViewModel: ObservableObject {
               !dates.isEmpty,
               dayIndex < dates.count else { return nil }
         
-        return dates[dayIndex]
+        var date = dates[dayIndex]
+        let now = Date()
+        
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: now)
+        
+        if hour < 5 {
+            date = calendar.date(byAdding: .day, value: -1, to: date) ?? date
+        }
+        
+        return date
     }
-    
+
     func moveWeek(by value: Int) {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
