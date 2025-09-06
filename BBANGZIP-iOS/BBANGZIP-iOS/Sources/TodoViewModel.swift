@@ -235,14 +235,6 @@ final class TodoViewModel: ObservableObject {
               dayIndex < dates.count else { return nil }
         
         var date = dates[dayIndex]
-        let now = Date()
-        
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: now)
-        
-        if hour < 5 {
-            date = calendar.date(byAdding: .day, value: -1, to: date) ?? date
-        }
         
         return date
     }
