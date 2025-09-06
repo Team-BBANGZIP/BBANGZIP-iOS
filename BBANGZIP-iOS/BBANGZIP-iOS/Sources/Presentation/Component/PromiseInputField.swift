@@ -9,6 +9,7 @@ import SwiftUI
 
 public struct PromiseInputField: View {
     @Binding public var text: String
+    @FocusState private var isFocused: Bool
     private let maxLength: Int = 50
     
     public init(text: Binding<String>) {
@@ -19,6 +20,7 @@ public struct PromiseInputField: View {
         VStack(spacing: 10) {
             ZStack(alignment: .topLeading) {
                 textField
+                    .focused($isFocused)
                 
                 if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     placeholder
@@ -29,6 +31,11 @@ public struct PromiseInputField: View {
                 Spacer()
                 
                 lengthCounter
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                isFocused = true
             }
         }
     }
