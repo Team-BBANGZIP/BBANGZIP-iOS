@@ -12,7 +12,8 @@ final class TodoViewModel: ObservableObject {
     @Published var currentDate: Date = Date()
     @Published var dates: [Date] = []
     @Published var todoData: TodoData?
-    @Published var isSheetPresented: Bool = false
+    @Published var isAddTodoSheetPresented: Bool = false
+    @Published var isWriteMessageSheetPresented: Bool = false
     @Published var selectedCategoryIndex: Int?
     
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
@@ -233,9 +234,11 @@ final class TodoViewModel: ObservableObject {
               !dates.isEmpty,
               dayIndex < dates.count else { return nil }
         
-        return dates[dayIndex]
+        var date = dates[dayIndex]
+        
+        return date
     }
-    
+
     func moveWeek(by value: Int) {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
