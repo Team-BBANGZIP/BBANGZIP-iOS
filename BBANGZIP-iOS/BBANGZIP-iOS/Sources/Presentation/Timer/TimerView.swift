@@ -209,9 +209,11 @@ struct TimerView: View {
             
             Image(.prize) // TODO: 이미지 빵으로 변경
                 .resizable()
-                .frame(width: .infinity)
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 4)
                 .padding(.bottom, 42)
+            
             HStack(spacing: 8) {
                 Button("돌아가기") {
                     viewModel.refreshSheetBackButtonTapped()
@@ -295,15 +297,18 @@ struct TimerView: View {
             
             Image(viewModel.resetSheetImageName)
                 .resizable()
-                .frame(width: .infinity)
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 42)
+            
             HStack(spacing: 8) {
                 Button("돌아가기") {
                     viewModel.resetSheetBackButtonTapped()
                 }
                 .buttonStyle(
                     BbangButtonStyle(
-                        style: .secondary,
-                        rightIcon: Image(.icRefreshThin)
+                        style: .primary,
+                        rightIcon: Image(.icBackward)
                     )
                 )
                 
@@ -312,7 +317,7 @@ struct TimerView: View {
                 }
                 .buttonStyle(
                     BbangButtonStyle(
-                        style: .primary,
+                        style: .secondary,
                         rightIcon: Image(.icQuit)
                     )
                 )
@@ -326,51 +331,52 @@ struct TimerView: View {
     }
     
     var completeSheet: some View {
-            let minute = viewModel.isHour ? "60" : "30"
+        let minute = viewModel.isHour ? "60" : "30"
+        
+        return VStack(spacing: 0) {
+            Text("역시 사장님은 제빵왕!")
+                .bbangFont(.title1)
+                .bbangColor(.primaryNormal)
+                .padding(.top, 40)
+                .padding(.bottom, 4)
             
-            return VStack(spacing: 0) {
-                Text("역시 사장님은 제빵왕!")
-                    .bbangFont(.title1)
-                    .bbangColor(.primaryNormal)
-                    .padding(.top, 40)
-                    .padding(.bottom, 4)
-                
-                Text("빵 \(viewModel.completeSheetBreadCount) 개를 흭득했어요")
-                    .bbangFont(.body1)
-                    .bbangColor(.labelAlternative)
-                    .padding(.bottom, 28)
-                
-                Image(viewModel.completeSheetImageName)
-                    .resizable()
-                    .frame(width: .infinity)
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 42)
-                
-                GeometryReader { geometry in
-                    let width = geometry.size.width
-                    HStack(spacing: 8) {
-                        Button("\(minute)분 더") {
-                            viewModel.completeSheetMoreButtonTapped()
-                        }
-                        .buttonStyle(
-                            BbangButtonStyle(
-                                style: .secondary,
-                                rightIcon: Image(.icPlusThick)
-                            )
-                        )
-                        .frame(width: width * 130 / 370)
-                        
-                        Button("완료한 일 체크") {
-                            viewModel.completeSheetCompleteButtonTapped()
-                        }
-                        .buttonStyle(
-                            BbangButtonStyle(
-                                style: .primary,
-                                rightIcon: Image(.icBook)
-                            )
-                        )
+            Text("빵 \(viewModel.completeSheetBreadCount) 개를 흭득했어요")
+                .bbangFont(.body1)
+                .bbangColor(.labelAlternative)
+                .padding(.bottom, 28)
+            
+            Image(viewModel.completeSheetImageName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 4)
+                .padding(.bottom, 42)
+            
+            GeometryReader { geometry in
+                let width = geometry.size.width
+                HStack(spacing: 8) {
+                    Button("\(minute)분 더") {
+                        viewModel.completeSheetMoreButtonTapped()
                     }
+                    .buttonStyle(
+                        BbangButtonStyle(
+                            style: .secondary,
+                            rightIcon: Image(.icPlusThick)
+                        )
+                    )
+                    .frame(width: width * 130 / 370)
+                    
+                    Button("완료한 일 체크") {
+                        viewModel.completeSheetCompleteButtonTapped()
+                    }
+                    .buttonStyle(
+                        BbangButtonStyle(
+                            style: .primary,
+                            rightIcon: Image(.icBook)
+                        )
+                    )
                 }
+            }
             .frame(height: 48)
         }
         .padding(.vertical, 12)
@@ -398,7 +404,7 @@ struct CornerRadiusModifier: ViewModifier {
                     cornerRadius: 48,
                     style: .continuous
                 )
-                    .fill(Color(.systemBackground))
+                .fill(Color(.systemBackground))
             )
         }
     }
