@@ -114,7 +114,7 @@ struct TimerView: View {
                     .rotationEffect(.degrees(-90))
                 
                 VStack(spacing: 0) {
-                    Spacer()
+                    Spacer().frame(height: 100)
                     
                     Text(viewModel.leftTimeText)
                         .bbangFont(.timer)
@@ -135,10 +135,11 @@ struct TimerView: View {
                             .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
                     }
                     .disabled(viewModel.state != .initial)
-                    .padding(.bottom, 10)
+                    
+                    Spacer().frame(height: 20)
                 }
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
+            .frame(width: 311, height: 311)
         }
         .aspectRatio(1, contentMode: .fit)
         .padding(.horizontal, 38)
