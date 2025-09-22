@@ -9,7 +9,7 @@ import ProjectDescription
 
 extension Project {
     private static let organizationName = ""
-    private static let deploymentTarget = "16.0"
+    private static let deploymentTarget = "17.0"
     
     public static func makeModule(
         name: String,

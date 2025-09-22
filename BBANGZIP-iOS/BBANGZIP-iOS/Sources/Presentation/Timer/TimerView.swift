@@ -102,7 +102,17 @@ struct TimerView: View {
             ZStack {
                 Circle()
                     .stroke(lineWidth: lineWidth)
-                    .foregroundStyle(Color(.secondaryNormal))
+                    .foregroundStyle(
+                        Color(.secondaryNormal)
+                            .shadow(
+                                .inner(
+                                    color: Color(.timerShadow),
+                                    radius: 2,
+                                    x: 0,
+                                    y: 1
+                                )
+                            )
+                    )
                 
                 Circle()
                     .trim(
@@ -110,7 +120,15 @@ struct TimerView: View {
                         to: viewModel.progressPercentage
                     )
                     .stroke(
-                        Color(.primaryLight),
+                        Color(.primaryLight)
+                            .shadow(
+                                .inner(
+                                    color: Color(.timerProgressShadow),
+                                    radius: 4,
+                                    x: 0,
+                                    y: 2
+                                )
+                            ),
                         style: StrokeStyle(
                             lineWidth: lineWidth,
                             lineCap: .round,
