@@ -72,11 +72,14 @@ struct TimerView: View {
             Text("\(viewModel.breadCount)")
                 .bbangFont(.title3)
                 .bbangColor(.primaryNormal)
-                .monospacedDigit()
                 .padding(.trailing, 10)
         }
-        .overlay(Capsule()
-            .stroke(Color(.primaryLight), lineWidth: 1)
+        .overlay(
+            Capsule()
+                .stroke(
+                    Color(.primaryLight),
+                    lineWidth: 1
+                )
         )
         .opacity(opacity)
         .padding(.trailing, 20)
@@ -102,7 +105,10 @@ struct TimerView: View {
                     .foregroundStyle(Color(.secondaryNormal))
                 
                 Circle()
-                    .trim(from: 0, to: viewModel.progressPercentage)
+                    .trim(
+                        from: 0,
+                        to: viewModel.progressPercentage
+                    )
                     .stroke(
                         Color(.primaryLight),
                         style: StrokeStyle(
@@ -130,19 +136,23 @@ struct TimerView: View {
                         breadImage
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 115, height: 84)
-                            .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
+                            .frame(width: 115,height: 84)
+                            .animation(
+                                .easeInOut(duration: 0.5),
+                                value: viewModel.currentBreadLevel
+                            )
                     }
                     .disabled(viewModel.state != .initial)
                     
                     Spacer().frame(height: 20)
                 }
             }
-            .frame(width: 311, height: 311)
+            .frame(width: 311,height: 311
+            )
         }
-        .aspectRatio(1, contentMode: .fit)
-        .padding(.horizontal, 38)
-        .padding(.vertical, 6)
+        .aspectRatio(1,contentMode: .fit)
+        .padding(.horizontal,38)
+        .padding(.vertical,6)
     }
     
     private var breadImage: Image {
@@ -182,16 +192,19 @@ struct TimerView: View {
             Image(.icRefreshThick)
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 26, height: 26)
+                .frame(width: 26,height: 26)
                 .foregroundStyle(Color(.primaryNormal))
                 .opacity(0.6)
         }
         .disabled(disabled)
-        .frame(width: 48, height: 48)
+        .frame(width: 48,height: 48)
         .clipShape(.circle)
         .overlay(
             Circle()
-                .stroke(Color(.secondaryStrong), lineWidth: 1)
+                .stroke(
+                    Color(.secondaryStrong),
+                    lineWidth: 1
+                )
         )
         .opacity(opacity)
     }
@@ -238,8 +251,8 @@ struct TimerView: View {
                 )
             }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .padding(.vertical,12)
+        .padding(.horizontal,16)
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .modifier(CornerRadiusModifier())
@@ -256,14 +269,38 @@ struct TimerView: View {
             Image(image)
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 60, height: 60)
+                .frame(width: 60,height: 60)
                 .foregroundStyle(imageColor)
         }
-        .frame(width: 80, height: 80)
-        .clipShape(.circle)
+        .frame(width: 80,height: 80)
         .background(
             Circle()
-                .fill(backgroundColor)
+                .fill(
+                    backgroundColor
+                        .shadow(
+                            .inner(
+                                color: Color(.timerInnerShadow),
+                                radius: 1,
+                                x: 0,
+                                y: 1
+                            )
+                        )
+                        .shadow(
+                            .inner(
+                                color: Color(.timerInnerShadow2),
+                                radius: 10,
+                                x: 0,
+                                y: 2
+                            )
+                        )
+                )
+        )
+        .clipShape(.circle)
+        .shadow(
+            color: Color(.timerDropShadow),
+            radius: 5,
+            x: 0,
+            y: 2
         )
     }
     
@@ -276,11 +313,14 @@ struct TimerView: View {
                 .foregroundStyle(Color(.primaryNormal))
                 .opacity(0.6)
         }
-        .frame(width: 48, height: 48)
+        .frame(width: 48,height: 48)
         .clipShape(.circle)
         .overlay(
             Circle()
-                .stroke(Color(.secondaryStrong), lineWidth: 1)
+                .stroke(
+                    Color(.secondaryStrong),
+                    lineWidth: 1
+                )
         )
     }
     
@@ -433,6 +473,11 @@ struct ArrowView: View {
 
 #Preview {
     TimerView(
-        viewModel: TimerViewModel(timerUseCase: TimerUseCaseImpl(), breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()))
+        viewModel: TimerViewModel(
+            timerUseCase: TimerUseCaseImpl(),
+            breadCountUseCase: BreadCountUseCaseImpl(
+                repository: BreadCountRepositoryImpl()
+            )
+        )
     )
 }
