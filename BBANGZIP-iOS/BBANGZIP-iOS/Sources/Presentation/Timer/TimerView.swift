@@ -42,8 +42,10 @@ struct TimerView: View {
                     resetButton
                 }
             }
-            .padding(.bottom, 48)
+            .padding(.bottom, 126)
         }
+        .ignoresSafeArea(.all, edges: .bottom)
+        .toolbar(viewModel.state == .running || viewModel.state == .paused ? .hidden : .visible, for: .tabBar)
         .sheet(isPresented: $viewModel.isResetSheetOn) {
             resetSheet
         }
