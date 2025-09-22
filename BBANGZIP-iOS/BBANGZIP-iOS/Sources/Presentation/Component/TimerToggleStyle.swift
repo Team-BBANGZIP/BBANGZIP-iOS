@@ -11,35 +11,27 @@ struct TimerToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack(alignment: configuration.isOn ? .trailing : .leading) {
             RoundedRectangle(cornerRadius: 15)
-                .frame(width: 96, height: 28)
-                .foregroundColor(Color(.secondaryStrong))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(
-                            Color(.toggleInnerShadow),
-                            lineWidth: 1
-                        )
-                        .blur(radius: 1)
-                        .offset(x: 0,y: 0.87)
-                        .mask(RoundedRectangle(cornerRadius: 15))
+                .fill(
+                    Color(.secondaryStrong)
+                        .shadow(.inner(
+                            color: Color(.toggleInnerShadow),
+                            radius: 1,
+                            y: 0.87
+                        ))
                 )
+                .frame(width: 96, height: 28)
             
             ZStack {
                 RoundedRectangle(cornerRadius: 15)
-                    .frame(width: 47, height: 26)
-                    .foregroundColor(Color(.primaryNormal))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(
-                                Color(.toggleButtonShadow),
-                                lineWidth: 0.3
-                            )
-                            .blur(radius: 1)
-                            .offset(x: 0,y: 1)
-                            .mask(
-                                RoundedRectangle(cornerRadius: 15).frame(width: 47,height: 26)
-                            )
+                    .fill(
+                        Color(.primaryNormal)
+                            .shadow(.inner(
+                                color: Color(.toggleButtonShadow),
+                                radius: 1,
+                                y: 1
+                            ))
                     )
+                    .frame(width: 47, height: 26)
                     .shadow(
                         color: Color(.toggleDropShadow),
                         radius: 2,
