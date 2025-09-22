@@ -119,7 +119,6 @@ struct TimerView: View {
                     Text(viewModel.leftTimeText)
                         .bbangFont(.timer)
                         .bbangColor(textColor)
-                        .monospacedDigit()
                     
                     ArrowView()
                         .padding(.bottom, 8)
