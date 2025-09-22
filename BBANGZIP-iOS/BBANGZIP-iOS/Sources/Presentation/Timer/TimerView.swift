@@ -242,7 +242,7 @@ struct TimerView: View {
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
+        .presentationDragIndicator(.hidden)
         .modifier(CornerRadiusModifier())
     }
     
@@ -329,7 +329,7 @@ struct TimerView: View {
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
+        .presentationDragIndicator(.hidden)
         .modifier(CornerRadiusModifier())
     }
     
