@@ -27,15 +27,11 @@ public struct ContentView: View {
                 if showCheckedOffView {
                     checkedOffView
                         .transition(.move(edge: .trailing))
-                } else if timerViewModel.state == .running || timerViewModel.state == .paused {
-                    TimerView(viewModel: timerViewModel)
-                        .transition(.opacity)
                 } else {
                     mainTabView
                         .transition(.opacity)
                 }
             }
-            .animation(.easeInOut(duration: 0.3), value: timerViewModel.state)
             .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
         }
         .onChange(of: scenePhase) { newPhase in
