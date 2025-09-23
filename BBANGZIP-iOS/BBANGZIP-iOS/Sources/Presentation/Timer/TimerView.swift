@@ -196,7 +196,7 @@ struct TimerView: View {
     
     var refreshSheet: some View {
         VStack(spacing: 0) {
-            Text("정말 초기화 하시겠어요?")
+            Text("정말 초기화하시겠어요?")
                 .bbangFont(.title1)
                 .bbangColor(.primaryNormal)
                 .padding(.top, 40)
@@ -223,7 +223,7 @@ struct TimerView: View {
                     )
                 )
                 
-                Button("초기화 하기") {
+                Button("초기화하기") {
                     viewModel.refreshSheetRefreshButtonTapped()
                 }
                 .buttonStyle(
@@ -307,7 +307,7 @@ struct TimerView: View {
                     )
                 )
                 
-                Button("종료 하기") {
+                Button("종료하기") {
                     viewModel.resetSheetResetButtonTapped()
                 }
                 .buttonStyle(
