@@ -39,6 +39,7 @@ struct TaskBox: View {
                             HStack(spacing: 3) {
                                 Image(.icClock)
                                     .resizable()
+                                    .renderingMode(.template)
                                     .frame(width: 15, height: 15)
                                     .foregroundColor(Color(.labelAssistive))
                                 Text(formattedTime)
