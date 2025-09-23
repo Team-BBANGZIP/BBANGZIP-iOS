@@ -39,6 +39,7 @@ struct ToDoView: View {
                         .background(Color(.secondaryLight))
                         
                         todoSummaryView
+                            .frame(height: 17)
                             .padding(.trailing, 20)
                             .padding(.top, 20)
                     }
@@ -267,7 +268,7 @@ struct ToDoView: View {
                     labelText: .constant(category.name)
                 )
                 .padding(.leading, 20)
-                .padding(.top, 16)
+                .padding(.top, 8)
                 .onTapGesture {
                     viewModel.selectedCategoryIndex = index
                     viewModel.isAddTodoSheetPresented = true
