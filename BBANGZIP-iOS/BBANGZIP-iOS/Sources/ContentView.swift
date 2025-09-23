@@ -6,9 +6,23 @@ public struct ContentView: View {
         breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl())
     )
     
+    @StateObject private var todoViewModel = {
+        let repo = MockTodoRepository()
+        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: repo)
+        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
+        let addUseCase = DefaultAddTodoUseCase(repository: repo)
+        return TodoViewModel(
+            fetchUseCase: fetchUseCase,
+            toggleUseCase: toggleUseCase,
+            addUseCase: addUseCase
+        )
+    }()
+    
     @Environment(\.scenePhase) private var scenePhase
     @State private var wasPausedByLock = false
     @State private var showCheckedOffView = false
+    
+    @State private var navPath = NavigationPath()
     
     public init() {
         let appearance = UITabBarAppearance()
@@ -22,7 +36,7 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             ZStack {
                 if showCheckedOffView {
                     checkedOffView
@@ -37,6 +51,16 @@ public struct ContentView: View {
             }
             .animation(.easeInOut(duration: 0.3), value: timerViewModel.state)
             .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
+            .navigationDestination(for: String.self) { destination in
+                if destination == "CategoryAdd" {
+                    CategoryAddView(onDismiss: {
+                        todoViewModel.fetchData()
+                        navPath.removeLast() // 필요시 pop
+                    })
+                } else if destination == "CategoryList" {
+                    CategoryListView()
+                }
+            }
         }
         .onChange(of: scenePhase) { newPhase in
             handleScenePhaseChange(newPhase)
@@ -62,7 +86,10 @@ public struct ContentView: View {
                     Text("빵굽기")
                 }
             
-            ToDoView(viewModel: makeTodoViewModel())
+            ToDoView(
+                viewModel: makeTodoViewModel(),
+                navigationPath: $navPath
+            )
                 .tabItem {
                     Image(.icBook)
                         .renderingMode(.template)
