@@ -46,7 +46,7 @@ final class MockTodoRepository: TodoRepository {
                 todos: [
                     TimerTodo(
                         id: 3,
-                        content: "자기소개서 쓰기",
+                        content: "자기소개서 쓰기 \n 아아아아",
                         isCompleted: false,
                         startTime: "11:30",
                         colorType: .Todopurple1
