@@ -25,113 +25,118 @@ struct ToDoView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ZStack(alignment: .topTrailing) {
-                List {
-                    VStack(spacing: 0) {
-                        messageView
-                        
-                        VStack(spacing: 16) {
-                            calendarHeaderView
-                            calendarBodyView
-                                .padding(.horizontal, 20)
+            VStack {
+                ZStack(alignment: .topTrailing) {
+                    List {
+                        VStack(spacing: 0) {
+                            messageView
+                            
+                            VStack(spacing: 16) {
+                                calendarHeaderView
+                                calendarBodyView
+                                    .padding(.horizontal, 20)
+                            }
+                            .padding(.vertical, 16)
+                            .background(Color(.secondaryLight))
+                            
+                            todoSummaryView
+                                .frame(height: 17)
+                                .padding(.trailing, 20)
+                                .padding(.top, 20)
                         }
-                        .padding(.vertical, 16)
-                        .background(Color(.secondaryLight))
-                        
-                        todoSummaryView
-                            .frame(height: 17)
-                            .padding(.trailing, 20)
-                            .padding(.top, 20)
-                    }
-                    .listRowInsets(EdgeInsets())
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    
-                    TodoContentView
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                }
-                .listStyle(.plain)
-                .scrollIndicators(.hidden)
-                .environment(\.defaultMinListRowHeight, 0)
-                .onAppear {
-                    viewModel.fetchData()
-                }
-                
-                if isShowMenu {
-                    Color.black.opacity(0.001)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                        }
-                    
-                    CustomMenu(
-                        onAddCategoryTapped: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                navigationPath.append("CategoryAdd")
-                            }
-                        },
-                        onManageCategoryTapped: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                navigationPath.append("CategoryList")
-                            }
-                        }
-                    )
-                    .padding(.top, 112)
-                    .padding(.trailing, 20)
-                }
-            }
-            .navigationDestination(for: String.self) { destination in
-                if destination == "CategoryAdd" {
-                    CategoryAddView(onDismiss: {
+                        
+                        TodoContentView
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                    .listStyle(.plain)
+                    .scrollIndicators(.hidden)
+                    .environment(\.defaultMinListRowHeight, 0)
+                    .onAppear {
                         viewModel.fetchData()
-                    })
-                } else if destination == "CategoryList" {
-                    CategoryListView()
+                    }
+                    
+                    if isShowMenu {
+                        Color.black.opacity(0.001)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                            }
+                        
+                        CustomMenu(
+                            onAddCategoryTapped: {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    navigationPath.append("CategoryAdd")
+                                }
+                            },
+                            onManageCategoryTapped: {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    navigationPath.append("CategoryList")
+                                }
+                            }
+                        )
+                        .padding(.top, 112)
+                        .padding(.trailing, 20)
+                    }
                 }
-            }
-            .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                let addViewModel = TaskAddViewModel { content, startTime in
-                    viewModel.addTodo(content: content)
+                .navigationDestination(for: String.self) { destination in
+                    if destination == "CategoryAdd" {
+                        CategoryAddView(onDismiss: {
+                            viewModel.fetchData()
+                        })
+                    } else if destination == "CategoryList" {
+                        CategoryListView()
+                    }
+                }
+                .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
+                    let addViewModel = TaskAddViewModel { content, startTime in
+                        viewModel.addTodo(content: content)
+                    }
+                    
+                    if #available(iOS 16.4, *) {
+                        TaskAddView(
+                            viewModel: addViewModel,
+                            isPresented: $viewModel.isAddTodoSheetPresented
+                        )
+                        .presentationDetents([.height(190)])
+                        .presentationCornerRadius(48)
+                        .presentationDragIndicator(.visible)
+                    } else {
+                        TaskAddView(
+                            viewModel: addViewModel,
+                            isPresented: $viewModel.isAddTodoSheetPresented
+                        )
+                        .presentationDetents([.height(190)])
+                        .presentationDragIndicator(.hidden)
+                    }
+                }
+                .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
+                    if #available(iOS 16.4, *) {
+                        MyPromiseView()
+                            .presentationDetents([.height(230)])
+                            .presentationCornerRadius(48)
+                            .presentationDragIndicator(.visible)
+                    } else {
+                        MyPromiseView()
+                            .presentationDetents([.height(230)])
+                            .presentationDragIndicator(.hidden)
+                    }
                 }
                 
-                if #available(iOS 16.4, *) {
-                    TaskAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                } else {
-                    TaskAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationDragIndicator(.hidden)
-                }
-            }
-            .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
-                if #available(iOS 16.4, *) {
-                    MyPromiseView()
-                    .presentationDetents([.height(230)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                } else {
-                    MyPromiseView()
-                    .presentationDetents([.height(230)])
-                    .presentationDragIndicator(.hidden)
-                }
+                Spacer()
+                    .frame(height: 28)
             }
         }
     }
