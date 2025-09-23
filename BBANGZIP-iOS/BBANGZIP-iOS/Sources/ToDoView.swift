@@ -266,14 +266,25 @@ struct ToDoView: View {
                 
             } else if let todo = item.asTodo {
                 let todoVM = viewModel.makeTodoViewModel(todo: todo)
-                TaskBox(
-                    viewModel: todoVM,
-                    meatballTapped: { handleMeatballTapped(for: todo) },
-                    showSeperator: true
-                )
-                .padding(.horizontal, 20)
-                .buttonStyle(PlainButtonStyle())
                 
+                if let currentIndex = viewModel.todoItems.firstIndex(where: { $0.id == item.id }) {
+                    
+                    let nextItem = viewModel.todoItems[safe: currentIndex + 1]
+                    let isLastInCategory = {
+                        if case .tailDropZone = nextItem {
+                            return true
+                        }
+                        return false
+                    }()
+                    
+                    TaskBox(
+                        viewModel: todoVM,
+                        meatballTapped: { handleMeatballTapped(for: todo) },
+                        showSeperator: !isLastInCategory
+                    )
+                    .padding(.horizontal, 20)
+                    .buttonStyle(PlainButtonStyle())
+                }
             } else {
                 Rectangle()
                     .fill(Color.clear)
