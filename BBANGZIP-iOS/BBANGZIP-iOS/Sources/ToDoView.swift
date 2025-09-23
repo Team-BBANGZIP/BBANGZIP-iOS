@@ -221,6 +221,16 @@ struct ToDoView: View {
                 }
             }
         }
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width < -50 {
+                        viewModel.moveWeek(by: 1)
+                    } else if value.translation.width > 50 {
+                        viewModel.moveWeek(by: -1)
+                    }
+                }
+        )
     }
     
     var todoSummaryView: some View {
