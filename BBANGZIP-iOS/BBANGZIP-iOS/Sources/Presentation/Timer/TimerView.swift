@@ -313,12 +313,11 @@ struct TimerView: View {
                         )
                 )
         )
-        .clipShape(.circle)
         .shadow(
-            color: Color(.timerDropShadow),
-            radius: 5,
+            color: viewModel.state == .running ? Color.clear : Color(.timerDropShadow),
+            radius: viewModel.state == .running ? 0 : 5,
             x: 0,
-            y: 2
+            y: viewModel.state == .running ? 0 : 2
         )
     }
     
