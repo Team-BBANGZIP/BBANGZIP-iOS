@@ -8,9 +8,6 @@
 import SwiftUI
 
 struct CategoryListView: View {
-//    @StateObject private var viewModel = CategoryListViewModel(
-//        repository: MockTodoRepository()
-//    )
     @ObservedObject var viewModel: CategoryListViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var isNavigatingToAddView = false
@@ -102,7 +99,8 @@ private struct Categories: View {
                 ForEach(viewModel.activeCategories) { category in
                     CategoryButton(
                         color: .constant(category.colorType.color),
-                        labelText: .constant(category.name)
+                        labelText: .constant(category.name),
+                        showsPlusIcon: false
                     )
                     .onTapGesture {
                         navigationPath.append(category)
@@ -120,7 +118,8 @@ private struct Categories: View {
                 ForEach(viewModel.stoppedCategories) { category in
                     CategoryButton(
                         color: .constant(category.colorType.color),
-                        labelText: .constant(category.name)
+                        labelText: .constant(category.name),
+                        showsPlusIcon: true
                     )
                     .onTapGesture{
                         navigationPath.append(category)
