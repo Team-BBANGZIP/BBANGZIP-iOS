@@ -49,14 +49,16 @@ public struct PromiseInputField: View {
             .bbangFont(.body1)
             .foregroundColor(Color(.labelNormal))
             .background(Color(.componentStrong))
-            .tint(.clear)
             .cornerRadius(8)
             .keyboardType(.default)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled(true)
             .onChange(of: text) { newValue in
-                if newValue.count > maxLength {
-                    text = String(newValue.prefix(maxLength))
+                let filtered = newValue.replacingOccurrences(of: "\n", with: "")
+                if filtered.count > maxLength {
+                    text = String(filtered.prefix(maxLength))
+                } else {
+                    text = filtered
                 }
             }
     }

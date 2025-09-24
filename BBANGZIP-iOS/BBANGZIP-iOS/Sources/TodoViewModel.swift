@@ -13,7 +13,7 @@ final class TodoViewModel: ObservableObject {
     @Published var dates: [Date] = []
     @Published var todoData: TodoData?
     @Published var isAddTodoSheetPresented: Bool = false
-    @Published var isWriteMessageSheetPresented: Bool = false
+    @Published var isMyPromiseSheetPresented: Bool = false
     @Published var selectedCategoryIndex: Int?
     
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]

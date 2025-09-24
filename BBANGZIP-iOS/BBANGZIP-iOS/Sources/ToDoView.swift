@@ -134,11 +134,13 @@ struct ToDoView: View {
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
-                MyPromiseView()
-                    .presentationDetents([.height(230)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
+            .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+                MyPromiseView(
+                    text: viewModel.todoData?.myPromiseMessage ?? ""
+                )
+                .presentationDetents([.height(230)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
             }
         }
     }
@@ -148,7 +150,7 @@ struct ToDoView: View {
             Color(.secondaryStrong)
             HStack(spacing: 0) {
                 BbangText(
-                    "\(viewModel.todoData?.commitmentMessage ?? "나만의 다짐을 적어보세요")",
+                    "\(viewModel.todoData?.myPromiseMessage ?? "나만의 다짐을 적어보세요")",
                     font: .body4,
                     color: Color(.labelAlternative)
                 )
@@ -164,7 +166,7 @@ struct ToDoView: View {
         .frame(height: 60)
         .onTapGesture {
             print("write")
-            viewModel.isWriteMessageSheetPresented = true
+            viewModel.isMyPromiseSheetPresented = true
         }
     }
     

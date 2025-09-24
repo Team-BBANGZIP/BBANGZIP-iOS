@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 final class MockTodoRepository: TodoRepository {
     private(set) var todoData: TodoData = TodoData(
-        commitmentMessage: "작은 성취가 모여 큰 성과를 만든다",
+        myPromiseMessage: "작은 성취가 모여 큰 성과를 만든다",
         summary: TodoSummary(
             date: "2025-08-31",
             totalCount: 5,
