@@ -9,6 +9,7 @@ public struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var wasPausedByLock = false
     @State private var showCheckedOffView = false
+    @State private var isLaunch: Bool = true
     
     public init() {
         let appearance = UITabBarAppearance()
@@ -22,28 +23,39 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        NavigationStack {
-            ZStack {
-                if showCheckedOffView {
-                    checkedOffView
-                        .transition(.move(edge: .trailing))
-                } else {
-                    mainTabView
-                        .transition(.opacity)
+        if isLaunch {
+            LaunchView()
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            self.isLaunch = false
+                        }
+                    }
                 }
+        } else {
+            NavigationStack {
+                ZStack {
+                    if showCheckedOffView {
+                        checkedOffView
+                            .transition(.move(edge: .trailing))
+                    } else {
+                        mainTabView
+                            .transition(.opacity)
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
             }
-            .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
-        }
-        .onChange(of: scenePhase) { newPhase in
-            handleScenePhaseChange(newPhase)
-        }
-        .onChange(of: timerViewModel.state) { newState in
-            handleTimerStateChange(newState)
-        }
-        .onReceive(timerViewModel.$shouldShowCheckedOffView) { shouldShow in
-            if shouldShow {
-                showCheckedOffView = true
-                timerViewModel.resetCheckedOffViewFlag()
+            .onChange(of: scenePhase) { newPhase in
+                handleScenePhaseChange(newPhase)
+            }
+            .onChange(of: timerViewModel.state) { newState in
+                handleTimerStateChange(newState)
+            }
+            .onReceive(timerViewModel.$shouldShowCheckedOffView) { shouldShow in
+                if shouldShow {
+                    showCheckedOffView = true
+                    timerViewModel.resetCheckedOffViewFlag()
+                }
             }
         }
     }
