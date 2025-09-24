@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
+    @StateObject private var categoryListViewModel = CategoryListViewModel(
+        repository: MockTodoRepository()
+    )
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
@@ -95,7 +98,10 @@ struct ToDoView: View {
                         viewModel.fetchData()
                     })
                 } else if destination == "CategoryList" {
-                    CategoryListView(navigationPath: $navigationPath)
+                    CategoryListView(
+                        viewModel: categoryListViewModel,
+                        navigationPath: $navigationPath
+                    )
                 }
             }
             .navigationDestination(for: Category.self) { category in
@@ -103,15 +109,15 @@ struct ToDoView: View {
                     category: category,
                     onSaved: { updated in
                         withAnimation(.spring()) {
-                            // CategoryListviewModel.updateCategory(updated)
+                            categoryListViewModel.updateCategory(updated)
                         }
-                        // Task { await CategoryListViewModel.persistCategory(updated) }
+                        Task { await categoryListViewModel.persistCategory(updated) }
                     },
                     onDeleted: { id in
                         withAnimation(.spring()) {
-                            // CategoryListViewModel.removeCategory(id: id)
+                            categoryListViewModel.removeCategory(id: id)
                         }
-                        // Task { await CategoryListViewModel.persistDeleteCategory(id: id) }
+                        Task { await categoryListViewModel.persistDeleteCategory(id: id) }
                     }
                 )
             }

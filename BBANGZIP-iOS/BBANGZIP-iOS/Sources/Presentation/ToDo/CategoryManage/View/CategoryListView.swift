@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct CategoryListView: View {
-    @StateObject private var viewModel = CategoryListViewModel(
-        repository: MockTodoRepository()
-    )
+//    @StateObject private var viewModel = CategoryListViewModel(
+//        repository: MockTodoRepository()
+//    )
+    @ObservedObject var viewModel: CategoryListViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var isNavigatingToAddView = false
     @Binding var navigationPath: NavigationPath
