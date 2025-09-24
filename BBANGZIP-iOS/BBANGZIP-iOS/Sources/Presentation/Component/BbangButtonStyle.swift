@@ -26,9 +26,9 @@ struct BbangButtonStyle: ButtonStyle {
         let (backgroundColor, foregroundColor): (Color, Color) = {
             switch style {
             case .primary:
-                (Color(.primaryStrong), Color(.staticwhite))
+                (Color(.primaryNormal), Color(.staticwhite))
             case .secondary:
-                (Color(.primaryLight), Color(.staticwhite))
+                (Color(.primaryStrong), Color(.staticwhite))
             case .disabled:
                 (Color(.labelDisable), Color(.labelAssistive))
             }

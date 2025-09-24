@@ -11,13 +11,33 @@ struct TimerToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack(alignment: configuration.isOn ? .trailing : .leading) {
             RoundedRectangle(cornerRadius: 15)
+                .fill(
+                    Color(.secondaryStrong)
+                        .shadow(.inner(
+                            color: Color(.toggleInnerShadow),
+                            radius: 1,
+                            y: 0.87
+                        ))
+                )
                 .frame(width: 96, height: 28)
-                .foregroundColor(Color(.secondaryStrong))
             
             ZStack {
                 RoundedRectangle(cornerRadius: 15)
+                    .fill(
+                        Color(.primaryNormal)
+                            .shadow(.inner(
+                                color: Color(.toggleButtonShadow),
+                                radius: 1,
+                                y: 1
+                            ))
+                    )
                     .frame(width: 47, height: 26)
-                    .foregroundColor(Color(.primaryNormal))
+                    .shadow(
+                        color: Color(.toggleDropShadow),
+                        radius: 2,
+                        x: 1,
+                        y: 1
+                    )
                 
                 configuration.isOn ? Text("60분")
                     .bbangFont(BbangzipFont.body4)
@@ -30,7 +50,7 @@ struct TimerToggleStyle: ToggleStyle {
             HStack(spacing: 0) {
                 if configuration.isOn {
                     Text("30분")
-                        .bbangFont(BbangzipFont.body4)
+                        .bbangFont(BbangzipFont.label4)
                         .foregroundColor(Color(.primaryNormal))
                         .frame(width: 48, height: 28)
                 }
@@ -39,7 +59,7 @@ struct TimerToggleStyle: ToggleStyle {
                 
                 if !configuration.isOn {
                     Text("60분")
-                        .bbangFont(BbangzipFont.body4)
+                        .bbangFont(BbangzipFont.label4)
                         .foregroundColor(Color(.primaryNormal))
                         .frame(width: 48, height: 28)
                 }
@@ -56,7 +76,7 @@ struct TimerToggleStyle: ToggleStyle {
 
 struct ToggleButton: View {
     @Binding var isToggleOn: Bool
-
+    
     var body: some View {
         Toggle(isOn: $isToggleOn) { }
             .toggleStyle(TimerToggleStyle())
