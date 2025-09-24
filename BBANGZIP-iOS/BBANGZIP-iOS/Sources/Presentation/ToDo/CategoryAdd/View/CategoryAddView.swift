@@ -181,12 +181,12 @@ private struct ColorPickerRow: View {
                 HStack(spacing: 8) {
                     Image(.icPalette)
                         .renderingMode(.template)
-                        .foregroundStyle(Color(.labelAssistive))
+                        .foregroundStyle(Color(.labelAlternative))
                         .frame(width: 24, height: 24)
                     
                     Text("색상")
                         .bbangFont(.body2)
-                        .foregroundStyle(Color(.labelAssistive))
+                        .foregroundStyle(Color(.labelAlternative))
                     
                     Spacer()
                     
