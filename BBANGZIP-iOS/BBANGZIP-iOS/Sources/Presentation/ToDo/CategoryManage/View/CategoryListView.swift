@@ -119,7 +119,7 @@ private struct Categories: View {
                     CategoryButton(
                         color: .constant(category.colorType.color),
                         labelText: .constant(category.name),
-                        showsPlusIcon: true
+                        showsPlusIcon: false
                     )
                     .onTapGesture{
                         navigationPath.append(category)
