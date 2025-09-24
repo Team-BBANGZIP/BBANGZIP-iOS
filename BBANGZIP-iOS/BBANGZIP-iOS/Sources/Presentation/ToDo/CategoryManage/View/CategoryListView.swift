@@ -13,7 +13,7 @@ struct CategoryListView: View {
     )
     @Environment(\.dismiss) private var dismiss
     @State private var isNavigatingToAddView = false
-    @State private var selectedCategory: Category?
+    @Binding var navigationPath: NavigationPath
     
     var body: some View {
         VStack(spacing: 0) {
@@ -27,8 +27,11 @@ struct CategoryListView: View {
             .padding(.bottom, 32)
             
             ScrollView {
-                Categories
-                    .padding(.horizontal, 20)
+                Categories(
+                    viewModel: viewModel,
+                    navigationPath: $navigationPath
+                )
+                .padding(.horizontal, 20)
             }
             
             Spacer()
@@ -43,117 +46,86 @@ struct CategoryListView: View {
             CategoryAddView()
         }
     }
+}
+
+private struct HeaderBarView: View {
+    let title: String
+    let leftIcon: ImageResource
+    let rightIcon: ImageResource
+    let onTapLeft: () -> Void
+    let onTapRight: () -> Void
     
-    private struct HeaderBarView: View {
-        let title: String
-        let leftIcon: ImageResource
-        let rightIcon: ImageResource
-        let onTapLeft: () -> Void
-        let onTapRight: () -> Void
-        
-        var body: some View {
-            HStack {
-                Button(action: {
-                    onTapLeft()
-                }) {
-                    Image(leftIcon)
-                        .resizable()
-                        .renderingMode(.template)
-                        .frame(width: 28, height: 28)
-                }
-                .foregroundStyle(Color(.labelAssistive))
-                
-                Spacer()
-                
-                Button(action: {
-                    onTapRight()
-                }) {
-                    Image(rightIcon)
-                        .resizable()
-                        .renderingMode(.template)
-                        .frame(width: 24, height: 24)
-                }
-                .foregroundStyle(Color(.labelAssistive))
+    var body: some View {
+        HStack {
+            Button(action: {
+                onTapLeft()
+            }) {
+                Image(leftIcon)
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 28, height: 28)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 12)
-            .overlay {
-                Text(title)
-                    .bbangFont(.title2)
-                    .foregroundStyle(Color(.labelNormal))
-                    .allowsHitTesting(false)
+            .foregroundStyle(Color(.labelAssistive))
+            
+            Spacer()
+            
+            Button(action: {
+                onTapRight()
+            }) {
+                Image(rightIcon)
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 24, height: 24)
             }
+            .foregroundStyle(Color(.labelAssistive))
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+        .padding(.bottom, 12)
+        .overlay {
+            Text(title)
+                .bbangFont(.title2)
+                .foregroundStyle(Color(.labelNormal))
+                .allowsHitTesting(false)
         }
     }
+}
+
+private struct Categories: View {
+    @ObservedObject var viewModel: CategoryListViewModel
+    @Binding var navigationPath: NavigationPath
     
-    var Categories: some View {
+    var body: some View {
         LazyVStack(alignment: .leading, spacing: 20) {
-            
             if !viewModel.activeCategories.isEmpty {
                 ForEach(viewModel.activeCategories) { category in
-                    NavigationLink {
-                        
-                        // TODO: persist는 로컬 레포용이므로 서버 연결 후 삭제
-                        CategoryManageView(
-                            category: category,
-                            onSaved: { updated in
-                                withAnimation(.spring()) {
-                                    viewModel.updateCategory(updated)
-                                }
-                                Task { await viewModel.persistCategory(updated) }
-                            },
-                            onDeleted: { id in
-                                withAnimation(.spring()) {
-                                    viewModel.removeCategory(id: id)
-                                }
-                                Task { await viewModel.persistDeleteCategory(id: id) }
-                            }
-                        )
-                    } label: {
-                        CategoryButton(
-                            color: .constant(category.colorType.color),
-                            labelText: .constant(category.name)
-                        )
+                    CategoryButton(
+                        color: .constant(category.colorType.color),
+                        labelText: .constant(category.name)
+                    )
+                    .onTapGesture {
+                        navigationPath.append(category)
                     }
                 }
             }
             
             if !viewModel.stoppedCategories.isEmpty {
                 Text("종료한 카테고리")
-                    .bbangFont(.body2)
-                    .foregroundStyle(Color(.labelAssistive))
+                    .bbangFont(.label6)
+                    .foregroundStyle(Color(.labelAlternative))
+                    .padding(.top, 20)
+                    .padding(.bottom, -8)
                 
                 ForEach(viewModel.stoppedCategories) { category in
-                    NavigationLink {
-                        
-                        // TODO: persist는 로컬 레포용이므로 서버 연결 후 삭제
-                        CategoryManageView(
-                            category: category,
-                            onSaved: { updated in
-                                withAnimation(.spring()) {
-                                    viewModel.updateCategory(updated)                                }
-                                Task { await viewModel.persistCategory(updated) }
-                            },
-                            onDeleted: { id in
-                                withAnimation(.spring()) {
-                                    viewModel.removeCategory(id: id)
-                                }
-                                Task { await viewModel.persistDeleteCategory(id: id) }
-                            }
-                        )
-                    } label: {
-                        CategoryButton(
-                            color: .constant(category.colorType.color),
-                            labelText: .constant(category.name)
-                        )
+                    CategoryButton(
+                        color: .constant(category.colorType.color),
+                        labelText: .constant(category.name)
+                    )
+                    .onTapGesture{
+                        navigationPath.append(category)
                     }
                 }
             }
         }
     }
-}
-
-#Preview {
-    CategoryListView()
 }

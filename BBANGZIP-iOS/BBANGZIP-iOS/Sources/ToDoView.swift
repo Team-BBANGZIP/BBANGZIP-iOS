@@ -11,117 +11,143 @@ struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
-    @Binding private var navigationPath: NavigationPath
+    @State private var navigationPath = NavigationPath()
     
     init(
         viewModel: TodoViewModel,
         selectedDate: Date? = nil,
-        isShowMenu: Bool = false,
-        navigationPath: Binding<NavigationPath>
+        isShowMenu: Bool = false
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.selectedDate = selectedDate
         self.isShowMenu = isShowMenu
-        self._navigationPath = navigationPath
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            List {
-                VStack(spacing: 0) {
-                    messageView
-                    
-                    VStack(spacing: 16) {
-                        calendarHeaderView
-                        calendarBodyView
-                            .padding(.horizontal, 20)
+        NavigationStack(path: $navigationPath) {
+            ZStack(alignment: .topTrailing) {
+                List {
+                    VStack(spacing: 0) {
+                        messageView
+                        
+                        VStack(spacing: 16) {
+                            calendarHeaderView
+                            calendarBodyView
+                                .padding(.horizontal, 20)
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color(.secondaryLight))
+                        
+                        todoSummaryView
+                            .padding(.trailing, 20)
+                            .padding(.top, 20)
                     }
-                    .padding(.vertical, 16)
-                    .background(Color(.secondaryLight))
-                    
-                    todoSummaryView
-                        .padding(.trailing, 20)
-                        .padding(.top, 20)
-                }
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                
-                TodoContentView
                     .listRowInsets(EdgeInsets())
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
-            }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .environment(\.defaultMinListRowHeight, 0)
-            .onAppear {
-                viewModel.fetchData()
-            }
-            
-            if isShowMenu {
-                Color.black.opacity(0.001)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            isShowMenu = false
-                        }
-                    }
+                    
+                    TodoContentView
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+                .listStyle(.plain)
+                .scrollIndicators(.hidden)
+                .environment(\.defaultMinListRowHeight, 0)
+                .onAppear {
+                    viewModel.fetchData()
+                }
                 
-                CustomMenu(
-                    onAddCategoryTapped: {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            isShowMenu = false
+                if isShowMenu {
+                    Color.black.opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            navigationPath.append("CategoryAdd")
+                    
+                    CustomMenu(
+                        onAddCategoryTapped: {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                navigationPath.append("CategoryAdd")
+                            }
+                        },
+                        onManageCategoryTapped: {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isShowMenu = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                navigationPath.append("CategoryList")
+                            }
                         }
+                    )
+                    .padding(.top, 112)
+                    .padding(.trailing, 20)
+                }
+            }
+            .navigationDestination(for: String.self) { destination in
+                if destination == "CategoryAdd" {
+                    CategoryAddView(onDismiss: {
+                        viewModel.fetchData()
+                    })
+                } else if destination == "CategoryList" {
+                    CategoryListView(navigationPath: $navigationPath)
+                }
+            }
+            .navigationDestination(for: Category.self) { category in
+                CategoryManageView(
+                    category: category,
+                    onSaved: { updated in
+                        withAnimation(.spring()) {
+                            // CategoryListviewModel.updateCategory(updated)
+                        }
+                        // Task { await CategoryListViewModel.persistCategory(updated) }
                     },
-                    onManageCategoryTapped: {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            isShowMenu = false
+                    onDeleted: { id in
+                        withAnimation(.spring()) {
+                            // CategoryListViewModel.removeCategory(id: id)
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            navigationPath.append("CategoryList")
-                        }
+                        // Task { await CategoryListViewModel.persistDeleteCategory(id: id) }
                     }
                 )
-                .padding(.top, 112)
-                .padding(.trailing, 20)
             }
-        }
-        .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-            let addViewModel = TaskAddViewModel { content, startTime in
-                viewModel.addTodo(content: content)
+            .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
+                let addViewModel = TaskAddViewModel { content, startTime in
+                    viewModel.addTodo(content: content)
+                }
+                
+                if #available(iOS 16.4, *) {
+                    TaskAddView(
+                        viewModel: addViewModel,
+                        isPresented: $viewModel.isAddTodoSheetPresented
+                    )
+                    .presentationDetents([.height(190)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+                } else {
+                    TaskAddView(
+                        viewModel: addViewModel,
+                        isPresented: $viewModel.isAddTodoSheetPresented
+                    )
+                    .presentationDetents([.height(190)])
+                    .presentationDragIndicator(.hidden)
+                }
             }
-            
-            if #available(iOS 16.4, *) {
-                TaskAddView(
-                    viewModel: addViewModel,
-                    isPresented: $viewModel.isAddTodoSheetPresented
-                )
-                .presentationDetents([.height(190)])
-                .presentationCornerRadius(48)
-                .presentationDragIndicator(.visible)
-            } else {
-                TaskAddView(
-                    viewModel: addViewModel,
-                    isPresented: $viewModel.isAddTodoSheetPresented
-                )
-                .presentationDetents([.height(190)])
-                .presentationDragIndicator(.hidden)
-            }
-        }
-        .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
-            if #available(iOS 16.4, *) {
-                MyPromiseView()
+            .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
+                if #available(iOS 16.4, *) {
+                    MyPromiseView()
                     .presentationDetents([.height(230)])
                     .presentationCornerRadius(48)
                     .presentationDragIndicator(.visible)
-            } else {
-                MyPromiseView()
+                } else {
+                    MyPromiseView()
                     .presentationDetents([.height(230)])
                     .presentationDragIndicator(.hidden)
+                }
             }
         }
     }
@@ -296,9 +322,6 @@ struct TodoView_Previews: PreviewProvider {
             addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
         
-        return ToDoView(
-            viewModel: previewViewModel,
-            navigationPath: .constant(NavigationPath())
-        )
+        return ToDoView(viewModel: previewViewModel)
     }
 }

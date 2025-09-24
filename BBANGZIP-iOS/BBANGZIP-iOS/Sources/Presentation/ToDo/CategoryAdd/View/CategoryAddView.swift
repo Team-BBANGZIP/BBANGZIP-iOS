@@ -109,7 +109,7 @@ private struct HeaderBarView: View {
                 Image(leftIcon)
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 28, height: 28)
             }
             .foregroundStyle(Color(.labelAssistive))
             
