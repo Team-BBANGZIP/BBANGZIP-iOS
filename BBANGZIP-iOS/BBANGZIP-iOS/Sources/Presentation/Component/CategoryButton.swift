@@ -15,7 +15,7 @@ struct CategoryButton: View {
         HStack(spacing: 6) {
             Circle()
                 .fill(color)
-                .frame(width: 14, height: 14)
+                .frame(width: 12, height: 12)
             
             Text(labelText)
                 .bbangFont(.label3)
