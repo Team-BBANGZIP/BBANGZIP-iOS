@@ -81,16 +81,10 @@ struct CategoryAddView: View {
             }
         }
         .sheet(isPresented: $isColorPickerPresented) {
-            if #available(iOS 16.4, *) {
-                PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                    .presentationDetents([.height(273)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-            } else {
-                PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                    .presentationDetents([.height(273)])
-                    .presentationDragIndicator(.visible)
-            }
+            PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+                .presentationDetents([.height(273)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
         }
     }
 }

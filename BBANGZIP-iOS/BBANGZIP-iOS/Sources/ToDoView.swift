@@ -126,34 +126,19 @@ struct ToDoView: View {
                     viewModel.addTodo(content: content)
                 }
                 
-                if #available(iOS 16.4, *) {
-                    TaskAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                } else {
-                    TaskAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationDragIndicator(.hidden)
-                }
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isAddTodoSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
-                if #available(iOS 16.4, *) {
-                    MyPromiseView()
+                MyPromiseView()
                     .presentationDetents([.height(230)])
                     .presentationCornerRadius(48)
                     .presentationDragIndicator(.visible)
-                } else {
-                    MyPromiseView()
-                    .presentationDetents([.height(230)])
-                    .presentationDragIndicator(.hidden)
-                }
             }
         }
     }

@@ -34,22 +34,13 @@ struct CheckedOffView: View {
                 viewModel.addTodo(content: content, startTime: startTime)
             }
             
-            if #available(iOS 16.4, *) {
-                TaskAddView(
-                    viewModel: addViewModel,
-                    isPresented: $viewModel.isSheetPresented
-                )
-                .presentationDetents([.height(190)])
-                .presentationCornerRadius(48)
-                .presentationDragIndicator(.visible)
-            } else {
-                TaskAddView(
-                    viewModel: addViewModel,
-                    isPresented: $viewModel.isSheetPresented
-                )
-                .presentationDetents([.height(190)])
-                .presentationDragIndicator(.hidden)
-            }
+            TaskAddView(
+                viewModel: addViewModel,
+                isPresented: $viewModel.isSheetPresented
+            )
+            .presentationDetents([.height(190)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
         }
         .navigationBarHidden(true)
         .onAppear {
@@ -188,7 +179,7 @@ struct CheckedOffView_Previews: PreviewProvider {
             toggleUseCase: toggleUseCase,
             addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
         )
-
+        
         return CheckedOffView(
             viewModel: previewViewModel,
             onBackToTimer: {
