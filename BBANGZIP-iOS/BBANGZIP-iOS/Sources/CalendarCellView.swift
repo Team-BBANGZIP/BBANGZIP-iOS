@@ -16,12 +16,12 @@ struct CalendarCellView: View {
         VStack(spacing: 8) {
             BbangText(
                 day,
-                font: .label4,
+                font: isSelected ? .label3 : .label4,
                 color: isSelected ? Color(.labelNormal) : Color(.labelAlternative)
             )
             BbangText(
                 "\(calendar.component(.day, from: date))",
-                font: .label4,
+                font: isSelected ? .label1 : .label4,
                 color: isSelected ? Color(.labelNormal) : Color(.labelAlternative)
             )
         }

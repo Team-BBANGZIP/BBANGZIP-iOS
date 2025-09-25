@@ -28,63 +28,66 @@ struct ToDoView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ZStack(alignment: .topTrailing) {
-                List {
-                    VStack(spacing: 0) {
-                        messageView
-                        
-                        VStack(spacing: 16) {
-                            calendarHeaderView
-                            calendarBodyView
-                                .padding(.horizontal, 20)
+            VStack {
+                ZStack(alignment: .topTrailing) {
+                    List {
+                        VStack(spacing: 0) {
+                            messageView
+                            
+                            VStack(spacing: 16) {
+                                calendarHeaderView
+                                calendarBodyView
+                                    .padding(.horizontal, 20)
+                            }
+                            .padding(.vertical, 16)
+                            .background(Color(.secondaryLight))
+                            
+                            todoSummaryView
+                                .frame(height: 17)
+                                .padding(.trailing, 20)
+                                .padding(.top, 20)
                         }
-                        .padding(.vertical, 16)
-                        .background(Color(.secondaryLight))
-                        
-                        todoSummaryView
-                            .padding(.trailing, 20)
-                            .padding(.top, 20)
-                    }
-                    .listRowInsets(EdgeInsets())
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    
-                    TodoContentView
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                }
-                .listStyle(.plain)
-                .scrollIndicators(.hidden)
-                .environment(\.defaultMinListRowHeight, 0)
-                .onAppear {
-                    viewModel.fetchData()
-                }
-                
-                if isShowMenu {
-                    Color.black.opacity(0.001)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                        }
+                        
+                        TodoContentView
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                    .listStyle(.plain)
+                    .scrollIndicators(.hidden)
+                    .environment(\.defaultMinListRowHeight, 0)
+                    .onAppear {
+                        viewModel.fetchData()
+                    }
                     
-                    CustomMenu(
-                        onAddCategoryTapped: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
+                    if isShowMenu {
+                        Color.black.opacity(0.001)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                navigationPath.append("CategoryAdd")
-                            }
-                        },
-                        onManageCategoryTapped: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                navigationPath.append("CategoryList")
+                        
+                        CustomMenu(
+                            onAddCategoryTapped: {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    navigationPath.append("CategoryAdd")
+                                }
+                            },
+                            onManageCategoryTapped: {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    navigationPath.append("CategoryList")
+                                }
                             }
                         }
                     )
@@ -144,6 +147,9 @@ struct ToDoView: View {
                 .presentationDetents([.height(230)])
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
+                
+                Spacer()
+                    .frame(height: 28)
             }
         }
     }
@@ -234,6 +240,16 @@ struct ToDoView: View {
                 }
             }
         }
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width < -50 {
+                        viewModel.moveWeek(by: 1)
+                    } else if value.translation.width > 50 {
+                        viewModel.moveWeek(by: -1)
+                    }
+                }
+        )
     }
     
     var todoSummaryView: some View {
@@ -270,7 +286,7 @@ struct ToDoView: View {
                     labelText: .constant(category.name)
                 )
                 .padding(.leading, 20)
-                .padding(.top, 16)
+                .padding(.top, 8)
                 .onTapGesture {
                     viewModel.selectedCategoryIndex = index
                     viewModel.isAddTodoSheetPresented = true
@@ -279,14 +295,25 @@ struct ToDoView: View {
                 
             } else if let todo = item.asTodo {
                 let todoVM = viewModel.makeTodoViewModel(todo: todo)
-                TaskBox(
-                    viewModel: todoVM,
-                    meatballTapped: { handleMeatballTapped(for: todo) },
-                    showSeperator: true
-                )
-                .padding(.horizontal, 20)
-                .buttonStyle(PlainButtonStyle())
                 
+                if let currentIndex = viewModel.todoItems.firstIndex(where: { $0.id == item.id }) {
+                    
+                    let nextItem = viewModel.todoItems[safe: currentIndex + 1]
+                    let isLastInCategory = {
+                        if case .tailDropZone = nextItem {
+                            return true
+                        }
+                        return false
+                    }()
+                    
+                    TaskBox(
+                        viewModel: todoVM,
+                        meatballTapped: { handleMeatballTapped(for: todo) },
+                        showSeperator: !isLastInCategory
+                    )
+                    .padding(.horizontal, 20)
+                    .buttonStyle(PlainButtonStyle())
+                }
             } else {
                 Rectangle()
                     .fill(Color.clear)
