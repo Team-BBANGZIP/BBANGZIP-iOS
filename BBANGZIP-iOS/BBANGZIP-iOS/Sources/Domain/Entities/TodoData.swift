@@ -8,7 +8,7 @@
 import Foundation
 
 struct TodoData {
-    let commitmentMessage: String
+    var myPromiseMessage: String
     let summary: TodoSummary
     var categories: [Category]
 }
