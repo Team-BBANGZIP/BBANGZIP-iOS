@@ -13,7 +13,7 @@ struct TaskBox: View {
     var showSeperator: Bool = true
     
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .top) {
             CheckBox(
                 isChecked: viewModel.todo.isCompleted,
                 color: viewModel.todo.colorType.color,
@@ -21,6 +21,7 @@ struct TaskBox: View {
                     viewModel.toggleCompletion()
                 }
             )
+            .padding(.top, viewModel.todo.startTime == nil ? 8 : 5)
             
             VStack(spacing: 0) {
                 HStack(alignment: .center) {
@@ -38,6 +39,7 @@ struct TaskBox: View {
                             HStack(spacing: 3) {
                                 Image(.icClock)
                                     .resizable()
+                                    .renderingMode(.template)
                                     .frame(width: 15, height: 15)
                                     .foregroundColor(Color(.labelAssistive))
                                 Text(formattedTime)

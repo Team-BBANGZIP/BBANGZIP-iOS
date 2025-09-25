@@ -46,7 +46,7 @@ final class MockTodoRepository: TodoRepository {
                 todos: [
                     TimerTodo(
                         id: 3,
-                        content: "자기소개서 쓰기",
+                        content: "자기소개서 쓰기 \n 아아아아",
                         isCompleted: false,
                         startTime: "11:30",
                         colorType: .Todopurple1
@@ -64,6 +64,27 @@ final class MockTodoRepository: TodoRepository {
                         isCompleted: true,
                         startTime: nil,
                         colorType: .Todopurple1
+                    ),
+                    TimerTodo(
+                        id: 6,
+                        content: "자기소개서 쓰기 \n 아아아아",
+                        isCompleted: false,
+                        startTime: "11:30",
+                        colorType: .Todopurple1
+                    ),
+                    TimerTodo(
+                        id: 7,
+                        content: "Resume 쓰기",
+                        isCompleted: false,
+                        startTime: "13:00",
+                        colorType: .Todopurple1
+                    ),
+                    TimerTodo(
+                        id: 8,
+                        content: "인사하기",
+                        isCompleted: true,
+                        startTime: nil,
+                        colorType: .Todopurple1
                     )
                 ],
                 isStopped: true
@@ -74,7 +95,7 @@ final class MockTodoRepository: TodoRepository {
                 colorType: .Todoyellow1,
                 todos: [
                     TimerTodo(
-                        id: 6,
+                        id: 9,
                         content: "베이스",
                         isCompleted: true,
                         startTime: "16:00",
