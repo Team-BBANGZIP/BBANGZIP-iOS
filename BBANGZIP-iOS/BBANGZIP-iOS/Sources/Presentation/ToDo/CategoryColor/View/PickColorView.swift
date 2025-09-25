@@ -29,6 +29,17 @@ struct PickColorView: View {
                     Circle()
                         .fill(Color(colorCase.rawValue))
                         .frame(width: 48, height: 48)
+                        .overlay(
+                            Group {
+                                if selectedColor == colorCase {
+                                    Circle()
+                                        .stroke(Color(colorCase.rawValue), lineWidth: 8)
+                                    Circle()
+                                        .stroke(Color.white, lineWidth: 2)
+                                        .padding(-1)
+                                }
+                            }
+                        )
                         .onTapGesture {
                             selectedColor = colorCase
                             isPresented = false
@@ -40,4 +51,11 @@ struct PickColorView: View {
             .padding(.bottom, 40)
         }
     }
+}
+
+#Preview {
+    PickColorView(
+        selectedColor: .constant(CategoryColor.Todoyellow1),
+        isPresented: .constant(true)
+    )
 }

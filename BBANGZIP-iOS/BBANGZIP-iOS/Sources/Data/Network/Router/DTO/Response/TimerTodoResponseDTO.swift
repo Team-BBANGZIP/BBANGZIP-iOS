@@ -13,7 +13,7 @@ struct TodoResponseDTO: Decodable {
 }
 
 struct TodoDataDTO: Decodable {
-    let commitmentMessage: String
+    let myPromiseMessage: String
     let todoSummary: TodoSummaryDTO
     let categories: [CategoryDTO]
 }
@@ -42,7 +42,7 @@ struct TodoDTO: Decodable {
 extension TodoResponseDTO {
     func toEntity() -> TodoData {
         TodoData(
-            commitmentMessage: data.commitmentMessage,
+            myPromiseMessage: data.myPromiseMessage,
             summary: data.todoSummary.toEntity(),
             categories: data.categories.map { $0.toEntity() }
         )

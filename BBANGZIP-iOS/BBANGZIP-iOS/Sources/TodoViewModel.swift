@@ -13,7 +13,7 @@ final class TodoViewModel: ObservableObject {
     @Published var dates: [Date] = []
     @Published var todoData: TodoData?
     @Published var isAddTodoSheetPresented: Bool = false
-    @Published var isWriteMessageSheetPresented: Bool = false
+    @Published var isMyPromiseSheetPresented: Bool = false
     @Published var selectedCategoryIndex: Int?
     
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
@@ -251,6 +251,12 @@ final class TodoViewModel: ObservableObject {
            let tIndex = todoData?.categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
             todoData?.categories[cIndex].todos[tIndex] = updatedTodo
         }
+    }
+    
+    func updateMyPromiseMessage(_ newValue: String) {
+        guard var data = todoData else { return }
+        data.myPromiseMessage = newValue
+        todoData = data
     }
 }
 

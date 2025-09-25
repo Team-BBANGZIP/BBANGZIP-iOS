@@ -39,92 +39,78 @@ struct CategoryManageView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                HeaderBarView(
-                    title: "카테고리 관리",
-                    leftIcon: .icChevronLeft,
-                    onTapLeft: { dismiss() },
-                    rightTitle: "확인",
-                    onTapRight: { viewModel.saveCategory() }
+        VStack(spacing: 0) {
+            HeaderBarView(
+                title: "카테고리 관리",
+                leftIcon: .icChevronLeft,
+                onTapLeft: { dismiss() },
+                rightTitle: "확인",
+                onTapRight: { viewModel.saveCategory() }
+            )
+            
+            VStack(spacing: 20) {
+                UnderlineTextField(
+                    text: $viewModel.categoryName,
+                    placeholder: "카테고리명 입력",
+                    isFocused: $isTextFieldFocused
+                )
+                .padding(.top, 8)
+                
+                ColorPickerRow(
+                    selectedColor: viewModel.selectedColor,
+                    onTap: {
+                        isTextFieldFocused = false
+                        isColorPickerPresented = true
+                    }
                 )
                 
-                VStack(spacing: 20) {
-                    UnderlineTextField(
-                        text: $viewModel.categoryName,
-                        placeholder: "카테고리명 입력",
-                        isFocused: $isTextFieldFocused
-                    )
-                    .padding(.top, 8)
-                    
-                    ColorPickerRow(
-                        selectedColor: viewModel.selectedColor,
-                        onTap: {
-                            isTextFieldFocused = false
-                            isColorPickerPresented = true
-                        }
-                    )
-                    
-                    StopToggleRow(isStopped: $viewModel.isStopped)
-                    
-                    Spacer()
-                    
-                    DeleteButton {
-                        isDeleteAlertPresented = true
-                    }
-                    .padding(.horizontal, 20)
+                StopToggleRow(isStopped: $viewModel.isStopped)
+                
+                Spacer()
+                
+                DeleteButton {
+                    isDeleteAlertPresented = true
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 32)
             }
-            .contentShape(Rectangle())
-            .onTapGesture { isTextFieldFocused = false }
-            .alert("오류", isPresented: isErrorPresented) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
+            .padding(.horizontal, 20)
+            .padding(.top, 32)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { isTextFieldFocused = false }
+        .alert("오류", isPresented: isErrorPresented) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+        .onChange(of: viewModel.isCompleted) { isCompleted in
+            if isCompleted {
+                let updated = viewModel.updateCategory()
+                onSaved(updated)
+                dismiss()
             }
-            .onChange(of: viewModel.isCompleted) { isCompleted in
-                if isCompleted {
-                    let updated = viewModel.updateCategory()
-                    onSaved(updated)
+        }
+        .sheet(isPresented: $isColorPickerPresented) {
+            PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+                .presentationDetents([.height(273)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $isDeleteAlertPresented) {
+            let sheet = CategoryDeleteAlertView(
+                isPresented: $isDeleteAlertPresented,
+                categoryName: viewModel.categoryName,
+                onDelete: {
+                    // TODO: 삭제 API 연결
+                    onDeleted(viewModel.categoryId)
                     dismiss()
                 }
-            }
-            .sheet(isPresented: $isColorPickerPresented) {
-                if #available(iOS 16.4, *) {
-                    PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                        .presentationDetents([.height(273)])
-                        .presentationCornerRadius(48)
-                        .presentationDragIndicator(.visible)
-                } else {
-                    PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                        .presentationDetents([.height(273)])
-                        .presentationDragIndicator(.visible)
-                }
-            }
-            .sheet(isPresented: $isDeleteAlertPresented) {
-                let sheet = CategoryDeleteAlertView(
-                    isPresented: $isDeleteAlertPresented,
-                    categoryName: viewModel.categoryName,
-                    onDelete: {
-                        // TODO: 삭제 API 연결
-                        onDeleted(viewModel.categoryId)
-                        dismiss()
-                    }
-                )
-                
-                if #available(iOS 16.4, *) {
-                    sheet
-                        .presentationDetents([.height(364)])
-                        .presentationCornerRadius(48)
-                        .presentationDragIndicator(.visible)
-                } else {
-                    sheet
-                        .presentationDetents([.height(364)])
-                        .presentationDragIndicator(.visible)
-                }
-            }
+            )
+            
+            sheet
+                .presentationDetents([.height(364)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
         }
         .toolbar(.hidden, for: .navigationBar)
     }
@@ -143,7 +129,7 @@ private struct HeaderBarView: View {
                 Image(leftIcon)
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 28, height: 28)
             }
             .foregroundStyle(Color(.labelAssistive))
             

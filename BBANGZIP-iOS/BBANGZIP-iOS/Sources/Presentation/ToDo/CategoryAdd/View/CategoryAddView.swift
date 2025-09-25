@@ -81,16 +81,10 @@ struct CategoryAddView: View {
             }
         }
         .sheet(isPresented: $isColorPickerPresented) {
-            if #available(iOS 16.4, *) {
-                PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                    .presentationDetents([.height(273)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-            } else {
-                PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                    .presentationDetents([.height(273)])
-                    .presentationDragIndicator(.visible)
-            }
+            PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
+                .presentationDetents([.height(273)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
         }
     }
 }
@@ -109,7 +103,7 @@ private struct HeaderBarView: View {
                 Image(leftIcon)
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 28, height: 28)
             }
             .foregroundStyle(Color(.labelAssistive))
             
@@ -181,12 +175,12 @@ private struct ColorPickerRow: View {
                 HStack(spacing: 8) {
                     Image(.icPalette)
                         .renderingMode(.template)
-                        .foregroundStyle(Color(.labelAssistive))
+                        .foregroundStyle(Color(.labelAlternative))
                         .frame(width: 24, height: 24)
                     
                     Text("색상")
                         .bbangFont(.body2)
-                        .foregroundStyle(Color(.labelAssistive))
+                        .foregroundStyle(Color(.labelAlternative))
                     
                     Spacer()
                     

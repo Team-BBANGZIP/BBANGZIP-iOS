@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
+    @StateObject private var categoryListViewModel = CategoryListViewModel(
+        repository: MockTodoRepository()
+    )
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
@@ -86,54 +89,64 @@ struct ToDoView: View {
                                     navigationPath.append("CategoryList")
                                 }
                             }
-                        )
-                        .padding(.top, 112)
-                        .padding(.trailing, 20)
-                    }
+                        }
+                    )
+                    .padding(.top, 112)
+                    .padding(.trailing, 20)
                 }
-                .navigationDestination(for: String.self) { destination in
-                    if destination == "CategoryAdd" {
-                        CategoryAddView(onDismiss: {
-                            viewModel.fetchData()
-                        })
-                    } else if destination == "CategoryList" {
-                        CategoryListView()
-                    }
+            }
+            .navigationDestination(for: String.self) { destination in
+                if destination == "CategoryAdd" {
+                    CategoryAddView(onDismiss: {
+                        viewModel.fetchData()
+                    })
+                } else if destination == "CategoryList" {
+                    CategoryListView(
+                        viewModel: categoryListViewModel,
+                        navigationPath: $navigationPath
+                    )
                 }
-                .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                    let addViewModel = TaskAddViewModel { content, startTime in
-                        viewModel.addTodo(content: content)
+            }
+            .navigationDestination(for: Category.self) { category in
+                CategoryManageView(
+                    category: category,
+                    onSaved: { updated in
+                        withAnimation(.spring()) {
+                            categoryListViewModel.updateCategory(updated)
+                        }
+                        Task { await categoryListViewModel.persistCategory(updated) }
+                    },
+                    onDeleted: { id in
+                        withAnimation(.spring()) {
+                            categoryListViewModel.removeCategory(id: id)
+                        }
+                        Task { await categoryListViewModel.persistDeleteCategory(id: id) }
                     }
-                    
-                    if #available(iOS 16.4, *) {
-                        TaskAddView(
-                            viewModel: addViewModel,
-                            isPresented: $viewModel.isAddTodoSheetPresented
-                        )
-                        .presentationDetents([.height(190)])
-                        .presentationCornerRadius(48)
-                        .presentationDragIndicator(.visible)
-                    } else {
-                        TaskAddView(
-                            viewModel: addViewModel,
-                            isPresented: $viewModel.isAddTodoSheetPresented
-                        )
-                        .presentationDetents([.height(190)])
-                        .presentationDragIndicator(.hidden)
-                    }
+                )
+            }
+            .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
+                let addViewModel = TaskAddViewModel { content, startTime in
+                    viewModel.addTodo(content: content)
                 }
-                .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
-                    if #available(iOS 16.4, *) {
-                        MyPromiseView()
-                            .presentationDetents([.height(230)])
-                            .presentationCornerRadius(48)
-                            .presentationDragIndicator(.visible)
-                    } else {
-                        MyPromiseView()
-                            .presentationDetents([.height(230)])
-                            .presentationDragIndicator(.hidden)
+                
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isAddTodoSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+                MyPromiseView(
+                    initialText: viewModel.todoData?.myPromiseMessage ?? "",
+                    onSave: { newText in
+                        viewModel.updateMyPromiseMessage(newText)
                     }
-                }
+                )
+                .presentationDetents([.height(230)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
                 
                 Spacer()
                     .frame(height: 28)
@@ -146,7 +159,7 @@ struct ToDoView: View {
             Color(.secondaryStrong)
             HStack(spacing: 0) {
                 BbangText(
-                    "\(viewModel.todoData?.commitmentMessage ?? "나만의 다짐을 적어보세요")",
+                    "\(viewModel.todoData?.myPromiseMessage ?? "나만의 다짐을 적어보세요")",
                     font: .body4,
                     color: Color(.labelAlternative)
                 )
@@ -162,7 +175,7 @@ struct ToDoView: View {
         .frame(height: 60)
         .onTapGesture {
             print("write")
-            viewModel.isWriteMessageSheetPresented = true
+            viewModel.isMyPromiseSheetPresented = true
         }
     }
     

@@ -17,16 +17,10 @@ struct TestTimerView: View {
             }
         }
         .sheet(isPresented: $isSheetPresented) {
-            if #available(iOS 16.4, *) {
-                BreadSelectView()
-                    .presentationDetents([.height(576)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-            } else {
-                BreadSelectView()
-                    .presentationDetents([.height(576)])
-                    .presentationDragIndicator(.visible)
-            }
+            BreadSelectView()
+                .presentationDetents([.height(576)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
         }
     }
 }

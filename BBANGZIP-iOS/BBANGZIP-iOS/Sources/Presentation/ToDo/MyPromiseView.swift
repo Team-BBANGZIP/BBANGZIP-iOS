@@ -8,23 +8,32 @@
 import SwiftUI
 
 struct MyPromiseView: View {
-    @State private var promiseText: String = "나만의 다짐을 적어보세요"
+    @State private var draft: String
+    private let onSave: (String) -> Void
+    
+    init(
+        initialText: String = "",
+        onSave: @escaping (String) -> Void
+    ) {
+        _draft = State(initialValue: initialText)
+        self.onSave = onSave
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             Text("나만의 다짐 작성")
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelAlternative))
-                .padding(.top, 25)
+                .padding(.top, 50)
             
-            PromiseInputField(text: $promiseText)
+            PromiseInputField(text: $draft)
                 .padding(.horizontal, 20)
                 .padding(.top, 31)
                 .padding(.bottom, 28)
         }
+        .onDisappear {
+            let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+            onSave(trimmed)
+        }
     }
-}
-
-#Preview {
-    MyPromiseView()
 }
