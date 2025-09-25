@@ -89,68 +89,68 @@ struct ToDoView: View {
                                     navigationPath.append("CategoryList")
                                 }
                             }
+                        )
+                        .padding(.top, 112)
+                        .padding(.trailing, 20)
+                    }
+                }
+                .navigationDestination(for: String.self) { destination in
+                    if destination == "CategoryAdd" {
+                        CategoryAddView(onDismiss: {
+                            viewModel.fetchData()
+                        })
+                    } else if destination == "CategoryList" {
+                        CategoryListView(
+                            viewModel: categoryListViewModel,
+                            navigationPath: $navigationPath
+                        )
+                    }
+                }
+                .navigationDestination(for: Category.self) { category in
+                    CategoryManageView(
+                        category: category,
+                        onSaved: { updated in
+                            withAnimation(.spring()) {
+                                categoryListViewModel.updateCategory(updated)
+                            }
+                            Task { await categoryListViewModel.persistCategory(updated) }
+                        },
+                        onDeleted: { id in
+                            withAnimation(.spring()) {
+                                categoryListViewModel.removeCategory(id: id)
+                            }
+                            Task { await categoryListViewModel.persistDeleteCategory(id: id) }
                         }
                     )
-                    .padding(.top, 112)
-                    .padding(.trailing, 20)
                 }
-            }
-            .navigationDestination(for: String.self) { destination in
-                if destination == "CategoryAdd" {
-                    CategoryAddView(onDismiss: {
-                        viewModel.fetchData()
-                    })
-                } else if destination == "CategoryList" {
-                    CategoryListView(
-                        viewModel: categoryListViewModel,
-                        navigationPath: $navigationPath
+                .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
+                    let addViewModel = TaskAddViewModel { content, startTime in
+                        viewModel.addTodo(content: content)
+                    }
+                    
+                    TaskAddView(
+                        viewModel: addViewModel,
+                        isPresented: $viewModel.isAddTodoSheetPresented
                     )
+                    .presentationDetents([.height(190)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+                }
+                .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+                    MyPromiseView(
+                        initialText: viewModel.todoData?.myPromiseMessage ?? "",
+                        onSave: { newText in
+                            viewModel.updateMyPromiseMessage(newText)
+                        }
+                    )
+                    .presentationDetents([.height(230)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
                 }
             }
-            .navigationDestination(for: Category.self) { category in
-                CategoryManageView(
-                    category: category,
-                    onSaved: { updated in
-                        withAnimation(.spring()) {
-                            categoryListViewModel.updateCategory(updated)
-                        }
-                        Task { await categoryListViewModel.persistCategory(updated) }
-                    },
-                    onDeleted: { id in
-                        withAnimation(.spring()) {
-                            categoryListViewModel.removeCategory(id: id)
-                        }
-                        Task { await categoryListViewModel.persistDeleteCategory(id: id) }
-                    }
-                )
-            }
-            .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                let addViewModel = TaskAddViewModel { content, startTime in
-                    viewModel.addTodo(content: content)
-                }
-                
-                TaskAddView(
-                    viewModel: addViewModel,
-                    isPresented: $viewModel.isAddTodoSheetPresented
-                )
-                .presentationDetents([.height(190)])
-                .presentationCornerRadius(48)
-                .presentationDragIndicator(.visible)
-            }
-            .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
-                MyPromiseView(
-                    initialText: viewModel.todoData?.myPromiseMessage ?? "",
-                    onSave: { newText in
-                        viewModel.updateMyPromiseMessage(newText)
-                    }
-                )
-                .presentationDetents([.height(230)])
-                .presentationCornerRadius(48)
-                .presentationDragIndicator(.visible)
-                
-                Spacer()
-                    .frame(height: 28)
-            }
+            
+            Spacer()
+                .frame(height: 28)
         }
     }
     
