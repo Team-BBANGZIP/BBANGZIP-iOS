@@ -10,7 +10,6 @@ import SwiftUI
 struct CategoryListView: View {
     @ObservedObject var viewModel: CategoryListViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var isNavigatingToAddView = false
     @Binding var navigationPath: NavigationPath
     
     var body: some View {
@@ -20,7 +19,7 @@ struct CategoryListView: View {
                 leftIcon: .icChevronLeft,
                 rightIcon: .icPlusThick,
                 onTapLeft: { dismiss() },
-                onTapRight: { isNavigatingToAddView = true }
+                onTapRight: { navigationPath.append("CategoryAdd") }
             )
             .padding(.bottom, 32)
             
@@ -39,9 +38,6 @@ struct CategoryListView: View {
             Task {
                 await viewModel.fetchCategories()
             }
-        }
-        .navigationDestination(isPresented: $isNavigatingToAddView) {
-            CategoryAddView()
         }
     }
 }
