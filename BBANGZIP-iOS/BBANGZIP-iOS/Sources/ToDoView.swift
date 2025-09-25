@@ -136,7 +136,10 @@ struct ToDoView: View {
             }
             .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
                 MyPromiseView(
-                    text: viewModel.todoData?.myPromiseMessage ?? ""
+                    initialText: viewModel.todoData?.myPromiseMessage ?? "",
+                    onSave: { newText in
+                        viewModel.updateMyPromiseMessage(newText)
+                    }
                 )
                 .presentationDetents([.height(230)])
                 .presentationCornerRadius(48)

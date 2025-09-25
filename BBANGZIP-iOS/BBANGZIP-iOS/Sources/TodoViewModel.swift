@@ -252,6 +252,12 @@ final class TodoViewModel: ObservableObject {
             todoData?.categories[cIndex].todos[tIndex] = updatedTodo
         }
     }
+    
+    func updateMyPromiseMessage(_ newValue: String) {
+        guard var data = todoData else { return }
+        data.myPromiseMessage = newValue
+        todoData = data
+    }
 }
 
 extension TodoViewModel {

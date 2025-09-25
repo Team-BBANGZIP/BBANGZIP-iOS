@@ -33,11 +33,6 @@ public struct PromiseInputField: View {
                 lengthCounter
             }
         }
-        .onAppear {
-            DispatchQueue.main.async {
-                isFocused = true
-            }
-        }
     }
     
     var textField: some View {

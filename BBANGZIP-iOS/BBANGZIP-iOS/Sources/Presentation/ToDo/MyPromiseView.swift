@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct MyPromiseView: View {
-    @State private var promiseText: String = ""
+    @State private var draft: String
+    private let onSave: (String) -> Void
     
-    init(text: String = "") {
-        _promiseText = State(initialValue: text)
+    init(
+        initialText: String = "",
+        onSave: @escaping (String) -> Void
+    ) {
+        _draft = State(initialValue: initialText)
+        self.onSave = onSave
     }
     
     var body: some View {
@@ -21,14 +26,14 @@ struct MyPromiseView: View {
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 50)
             
-            PromiseInputField(text: $promiseText)
+            PromiseInputField(text: $draft)
                 .padding(.horizontal, 20)
                 .padding(.top, 31)
                 .padding(.bottom, 28)
         }
+        .onDisappear {
+            let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+            onSave(trimmed)
+        }
     }
-}
-
-#Preview {
-    MyPromiseView(text: "")
 }
