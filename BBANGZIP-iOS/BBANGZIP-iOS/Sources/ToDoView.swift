@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
+    @StateObject private var categoryListViewModel = CategoryListViewModel(
+        repository: MockTodoRepository()
+    )
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
@@ -25,68 +28,71 @@ struct ToDoView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ZStack(alignment: .topTrailing) {
-                List {
-                    VStack(spacing: 0) {
-                        messageView
-                        
-                        VStack(spacing: 16) {
-                            calendarHeaderView
-                            calendarBodyView
-                                .padding(.horizontal, 20)
+            VStack {
+                ZStack(alignment: .topTrailing) {
+                    List {
+                        VStack(spacing: 0) {
+                            messageView
+                            
+                            VStack(spacing: 16) {
+                                calendarHeaderView
+                                calendarBodyView
+                                    .padding(.horizontal, 20)
+                            }
+                            .padding(.vertical, 16)
+                            .background(Color(.secondaryLight))
+                            
+                            todoSummaryView
+                                .frame(height: 17)
+                                .padding(.trailing, 20)
+                                .padding(.top, 20)
                         }
-                        .padding(.vertical, 16)
-                        .background(Color(.secondaryLight))
-                        
-                        todoSummaryView
-                            .padding(.trailing, 20)
-                            .padding(.top, 20)
-                    }
-                    .listRowInsets(EdgeInsets())
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    
-                    TodoContentView
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                }
-                .listStyle(.plain)
-                .scrollIndicators(.hidden)
-                .environment(\.defaultMinListRowHeight, 0)
-                .onAppear {
-                    viewModel.fetchData()
-                }
-                
-                if isShowMenu {
-                    Color.black.opacity(0.001)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                        }
+                        
+                        TodoContentView
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                    .listStyle(.plain)
+                    .scrollIndicators(.hidden)
+                    .environment(\.defaultMinListRowHeight, 0)
+                    .onAppear {
+                        viewModel.fetchData()
+                    }
                     
-                    CustomMenu(
-                        onAddCategoryTapped: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
+                    if isShowMenu {
+                        Color.black.opacity(0.001)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                navigationPath.append("CategoryAdd")
+                        
+                        CustomMenu(
+                            onAddCategoryTapped: {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    navigationPath.append("CategoryAdd")
+                                }
+                            },
+                            onManageCategoryTapped: {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isShowMenu = false
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    navigationPath.append("CategoryList")
+                                }
                             }
-                        },
-                        onManageCategoryTapped: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isShowMenu = false
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                navigationPath.append("CategoryList")
-                            }
-                        }
-                    )
-                    .padding(.top, 112)
-                    .padding(.trailing, 20)
+                        )
+                        .padding(.top, 112)
+                        .padding(.trailing, 20)
+                    }
                 }
             }
             .navigationDestination(for: String.self) { destination in
@@ -95,42 +101,55 @@ struct ToDoView: View {
                         viewModel.fetchData()
                     })
                 } else if destination == "CategoryList" {
-                    CategoryListView()
+                    CategoryListView(
+                        viewModel: categoryListViewModel,
+                        navigationPath: $navigationPath
+                    )
                 }
+            }
+            .navigationDestination(for: Category.self) { category in
+                CategoryManageView(
+                    category: category,
+                    onSaved: { updated in
+                        withAnimation(.spring()) {
+                            categoryListViewModel.updateCategory(updated)
+                        }
+                        Task { await categoryListViewModel.persistCategory(updated) }
+                    },
+                    onDeleted: { id in
+                        withAnimation(.spring()) {
+                            categoryListViewModel.removeCategory(id: id)
+                        }
+                        Task { await categoryListViewModel.persistDeleteCategory(id: id) }
+                    }
+                )
             }
             .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
                 let addViewModel = TaskAddViewModel { content, startTime in
                     viewModel.addTodo(content: content)
                 }
                 
-                if #available(iOS 16.4, *) {
-                    TaskAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                } else {
-                    TaskAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationDragIndicator(.hidden)
-                }
+                TaskAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isAddTodoSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $viewModel.isWriteMessageSheetPresented) {
-                if #available(iOS 16.4, *) {
-                    MyPromiseView()
-                    .presentationDetents([.height(230)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                } else {
-                    MyPromiseView()
-                    .presentationDetents([.height(230)])
-                    .presentationDragIndicator(.hidden)
-                }
+            .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+                MyPromiseView(
+                    initialText: viewModel.todoData?.myPromiseMessage ?? "",
+                    onSave: { newText in
+                        viewModel.updateMyPromiseMessage(newText)
+                    }
+                )
+                .presentationDetents([.height(230)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+                
+                Spacer()
+                    .frame(height: 28)
             }
         }
     }
@@ -140,7 +159,7 @@ struct ToDoView: View {
             Color(.secondaryStrong)
             HStack(spacing: 0) {
                 BbangText(
-                    "\(viewModel.todoData?.commitmentMessage ?? "나만의 다짐을 적어보세요")",
+                    "\(viewModel.todoData?.myPromiseMessage ?? "나만의 다짐을 적어보세요")",
                     font: .body4,
                     color: Color(.labelAlternative)
                 )
@@ -156,7 +175,7 @@ struct ToDoView: View {
         .frame(height: 60)
         .onTapGesture {
             print("write")
-            viewModel.isWriteMessageSheetPresented = true
+            viewModel.isMyPromiseSheetPresented = true
         }
     }
     
@@ -221,6 +240,16 @@ struct ToDoView: View {
                 }
             }
         }
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width < -50 {
+                        viewModel.moveWeek(by: 1)
+                    } else if value.translation.width > 50 {
+                        viewModel.moveWeek(by: -1)
+                    }
+                }
+        )
     }
     
     var todoSummaryView: some View {
@@ -257,7 +286,7 @@ struct ToDoView: View {
                     labelText: .constant(category.name)
                 )
                 .padding(.leading, 20)
-                .padding(.top, 16)
+                .padding(.top, 8)
                 .onTapGesture {
                     viewModel.selectedCategoryIndex = index
                     viewModel.isAddTodoSheetPresented = true
@@ -266,14 +295,25 @@ struct ToDoView: View {
                 
             } else if let todo = item.asTodo {
                 let todoVM = viewModel.makeTodoViewModel(todo: todo)
-                TaskBox(
-                    viewModel: todoVM,
-                    meatballTapped: { handleMeatballTapped(for: todo) },
-                    showSeperator: true
-                )
-                .padding(.horizontal, 20)
-                .buttonStyle(PlainButtonStyle())
                 
+                if let currentIndex = viewModel.todoItems.firstIndex(where: { $0.id == item.id }) {
+                    
+                    let nextItem = viewModel.todoItems[safe: currentIndex + 1]
+                    let isLastInCategory = {
+                        if case .tailDropZone = nextItem {
+                            return true
+                        }
+                        return false
+                    }()
+                    
+                    TaskBox(
+                        viewModel: todoVM,
+                        meatballTapped: { handleMeatballTapped(for: todo) },
+                        showSeperator: !isLastInCategory
+                    )
+                    .padding(.horizontal, 20)
+                    .buttonStyle(PlainButtonStyle())
+                }
             } else {
                 Rectangle()
                     .fill(Color.clear)
