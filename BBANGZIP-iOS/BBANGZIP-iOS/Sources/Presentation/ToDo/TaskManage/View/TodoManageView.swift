@@ -14,6 +14,7 @@ struct TodoManageView: View {
     @Binding var isAlerted: Bool
     
     @State private var isEditSheetPresented = false
+    @State private var isStartTimeSheetPresented = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -49,7 +50,7 @@ struct TodoManageView: View {
                     let vm = TodoContentEditViewModel { newTitle in
                         self.todo = newTitle
                     }
-                    vm.newTodoTitle = self.todo
+                    vm.newTodo = self.todo
                     return vm
                 }(),
                 isPresented: $isEditSheetPresented
@@ -58,6 +59,24 @@ struct TodoManageView: View {
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $isStartTimeSheetPresented) {
+            let selectedDate = startTime.flatMap { TimeFormatters.input.date(from: $0) }
+            let vm = StartTimeViewModel(selectedTime: selectedDate)
+
+            StartTimeView(
+                viewModel: vm,
+                isSheetPresented: $isStartTimeSheetPresented
+            ) { selectedDate in
+                startTime = selectedDate.map { TimeFormatters.input.string(from: $0) }
+            }
+            .onReceive(vm.$tempTime) { date in
+                startTime = TimeFormatters.input.string(from: date)
+            }
+            .presentationDetents([.height(454)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
+        }
+
     }
 }
 
@@ -124,6 +143,8 @@ private extension TodoManageView {
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.leading, 8)
         }
+        .contentShape(Rectangle())
+        .onTapGesture { isStartTimeSheetPresented = true }
     }
     
     var alertSection: some View {
