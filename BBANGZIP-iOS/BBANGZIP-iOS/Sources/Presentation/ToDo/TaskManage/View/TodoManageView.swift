@@ -75,6 +75,8 @@ private extension TodoManageView {
         Text(viewModel.title)
             .bbangFont(.title3)
             .foregroundStyle(Color(.labelNormal))
+            .lineLimit(1)
+            .truncationMode(.tail)
     }
     
     var subtitleSection: some View {
