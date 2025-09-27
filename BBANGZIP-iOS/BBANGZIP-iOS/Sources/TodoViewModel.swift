@@ -271,7 +271,7 @@ final class TodoViewModel: ObservableObject {
         sheetTodoTitle = todo.content
         sheetCategoryName = categoryName(for: todo.id) ?? ""
         sheetStartTime = todo.startTime ?? nil
-        // 투두 알림 여부 연결
+        // TODO: 미룬이 알림 여부 모델에 추가
         sheetIsAlerted = false
         isMeatballSheetPresented = true
     }

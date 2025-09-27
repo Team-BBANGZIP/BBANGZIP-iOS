@@ -124,11 +124,11 @@ struct ToDoView: View {
                     )
                 }
                 .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                    let addViewModel = TaskAddViewModel { content, startTime in
+                    let addViewModel = TodoAddViewModel { content, startTime in
                         viewModel.addTodo(content: content)
                     }
                     
-                    TaskAddView(
+                    TodoAddView(
                         viewModel: addViewModel,
                         isPresented: $viewModel.isAddTodoSheetPresented
                     )
@@ -148,11 +148,10 @@ struct ToDoView: View {
                     .presentationDragIndicator(.visible)
                 }
                 .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
-                    TodoMeatballSheet(
+                    TodoManageView(
                         todo: $viewModel.sheetTodoTitle,
                         category: $viewModel.sheetCategoryName,
                         startTime: $viewModel.sheetStartTime,
-                        // TODO: 미룬이 알림 켜짐 여부 투두에 추가
                         isAlerted: $viewModel.sheetIsAlerted
                     )
                     .presentationDetents([.height(466)])
