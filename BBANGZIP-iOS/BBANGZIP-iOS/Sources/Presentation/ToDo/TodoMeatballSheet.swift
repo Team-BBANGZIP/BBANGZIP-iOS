@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct TodoMeatballSheet: View {
+    @Binding var todo: String
+    @Binding var category: String
+    @Binding var startTime: String?
     @Binding var isAlerted: Bool
     
     var body: some View {
@@ -43,13 +46,13 @@ struct TodoMeatballSheet: View {
 
 private extension TodoMeatballSheet {
     var titleSection: some View {
-        Text("7차 세미나 장표 제작")
+        Text(todo)
             .bbangFont(.title3)
             .foregroundStyle(Color(.labelNormal))
     }
     
     var subtitleSection: some View {
-        Text("SOPT")
+        Text(category)
             .bbangFont(.subtitle2)
             .foregroundStyle(Color(.labelAlternative))
     }
@@ -93,9 +96,9 @@ private extension TodoMeatballSheet {
             
             Spacer()
             
-            Text("AM 09:00")
+            Text(formattedStartTime)
                 .bbangFont(.body1)
-                .foregroundStyle(Color(.labelAlternative))
+                .foregroundStyle(startTime == nil ? Color(.labelAssistive) : Color(.labelAlternative))
             
             Image(.icChevronRight)
                 .renderingMode(.template)
@@ -163,6 +166,32 @@ private extension TodoMeatballSheet {
             }
         )
     }
+    
+    private var formattedStartTime: String {
+        guard let raw = startTime,
+              let date = TimeFormatters.input.date(from: raw) else {
+            return startTime ?? "미설정"
+        }
+        return TimeFormatters.output.string(from: date)
+    }
+    
+    private enum TimeFormatters {
+        static let input: DateFormatter = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "HH:mm"
+            return df
+        }()
+        
+        static let output: DateFormatter = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "a h:mm"
+            df.amSymbol = "AM"
+            df.pmSymbol = "PM"
+            return df
+        }()
+    }
 }
 
 private struct DefaultOptionRow: View {
@@ -194,6 +223,9 @@ private struct DefaultOptionRow: View {
 
 #Preview {
     TodoMeatballSheet(
+        todo: .constant("7차 세미나 장표 제작"),
+        category: .constant("SOPT"),
+        startTime: .constant("09:00"),
         isAlerted: .constant(true)
     )
 }

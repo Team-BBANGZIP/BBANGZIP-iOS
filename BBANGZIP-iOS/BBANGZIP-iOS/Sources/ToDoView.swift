@@ -14,8 +14,6 @@ struct ToDoView: View {
     )
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
-    @State private var isMeatballSheetPresented = false
-    @State private var selectedTodoForMenu: TimerTodo? = nil
     @State private var navigationPath = NavigationPath()
     
     init(
@@ -149,10 +147,13 @@ struct ToDoView: View {
                     .presentationCornerRadius(48)
                     .presentationDragIndicator(.visible)
                 }
-                .sheet(isPresented: $isMeatballSheetPresented) {
+                .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
                     TodoMeatballSheet(
+                        todo: $viewModel.sheetTodoTitle,
+                        category: $viewModel.sheetCategoryName,
+                        startTime: $viewModel.sheetStartTime,
                         // TODO: 미룬이 알림 켜짐 여부 투두에 추가
-                        isAlerted: .constant(true)
+                        isAlerted: $viewModel.sheetIsAlerted
                     )
                     .presentationDetents([.height(466)])
                     .presentationCornerRadius(45)
@@ -319,7 +320,7 @@ struct ToDoView: View {
                     
                     TaskBox(
                         viewModel: todoVM,
-                        meatballTapped: { handleMeatballTapped(for: todo) },
+                        meatballTapped: { viewModel.presentMeatball(for: todo) },
                         showSeperator: !isLastInCategory
                     )
                     .padding(.horizontal, 20)
@@ -337,11 +338,6 @@ struct ToDoView: View {
                 viewModel.moveTodoItems(from: fromOffsets, to: toOffset)
             }
         }
-    }
-    
-    func handleMeatballTapped(for todo: TimerTodo) {
-        selectedTodoForMenu = todo
-        isMeatballSheetPresented = true
     }
 }
 

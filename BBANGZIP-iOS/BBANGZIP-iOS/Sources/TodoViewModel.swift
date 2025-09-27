@@ -16,6 +16,12 @@ final class TodoViewModel: ObservableObject {
     @Published var isMyPromiseSheetPresented: Bool = false
     @Published var selectedCategoryIndex: Int?
     
+    @Published var isMeatballSheetPresented: Bool = false
+    @Published var sheetTodoTitle: String = ""
+    @Published var sheetCategoryName: String = ""
+    @Published var sheetStartTime: String? = ""
+    @Published var sheetIsAlerted: Bool = false
+    
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
     
     private let calendar: Calendar = {
@@ -26,6 +32,7 @@ final class TodoViewModel: ObservableObject {
         
         return cal
     }()
+    private(set) var selectedTodoForMenu: TimerTodo? = nil
     
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
@@ -257,6 +264,26 @@ final class TodoViewModel: ObservableObject {
         guard var data = todoData else { return }
         data.myPromiseMessage = newValue
         todoData = data
+    }
+    
+    func presentMeatball(for todo: TimerTodo) {
+        selectedTodoForMenu = todo
+        sheetTodoTitle = todo.content
+        sheetCategoryName = categoryName(for: todo.id) ?? ""
+        sheetStartTime = todo.startTime ?? nil
+        // 투두 알림 여부 연결
+        sheetIsAlerted = false
+        isMeatballSheetPresented = true
+    }
+    
+    func categoryName(for todoID: Int) -> String? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if cat.todos.contains(where: { $0.id == todoID }) {
+                return cat.name
+            }
+        }
+        return nil
     }
 }
 
