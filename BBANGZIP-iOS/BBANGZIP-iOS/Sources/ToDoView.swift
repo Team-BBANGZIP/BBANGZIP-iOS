@@ -149,10 +149,17 @@ struct ToDoView: View {
                 }
                 .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
                     TodoManageView(
-                        todo: $viewModel.sheetTodoTitle,
-                        category: $viewModel.sheetCategoryName,
-                        startTime: $viewModel.sheetStartTime,
-                        isAlerted: $viewModel.sheetIsAlerted
+                        viewModel: TodoManageViewModel(
+                            title: $viewModel.sheetTodoTitle,
+                            category: viewModel.sheetCategoryName,
+                            startTime: $viewModel.sheetStartTime,
+                            isAlerted: $viewModel.sheetIsAlerted,
+                            onDelete: {},
+                            onPostpone: {},
+                            onDuplicate: {},
+                            onChangeDate: {}
+                            
+                        )
                     )
                     .presentationDetents([.height(466)])
                     .presentationCornerRadius(45)

@@ -8,13 +8,7 @@
 import SwiftUI
 
 struct TodoManageView: View {
-    @Binding var todo: String
-    @Binding var category: String
-    @Binding var startTime: String?
-    @Binding var isAlerted: Bool
-    
-    @State private var isEditSheetPresented = false
-    @State private var isStartTimeSheetPresented = false
+    @ObservedObject var viewModel: TodoManageViewModel
     
     var body: some View {
         VStack(spacing: 0) {
@@ -44,33 +38,29 @@ struct TodoManageView: View {
                 .padding(.top, 20)
         }
         .padding(.horizontal, 20)
-        .sheet(isPresented: $isEditSheetPresented) {
+        .sheet(isPresented: $viewModel.isEditSheetPresented) {
             TodoContentEditView(
                 viewModel: {
                     let vm = TodoContentEditViewModel { newTitle in
-                        self.todo = newTitle
+                        viewModel.setTitle(newTitle)
                     }
-                    vm.newTodo = self.todo
+                    vm.newTodo = viewModel.title
                     return vm
                 }(),
-                isPresented: $isEditSheetPresented
+                isPresented: $viewModel.isEditSheetPresented
             )
             .presentationDetents([.height(161)])
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: $isStartTimeSheetPresented) {
-            let selectedDate = startTime.flatMap { TimeFormatters.input.date(from: $0) }
-            let vm = StartTimeViewModel(selectedTime: selectedDate)
+        .sheet(isPresented: $viewModel.isStartTimeSheetPresented) {
+            let vm = StartTimeViewModel(selectedTime: viewModel.startTimeDate)
 
             StartTimeView(
                 viewModel: vm,
-                isSheetPresented: $isStartTimeSheetPresented
+                isSheetPresented: $viewModel.isStartTimeSheetPresented
             ) { selectedDate in
-                startTime = selectedDate.map { TimeFormatters.input.string(from: $0) }
-            }
-            .onReceive(vm.$tempTime) { date in
-                startTime = TimeFormatters.input.string(from: date)
+                viewModel.startTimeDate = selectedDate
             }
             .presentationDetents([.height(454)])
             .presentationCornerRadius(48)
@@ -82,13 +72,13 @@ struct TodoManageView: View {
 
 private extension TodoManageView {
     var titleSection: some View {
-        Text(todo)
+        Text(viewModel.title)
             .bbangFont(.title3)
             .foregroundStyle(Color(.labelNormal))
     }
     
     var subtitleSection: some View {
-        Text(category)
+        Text(viewModel.category)
             .bbangFont(.subtitle2)
             .foregroundStyle(Color(.labelAlternative))
     }
@@ -96,7 +86,7 @@ private extension TodoManageView {
     var actionButtons: some View {
         HStack(spacing: 8) {
             Button("수정하기") {
-                isEditSheetPresented = true
+                viewModel.isEditSheetPresented = true
             }
             .buttonStyle(
                 BbangButtonStyle(
@@ -132,9 +122,9 @@ private extension TodoManageView {
             
             Spacer()
             
-            Text(formattedStartTime)
+            Text(viewModel.formattedStartTime)
                 .bbangFont(.body1)
-                .foregroundStyle(startTime == nil ? Color(.labelAssistive) : Color(.labelAlternative))
+                .foregroundStyle(viewModel.startTimeDate == nil ? Color(.labelAssistive) : Color(.labelAlternative))
             
             Image(.icChevronRight)
                 .renderingMode(.template)
@@ -144,7 +134,7 @@ private extension TodoManageView {
                 .padding(.leading, 8)
         }
         .contentShape(Rectangle())
-        .onTapGesture { isStartTimeSheetPresented = true }
+        .onTapGesture { viewModel.isStartTimeSheetPresented = true }
     }
     
     var alertSection: some View {
@@ -162,7 +152,7 @@ private extension TodoManageView {
             
             Spacer()
             
-            Toggle("", isOn: $isAlerted)
+            Toggle("", isOn: $viewModel.isAlerted)
                 .toggleStyle(SwitchToggleStyle(tint: Color(.primaryNormal)))
                 .labelsHidden()
                 .scaleEffect(0.8)
@@ -204,32 +194,6 @@ private extension TodoManageView {
             }
         )
     }
-    
-    private var formattedStartTime: String {
-        guard let raw = startTime,
-              let date = TimeFormatters.input.date(from: raw) else {
-            return startTime ?? "미설정"
-        }
-        return TimeFormatters.output.string(from: date)
-    }
-    
-    private enum TimeFormatters {
-        static let input: DateFormatter = {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.dateFormat = "HH:mm"
-            return df
-        }()
-        
-        static let output: DateFormatter = {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.dateFormat = "a h:mm"
-            df.amSymbol = "AM"
-            df.pmSymbol = "PM"
-            return df
-        }()
-    }
 }
 
 private struct DefaultOptionRow: View {
@@ -257,13 +221,4 @@ private struct DefaultOptionRow: View {
             onTap?()
         }
     }
-}
-
-#Preview {
-    TodoManageView(
-        todo: .constant("7차 세미나 장표 제작"),
-        category: .constant("SOPT"),
-        startTime: .constant("09:00"),
-        isAlerted: .constant(true)
-    )
 }

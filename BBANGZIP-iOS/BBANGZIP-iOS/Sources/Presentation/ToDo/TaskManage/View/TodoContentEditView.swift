@@ -26,6 +26,9 @@ struct TodoContentEditView: View {
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 20)
+        .onDisappear {
+            viewModel.editTodoTitle()
+        }
     }
 }
 

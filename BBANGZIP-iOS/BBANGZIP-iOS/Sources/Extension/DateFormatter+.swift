@@ -8,7 +8,7 @@
 import Foundation
 
 extension DateFormatter {
-    static let todoTimeFormatter: DateFormatter = {
+    static let displayTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
@@ -16,7 +16,7 @@ extension DateFormatter {
         return formatter
     } ()
     
-    static let repositoryTimeFormatter: DateFormatter = {
+    static let inputTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(identifier: "Asia/Seoul")

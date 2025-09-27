@@ -130,7 +130,7 @@ final class MockTodoRepository: TodoRepository {
             id: UUID().hashValue,
             content: content,
             isCompleted: false,
-            startTime: startTime.map { DateFormatter.repositoryTimeFormatter.string(from: $0) },
+            startTime: startTime.map { DateFormatter.inputTimeFormatter.string(from: $0) },
             colorType: category.colorType
         )
         todoData.categories[categoryIndex].todos.append(newTodo)

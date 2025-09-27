@@ -84,6 +84,6 @@ struct TodoAddView: View {
     }
     
     private func formatDate(_ date: Date) -> String {
-        Foundation.DateFormatter.todoTimeFormatter.string(from: date)
+        Foundation.DateFormatter.displayTimeFormatter.string(from: date)
     }
 }
