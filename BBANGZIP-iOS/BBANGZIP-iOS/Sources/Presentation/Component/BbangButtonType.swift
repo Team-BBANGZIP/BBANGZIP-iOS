@@ -10,5 +10,6 @@ import SwiftUI
 enum BbangButtonType {
     case primary
     case secondary
+    case light
     case disabled
 }
