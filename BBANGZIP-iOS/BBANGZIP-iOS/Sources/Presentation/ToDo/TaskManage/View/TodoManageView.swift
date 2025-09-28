@@ -20,22 +20,30 @@ struct TodoManageView: View {
             actionButtons
                 .padding(.top, 28)
             
-            startTimeSection
-                .padding(.top, 24)
-            
-            alertSection
-                .padding(.top, 20)
-            
-            divider
-                .padding(.vertical, 24)
-            
-            postponeSection
-            
-            duplicateSection
-                .padding(.top, 20)
-            
-            changeDateSection
-                .padding(.top, 20)
+            if !viewModel.isCompleted {
+                startTimeSection
+                    .padding(.top, 24)
+                
+                alertSection
+                    .padding(.top, 20)
+                
+                divider
+                    .padding(.vertical, 24)
+                
+                postponeSection
+                
+                duplicateSection
+                    .padding(.top, 20)
+                
+                changeDateSection
+                    .padding(.top, 20)
+            } else {
+                divider
+                    .padding(.top, 20)
+                
+                repeatSection
+                    .padding(.top, 28)
+            }            
         }
         .padding(.horizontal, 20)
         .sheet(isPresented: $viewModel.isEditSheetPresented) {
@@ -193,6 +201,16 @@ private extension TodoManageView {
             title: "날짜 바꾸기",
             onTap: {
                 // TODO: 날짜 변경 액션
+            }
+        )
+    }
+    
+    var repeatSection: some View {
+        DefaultOptionRow(
+            icon: Image(.icRepeat),
+            title: "다른 날 또 하기",
+            onTap: {
+                // TODO: 날짜 선택 바텀시트 열기
             }
         )
     }

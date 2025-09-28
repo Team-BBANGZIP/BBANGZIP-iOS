@@ -17,6 +17,7 @@ final class TodoManageViewModel: ObservableObject {
     @Published var category: String
     @Published var startTimeString: String?
     @Published var isAlerted: Bool
+    @Published var isCompleted: Bool
     
     @Published var isEditSheetPresented: Bool = false
     @Published var isStartTimeSheetPresented: Bool = false
@@ -31,6 +32,7 @@ final class TodoManageViewModel: ObservableObject {
         category: String,
         startTime: Binding<String?>,
         isAlerted: Binding<Bool>,
+        isCompleted: Bool,
         onDelete: @escaping () -> Void,
         onPostpone: @escaping () -> Void,
         onDuplicate: @escaping () -> Void,
@@ -43,6 +45,7 @@ final class TodoManageViewModel: ObservableObject {
         self.category = category
         self.startTimeString = startTime.wrappedValue
         self.isAlerted = isAlerted.wrappedValue
+        self.isCompleted = isCompleted
         self.onDelete = onDelete
         self.onPostpone = onPostpone
         self.onDuplicate = onDuplicate

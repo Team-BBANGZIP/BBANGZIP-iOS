@@ -154,6 +154,7 @@ struct ToDoView: View {
                             category: viewModel.sheetCategoryName,
                             startTime: $viewModel.sheetStartTime,
                             isAlerted: $viewModel.sheetIsAlerted,
+                            isCompleted: viewModel.sheetIsCompleted,
                             onDelete: {},
                             onPostpone: {},
                             onDuplicate: {},
@@ -161,7 +162,7 @@ struct ToDoView: View {
                             
                         )
                     )
-                    .presentationDetents([.height(466)])
+                    .presentationDetents(viewModel.sheetIsCompleted ? [.height(278)] : [.height(466)])
                     .presentationCornerRadius(45)
                     .presentationDragIndicator(.visible)
                 }

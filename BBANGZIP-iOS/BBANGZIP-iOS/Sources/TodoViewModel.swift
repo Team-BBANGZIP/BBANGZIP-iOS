@@ -21,6 +21,7 @@ final class TodoViewModel: ObservableObject {
     @Published var sheetCategoryName: String = ""
     @Published var sheetStartTime: String? = ""
     @Published var sheetIsAlerted: Bool = false
+    @Published var sheetIsCompleted: Bool = false
     
     let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
     
@@ -273,6 +274,7 @@ final class TodoViewModel: ObservableObject {
         sheetStartTime = todo.startTime ?? nil
         // TODO: 미룬이 알림 여부 모델에 추가
         sheetIsAlerted = false
+        sheetIsCompleted = todo.isCompleted
         isMeatballSheetPresented = true
     }
     
