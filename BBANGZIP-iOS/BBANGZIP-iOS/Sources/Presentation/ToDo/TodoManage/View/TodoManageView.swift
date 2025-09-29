@@ -48,14 +48,11 @@ struct TodoManageView: View {
         .padding(.horizontal, 20)
         .sheet(isPresented: $viewModel.isEditSheetPresented) {
             TodoContentEditView(
-                viewModel: {
-                    let vm = TodoContentEditViewModel { newTitle in
-                        viewModel.setTitle(newTitle)
-                    }
-                    vm.newTodo = viewModel.title
-                    return vm
-                }(),
-                isPresented: $viewModel.isEditSheetPresented
+                originalTodo: viewModel.title,
+                isPresented: $viewModel.isEditSheetPresented,
+                onSave: { newTitle in
+                    viewModel.title = newTitle
+                }
             )
             .presentationDetents([.height(161)])
             .presentationCornerRadius(48)

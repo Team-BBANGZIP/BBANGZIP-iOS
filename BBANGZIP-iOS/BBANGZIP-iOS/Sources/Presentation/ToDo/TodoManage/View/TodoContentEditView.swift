@@ -8,8 +8,22 @@
 import SwiftUI
 
 struct TodoContentEditView: View {
-    @ObservedObject var viewModel: TodoContentEditViewModel
+    @StateObject var viewModel: TodoContentEditViewModel
     @Binding var isPresented: Bool
+    
+    init(
+        originalTodo: String,
+        isPresented: Binding<Bool>,
+        onSave: @escaping (String) -> Void
+    ) {
+        _viewModel = StateObject(
+            wrappedValue: TodoContentEditViewModel(
+                onEditTodo: onSave,
+                originalTodo: originalTodo
+            )
+        )
+        self._isPresented = isPresented
+    }
     
     var body: some View {
         VStack(spacing: 0) {
