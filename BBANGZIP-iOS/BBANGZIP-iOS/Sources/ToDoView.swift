@@ -124,11 +124,11 @@ struct ToDoView: View {
                     )
                 }
                 .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                    let addViewModel = TaskAddViewModel { content, startTime in
+                    let addViewModel = TodoAddViewModel { content, startTime in
                         viewModel.addTodo(content: content)
                     }
                     
-                    TaskAddView(
+                    TodoAddView(
                         viewModel: addViewModel,
                         isPresented: $viewModel.isAddTodoSheetPresented
                     )
@@ -145,6 +145,25 @@ struct ToDoView: View {
                     )
                     .presentationDetents([.height(230)])
                     .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+                }
+                .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
+                    TodoManageView(
+                        viewModel: TodoManageViewModel(
+                            title: $viewModel.sheetTodoTitle,
+                            category: viewModel.sheetCategoryName,
+                            startTime: $viewModel.sheetStartTime,
+                            isAlerted: $viewModel.sheetIsAlerted,
+                            isCompleted: viewModel.sheetIsCompleted,
+                            onDelete: {},
+                            onPostpone: {},
+                            onDuplicate: {},
+                            onChangeDate: {}
+                            
+                        )
+                    )
+                    .presentationDetents(viewModel.sheetIsCompleted ? [.height(278)] : [.height(466)])
+                    .presentationCornerRadius(45)
                     .presentationDragIndicator(.visible)
                 }
             }
@@ -308,7 +327,7 @@ struct ToDoView: View {
                     
                     TaskBox(
                         viewModel: todoVM,
-                        meatballTapped: { handleMeatballTapped(for: todo) },
+                        meatballTapped: { viewModel.presentMeatball(for: todo) },
                         showSeperator: !isLastInCategory
                     )
                     .padding(.horizontal, 20)
@@ -326,10 +345,6 @@ struct ToDoView: View {
                 viewModel.moveTodoItems(from: fromOffsets, to: toOffset)
             }
         }
-    }
-    
-    func handleMeatballTapped(for todo: TimerTodo) {
-        print("미트볼 버튼 눌림! - \(todo.content)")
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  TaskAddView.swift
+//  TodoAddView.swift
 //  BBANGZIP
 //
 //  Created by 김송희 on 6/12/25.
@@ -8,8 +8,8 @@
 import Foundation
 import SwiftUI
 
-struct TaskAddView: View {
-    @ObservedObject var viewModel: TaskAddViewModel
+struct TodoAddView: View {
+    @ObservedObject var viewModel: TodoAddViewModel
     @Binding var isPresented: Bool
     @State private var isStartTimeSheetPresented: Bool = false
     
@@ -20,8 +20,8 @@ struct TaskAddView: View {
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 25)
             
-            TaskInputField(text: $viewModel.newTaskText) {
-                viewModel.submitTask()
+            TaskInputField(text: $viewModel.newTodoTitle) {
+                viewModel.addTodo()
                 isPresented = false
             }
             .padding(.top, 31)
@@ -40,7 +40,7 @@ struct TaskAddView: View {
         }
         .padding(.horizontal, 20)
         .onDisappear {
-            viewModel.submitTask()
+            viewModel.addTodo()
         }
         .sheet(isPresented: $isStartTimeSheetPresented) {
             let startTimeViewModel = StartTimeViewModel(selectedTime: viewModel.startTime)
@@ -84,6 +84,6 @@ struct TaskAddView: View {
     }
     
     private func formatDate(_ date: Date) -> String {
-        Foundation.DateFormatter.taskTimeFormatter.string(from: date)
+        Foundation.DateFormatter.displayTimeFormatter.string(from: date)
     }
 }

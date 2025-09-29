@@ -29,6 +29,8 @@ struct BbangButtonStyle: ButtonStyle {
                 (Color(.primaryNormal), Color(.staticwhite))
             case .secondary:
                 (Color(.primaryStrong), Color(.staticwhite))
+            case .light:
+                (Color(.primaryLight), Color(.staticwhite))
             case .disabled:
                 (Color(.labelDisable), Color(.labelAssistive))
             }
@@ -90,4 +92,13 @@ struct BbangButtonStyle: ButtonStyle {
             )
         )
         .padding(.horizontal, 150)
+    
+    Button("수정하기") {}
+        .buttonStyle(
+            BbangButtonStyle(
+                style: .light,
+                rightIcon: Image(.icPencil)
+            )
+        )
+        .padding(.horizontal, 50)
 }

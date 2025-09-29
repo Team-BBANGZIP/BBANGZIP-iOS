@@ -30,11 +30,11 @@ struct CheckedOffView: View {
             bottomButtons
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
-            let addViewModel = TaskAddViewModel { content, startTime in
+            let addViewModel = TodoAddViewModel { content, startTime in
                 viewModel.addTodo(content: content, startTime: startTime)
             }
             
-            TaskAddView(
+            TodoAddView(
                 viewModel: addViewModel,
                 isPresented: $viewModel.isSheetPresented
             )
