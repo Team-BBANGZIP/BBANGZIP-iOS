@@ -11,6 +11,12 @@ struct DatePickerView: View {
     @Binding var selectedDate: Date
     @StateObject private var viewModel: DatePickerViewModel
     
+    private static let columns: [GridItem] = Array(
+        repeating: GridItem(.flexible(), spacing: 0),
+        count: 7
+    )
+    private static let weekdays = ["월","화","수","목","금","토","일"]
+    
     init(selectedDate: Binding<Date>) {
         self._selectedDate = selectedDate
         _viewModel = StateObject(wrappedValue: DatePickerViewModel(selectedDate: selectedDate.wrappedValue))
@@ -101,9 +107,8 @@ struct DatePickerView: View {
     }
     
     private var weekdayHeader: some View {
-        let weekdays = ["월","화","수","목","금","토","일"]
-        return HStack {
-            ForEach(weekdays, id: \.self) { weekday in
+        HStack {
+            ForEach(Self.weekdays, id: \.self) { weekday in
                 Text(weekday)
                     .frame(maxWidth: .infinity)
                     .bbangFont(.label4)
@@ -113,14 +118,7 @@ struct DatePickerView: View {
     }
     
     private var monthGrid: some View {
-        let columns = Array(
-            repeating: GridItem(
-                .flexible(),
-                spacing: 0
-            ),
-            count: 7
-        )
-        return LazyVGrid(columns: columns, spacing: 4) {
+        LazyVGrid(columns: Self.columns, spacing: 4) {
             ForEach(viewModel.days) { day in
                 DayCell(
                     day: day,
