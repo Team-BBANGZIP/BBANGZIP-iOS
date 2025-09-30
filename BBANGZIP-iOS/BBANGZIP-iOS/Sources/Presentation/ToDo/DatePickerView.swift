@@ -121,7 +121,8 @@ struct DatePickerView: View {
         LazyVGrid(columns: Self.columns, spacing: 4) {
             ForEach(viewModel.days) { day in
                 DayCell(
-                    day: day,
+                    number: day.dayNumber,
+                    isCurrentMonth: day.isCurrentMonth,
                     isSelected: viewModel.isSelected(day, selectedDate: selectedDate),
                     isToday: viewModel.isToday(day)
                 )
@@ -136,12 +137,13 @@ struct DatePickerView: View {
 }
 
 private struct DayCell: View {
-    let day: CalendarDay
+    let number: Int
+    let isCurrentMonth: Bool
     let isSelected: Bool
     let isToday: Bool
     
     private var textColor: Color {
-        if !day.isCurrentMonth { return Color(.labelAssistive) }
+        if !isCurrentMonth { return Color(.labelAssistive) }
         if isSelected { return .white }
         return Color(.labelAlternative)
     }
@@ -153,13 +155,13 @@ private struct DayCell: View {
                     Circle()
                         .fill(Color(.labelAlternative))
                         .frame(width: 40, height: 40)
-                } else if isToday && day.isCurrentMonth {
+                } else if isToday && isCurrentMonth {
                     Circle()
                         .fill(Color(.backgroundAlternative))
                         .frame(width: 40, height: 40)
                 }
                 
-                Text("\(Calendar.current.component(.day, from: day.date))")
+                Text("\(number)")
                     .bbangFont(.label2)
                     .foregroundStyle(textColor)
             }

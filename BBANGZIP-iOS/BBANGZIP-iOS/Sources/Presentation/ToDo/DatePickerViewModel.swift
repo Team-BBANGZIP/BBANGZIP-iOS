@@ -69,11 +69,12 @@ final class DatePickerViewModel: ObservableObject {
         else { return [] }
 
         let daysInMonth = range.count
-        
         let weekdayOfStart_sunBased = calendar.component(.weekday, from: startOfMonth)
         let leadingSpaces = (weekdayOfStart_sunBased + 5) % 7
         
         var result: [CalendarDay] = []
+        
+        // MARK: 앞달 꼬리
         if leadingSpaces > 0,
            let prevMonth = calendar.date(byAdding: .month, value: -1, to: startOfMonth),
            let prevRange = calendar.range(of: .day, in: .month, for: prevMonth)
@@ -81,33 +82,39 @@ final class DatePickerViewModel: ObservableObject {
             let prevDays = prevRange.count
             for i in 0..<leadingSpaces {
                 let day = prevDays - leadingSpaces + 1 + i
+                let dayNum = prevDays - leadingSpaces + 1 + i
                 if let d = calendar.date(bySetting: .day, value: day, of: prevMonth) {
-                    result.append(.init(date: d, isCurrentMonth: false))
+                    result.append(.init(date: d, isCurrentMonth: false, dayNumber: dayNum))
                 }
             }
         }
         
-        for day in 1...daysInMonth {
-            if let d = calendar.date(bySetting: .day, value: day, of: startOfMonth) {
-                result.append(.init(date: d, isCurrentMonth: true))
+        // MARK: 현재 달
+        for dayNum in 1...daysInMonth {
+            if let d = calendar.date(bySetting: .day, value: dayNum, of: startOfMonth) {
+                result.append(.init(date: d, isCurrentMonth: true, dayNumber: dayNum))
             }
         }
         
+        // MARK: 뒷달 머리
         while result.count % 7 != 0 {
             guard
                 let last = result.last?.date,
                 let next = calendar.date(byAdding: .day, value: 1, to: last)
             else { break }
-            result.append(.init(date: next, isCurrentMonth: false))
+            let dayNum = calendar.component(.day, from: next)
+            result.append(.init(date: next, isCurrentMonth: false, dayNumber: dayNum))
         }
         
+        // MARK: 6행 채우기
         if result.count <= 35 {
             var last = result.last?.date
             for _ in 0..<(42 - result.count) {
                 guard let base = last,
                       let next = calendar.date(byAdding: .day, value: 1, to: base)
                 else { break }
-                result.append(.init(date: next, isCurrentMonth: false))
+                let dayNum = calendar.component(.day, from: next)
+                result.append(.init(date: next, isCurrentMonth: false, dayNumber: dayNum))
                 last = next
             }
         }

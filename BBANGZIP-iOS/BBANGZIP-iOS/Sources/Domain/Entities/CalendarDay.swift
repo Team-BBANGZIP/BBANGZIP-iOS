@@ -11,4 +11,5 @@ struct CalendarDay: Identifiable, Equatable {
     let id = UUID()
     let date: Date
     let isCurrentMonth: Bool
+    let dayNumber: Int
 }
