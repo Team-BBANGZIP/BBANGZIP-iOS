@@ -11,7 +11,11 @@ final class DatePickerViewModel: ObservableObject {
     @Published private(set) var currentMonth: Date
     @Published private(set) var days: [CalendarDay] = []
     
-    private let calendar = Calendar(identifier: .gregorian)
+    private var calendar: Calendar = {
+        var cal = Calendar(identifier: .gregorian)
+        cal.locale = Locale(identifier: "ko_KR")
+        return cal
+    }()
     private let locale = Locale(identifier: "ko_KR")
     
     init(selectedDate: Date) {
