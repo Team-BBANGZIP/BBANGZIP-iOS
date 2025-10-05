@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct MyPageView: View {
+    
+    var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    }
+    
     var body: some View {
         ZStack {
             Color(.secondaryLight)
@@ -79,8 +84,108 @@ struct MyPageView: View {
         ZStack {
             Color(.backgroundNomal)
                 .cornerRadius(30)
+            
+            VStack(spacing: 12) {
+                HStack {
+                    Image(.icScreen)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .padding(.leading, 4)
+                    
+                    Spacer()
+                }
+                
+                MenuBox(menu: "화면 설정")
+                
+                settingDivider
+                    .padding(.vertical, 12)
+                
+                HStack {
+                    Image(.icNotification)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .padding(.leading, 4)
+                    
+                    Spacer()
+                }
+                
+                MenuBox(menu: "알림 설정")
+                
+                settingDivider
+                    .padding(.vertical, 12)
+                
+                HStack {
+                    Image(.icService)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .padding(.leading, 4)
+                    
+                    Spacer()
+                }
+                
+                MenuBox(menu: "고객센터")
+                
+                MenuBox(menu: "제 과제 빵점 사용법")
+                
+                MenuBox(menu: "피드백 남기기")
+                
+                HStack {
+                    BbangText(
+                        "버전정보",
+                        font: .body2,
+                        color: Color(.labelNormal)
+                    )
+                    
+                    Spacer()
+                    
+                    BbangText(
+                        "v \(appVersion)",
+                        font: .body2,
+                        color: Color(.labelAssistive)
+                    )
+                    .padding(.trailing, 4)
+                }
+                .frame(height: 44)
+                
+                HStack(spacing: 12) {
+                    Spacer()
+                    
+                    Button(action: { print("로그아웃") }) {
+                        BbangText(
+                            "로그아웃",
+                            font: .body4,
+                            color: Color(.labelAssistive)
+                        )
+                    }
+                    
+                    Rectangle()
+                        .frame(width: 1, height: 16)
+                        .foregroundStyle(Color(.labelAssistive))
+                    
+                    Button(action: { print("회원 탈퇴") }) {
+                        BbangText(
+                            "회원 탈퇴",
+                            font: .body4,
+                            color: Color(.labelAssistive)
+                        )
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.top, 5)
+                
+                Spacer()
+                    .frame(height: 110)
+            }
+            .padding(.top, 32)
+            .padding(.horizontal, 20)
         }
-        .frame(height: 1000)
+    }
+    
+    private var settingDivider: some View {
+        Rectangle()
+            .frame(height: 1)
+            .foregroundStyle(Color(.secondaryNormal))
     }
 }
 
