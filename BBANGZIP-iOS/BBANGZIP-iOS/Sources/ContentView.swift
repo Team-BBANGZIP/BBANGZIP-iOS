@@ -84,7 +84,7 @@ public struct ContentView: View {
                     Text("이웃")
                 }
             
-            Text("마이")
+            MyPageView()
                 .tabItem {
                     Image(.icPerson)
                         .renderingMode(.template)

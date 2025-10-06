@@ -15,8 +15,18 @@ struct MyPageView: View {
     
     var body: some View {
         ZStack {
-            Color(.secondaryLight)
-                .edgesIgnoringSafeArea(.all)
+            LinearGradient(
+                gradient: Gradient(stops: [
+                    .init(color: Color(.secondaryLight), location: 0.0),
+                    .init(color: Color(.secondaryLight), location: 0.5), // 위쪽 50%
+                    .init(color: Color(.backgroundNomal), location: 0.5),
+                    .init(color: Color(.backgroundNomal), location: 1.0) // 아래쪽 50%
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
             
             ScrollView {
                 VStack {
@@ -175,7 +185,7 @@ struct MyPageView: View {
                 .padding(.top, 5)
                 
                 Spacer()
-                    .frame(height: 110)
+                    .frame(height: 32)
             }
             .padding(.top, 32)
             .padding(.horizontal, 20)
