@@ -8,33 +8,40 @@
 import SwiftUI
 
 struct MyPageView: View {
+    @State private var navigationPath = NavigationPath()
     
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
     }
     
     var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(stops: [
-                    .init(color: Color(.secondaryLight), location: 0.0),
-                    .init(color: Color(.secondaryLight), location: 0.5), // 위쪽 50%
-                    .init(color: Color(.backgroundNomal), location: 0.5),
-                    .init(color: Color(.backgroundNomal), location: 1.0) // 아래쪽 50%
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            
-            ScrollView {
-                VStack {
-                    ProfileSection
-                        .padding(.top, 32)
-                    
-                    SettingSection
-                        .padding(.top, 32)
+        NavigationStack(path: $navigationPath) {
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color(.secondaryLight), location: 0.0),
+                        .init(color: Color(.secondaryLight), location: 0.5), // 위쪽 50%
+                        .init(color: Color(.backgroundNomal), location: 0.5),
+                        .init(color: Color(.backgroundNomal), location: 1.0) // 아래쪽 50%
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack {
+                        ProfileSection
+                            .padding(.top, 32)
+                        
+                        SettingSection
+                            .padding(.top, 32)
+                    }
+                }
+            }
+            .navigationDestination(for: String.self) { destination in
+                if destination == "SettingScreen" {
+                    SettingScreenView()
                 }
             }
         }
@@ -105,7 +112,13 @@ struct MyPageView: View {
                     Spacer()
                 }
                 
-                MenuBox(menu: "화면 설정")
+                MenuBox(
+                    menu: "화면 설정",
+                    onMenuTapped: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        navigationPath.append("SettingScreen")
+                    }
+                })
                 
                 settingDivider
                     .padding(.vertical, 12)
@@ -119,7 +132,12 @@ struct MyPageView: View {
                     Spacer()
                 }
                 
-                MenuBox(menu: "알림 설정")
+                MenuBox(
+                    menu: "알림 설정",
+                    onMenuTapped: {
+                        print("알림 설정")
+                    }
+                )
                 
                 settingDivider
                     .padding(.vertical, 12)
@@ -133,11 +151,26 @@ struct MyPageView: View {
                     Spacer()
                 }
                 
-                MenuBox(menu: "고객센터")
+                MenuBox(
+                    menu: "고객센터",
+                    onMenuTapped: {
+                        print("고객센터")
+                    }
+                )
                 
-                MenuBox(menu: "제 과제 빵점 사용법")
+                MenuBox(
+                    menu: "제 과제 빵점 사용법",
+                    onMenuTapped: {
+                        print("제 과제 빵점 사용법")
+                    }
+                )
                 
-                MenuBox(menu: "피드백 남기기")
+                MenuBox(
+                    menu: "피드백 남기기",
+                    onMenuTapped: {
+                        print("피드백 남기기")
+                    }
+                )
                 
                 HStack {
                     BbangText(
