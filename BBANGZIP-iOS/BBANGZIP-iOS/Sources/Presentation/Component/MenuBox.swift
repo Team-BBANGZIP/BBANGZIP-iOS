@@ -12,7 +12,7 @@ struct MenuBox: View {
     let onMenuTapped: () -> Void
     
     var body: some View {
-        Button{
+        Button {
             onMenuTapped()
         } label: { 
             HStack {

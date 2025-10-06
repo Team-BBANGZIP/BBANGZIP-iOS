@@ -9,9 +9,9 @@ import SwiftUI
 
 struct SettingScreenView: View {
     @Environment(\.dismiss) private var dismiss
+    @State var isToggleOn = false
     
     var onDismiss: (() -> Void)?
-    @State var isToggleOn = false
     
     var body: some View {
         VStack {

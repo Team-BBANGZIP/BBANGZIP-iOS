@@ -43,57 +43,66 @@ struct MyPageView: View {
                 if destination == "SettingScreen" {
                     SettingScreenView()
                 }
+                if destination == "ChangeProfile" {
+                    ChangeProfileView()
+                }
             }
         }
     }
     
     private var ProfileSection: some View {
-        VStack(spacing: 20) {
-            HStack {
-                BbangText(
-                    "프로필",
-                    font: .title1,
-                    color: Color(.labelStrong)
-                )
-                .padding(.leading, 20)
-                
-                Spacer()
+        Button {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                navigationPath.append("ChangeProfile")
             }
-            
-            HStack(spacing: 12) {
-                Image(.icProfile)
-                    .resizable()
-                    .frame(width: 60, height: 60)
-                    .clipShape(.circle)
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 0) {
-                        BbangText(
-                            "유나쨩",
-                            font: .title4,
-                            color: Color(.labelStrong)
-                        )
-                        
-                        Button(action: {
-                            
-                        }) {
-                            Image(.icPencil)
-                                .renderingMode(.template)
-                                .resizable()
-                                .frame(width: 24, height: 24)
-                                .foregroundStyle(Color(.labelAssistive))
-                        }
-                    }
-                    
+        } label : {
+            VStack(spacing: 20) {
+                HStack {
                     BbangText(
-                        "지금 이 순간 쌓는 한 줄의 지식이, 내일의 너를 강하게 만든다",
-                        font: .subtitle1,
-                        color: Color(.labelAlternative)
+                        "프로필",
+                        font: .title1,
+                        color: Color(.labelStrong)
                     )
-                    .lineLimit(1)
+                    .padding(.leading, 20)
+                    
+                    Spacer()
                 }
+                
+                HStack(spacing: 12) {
+                    Image(.icProfile)
+                        .resizable()
+                        .frame(width: 60, height: 60)
+                        .clipShape(.circle)
+                    
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 0) {
+                            BbangText(
+                                "유나쨩",
+                                font: .title4,
+                                color: Color(.labelStrong)
+                            )
+                            
+                            Button(action: {
+                                
+                            }) {
+                                Image(.icPencil)
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundStyle(Color(.labelAssistive))
+                            }
+                        }
+                        
+                        BbangText(
+                            "지금 이 순간 쌓는 한 줄의 지식이, 내일의 너를 강하게 만든다",
+                            font: .subtitle1,
+                            color: Color(.labelAlternative)
+                        )
+                        .lineLimit(1)
+                    }
+                }
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
         }
     }
     
