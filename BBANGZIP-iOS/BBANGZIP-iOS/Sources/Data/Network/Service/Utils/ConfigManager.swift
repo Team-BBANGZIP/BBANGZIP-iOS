@@ -9,4 +9,5 @@ import Foundation
 
 enum ConfigManager {
     static let baseURL: String = Bundle.main.infoDictionary?["BASE_URL"] as! String
+    static let kakaoAppKey: String = Bundle.main.infoDictionary?["KAKAO_NATIVE_APP_KEY"] as! String
 }
