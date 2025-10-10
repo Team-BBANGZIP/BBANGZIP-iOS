@@ -7,6 +7,8 @@
 
 import SwiftUI
 import AuthenticationServices
+import KakaoSDKAuth
+import KakaoSDKUser
 
 @MainActor
 final class LoginViewModel: NSObject, ObservableObject {
@@ -20,7 +22,7 @@ final class LoginViewModel: NSObject, ObservableObject {
     @Published var errorMessage: String?
     
     private var started = false
-    private let signInUseCase: SignInUseCase
+    nonisolated private let signInUseCase: SignInUseCase
     
     init(signInUseCase: SignInUseCase = SignInUseCaseImpl(repository: AuthRepositoryImpl())) {
         self.signInUseCase = signInUseCase
@@ -55,8 +57,71 @@ final class LoginViewModel: NSObject, ObservableObject {
     }
     
     func tapKakao() {
-        // TODO: 카카오 로그인 구현
-        print("Kakao Login 눌림")
+        if UserApi.isKakaoTalkLoginAvailable() {
+            loginWithKakaoTalk()
+        } else {
+            loginWithKakaoAccount()
+        }
+    }
+    
+    private func loginWithKakaoTalk() {
+        UserApi.shared.loginWithKakaoTalk { [weak self] (oauthToken, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                LoggerFactory.create(category: .data)
+                    .error("Kakao Talk Login Failed: \(error)")
+                self.errorMessage = "카카오 로그인에 실패했습니다."
+            } else if let token = oauthToken {
+                LoggerFactory.create(category: .data)
+                    .debug("Kakao Talk Login Success")
+                self.handleKakaoSignIn(accessToken: token.accessToken)
+            }
+        }
+    }
+    
+    private func loginWithKakaoAccount() {
+        UserApi.shared.loginWithKakaoAccount { [weak self] (oauthToken, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                LoggerFactory.create(category: .data)
+                    .error("Kakao Account Login Failed: \(error)")
+                self.errorMessage = "카카오 로그인에 실패했습니다."
+            } else if let token = oauthToken {
+                LoggerFactory.create(category: .data)
+                    .debug("Kakao Account Login Success")
+                self.handleKakaoSignIn(accessToken: token.accessToken)
+            }
+        }
+    }
+    
+    private func handleKakaoSignIn(accessToken: String) {
+        isLoading = true
+        errorMessage = nil
+        
+        Task { @MainActor in
+            do {
+                let result = try await signInUseCase.execute(
+                    provider: .kakao,
+                    providerToken: accessToken,
+                    role: .user
+                )
+                
+                isLoading = false
+                
+                if result.isSignUpComplete {
+                    // TODO: 메인 화면으로 이동
+                } else {
+                    // TODO: 온보딩 화면으로 이동
+                }
+                
+            } catch {
+                isLoading = false
+                errorMessage = "로그인에 실패했습니다."
+                LoggerFactory.create(category: .data).error("Kakao Sign In Failed: \(error)")
+            }
+        }
     }
     
     func tapApple() {
