@@ -41,7 +41,10 @@ final class AuthRepositoryImpl: AuthRepository {
             appVersion: DeviceInfoProvider.getAppVersion()
         )
         
-        let router = BbangRouter.signIn(dto: requestDTO, providerToken: providerToken)
+        let router = BbangRouter.signIn(
+            dto: requestDTO,
+            providerToken: providerToken
+        )
         
         do {
             let response: SignInResponseDTO = try await api.request(api: router)
