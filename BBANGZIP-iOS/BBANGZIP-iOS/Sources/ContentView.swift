@@ -1,4 +1,6 @@
 import SwiftUI
+import KakaoSDKCommon
+import KakaoSDKAuth
 
 public struct ContentView: View {
     @StateObject private var timerViewModel = TimerViewModel(
@@ -10,8 +12,11 @@ public struct ContentView: View {
     @State private var wasPausedByLock = false
     @State private var showCheckedOffView = false
     @State private var isLaunch: Bool = true
+    @State private var isLoggedIn: Bool = false
     
     public init() {
+        KakaoSDK.initSDK(appKey: ConfigManager.kakaoAppKey)
+        
         let appearance = UITabBarAppearance()
         appearance.backgroundColor = UIColor(Color(.componentAlternative))
         appearance.shadowColor = UIColor(Color(.labelDisable))
@@ -30,6 +35,18 @@ public struct ContentView: View {
                         withAnimation(.easeOut(duration: 0.3)) {
                             self.isLaunch = false
                         }
+                    }
+                }
+        } else if !isLoggedIn {
+            LoginView()
+                .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.isLoggedIn = true
+                    }
+                }
+                .onOpenURL { url in
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
                     }
                 }
         } else {
@@ -59,7 +76,6 @@ public struct ContentView: View {
             }
         }
     }
-    
     
     private var mainTabView: some View {
         TabView {
@@ -98,7 +114,6 @@ public struct ContentView: View {
         )
     }
     
-    
     private var checkedOffView: some View {
         let mockRepo = MockTodoRepository()
         let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: mockRepo)
@@ -135,7 +150,6 @@ public struct ContentView: View {
             addUseCase: addUseCase
         )
     }
-    
     
     private func handleScenePhaseChange(_ phase: ScenePhase) {
         switch phase {
