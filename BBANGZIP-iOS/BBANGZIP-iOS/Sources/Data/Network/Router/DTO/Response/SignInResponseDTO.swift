@@ -18,3 +18,33 @@ struct SignInResponseDTO: Decodable, Sendable {
     }
 }
 
+struct TokenRefreshResponseDTO: Decodable, Sendable {
+    let code: Int
+    let data: TokenData
+    
+    struct TokenData: Decodable, Sendable {
+        let accessToken: String
+        let refreshToken: String
+    }
+}
+
+extension SignInResponseDTO {
+    func toEntity() -> SignInResult {
+        return SignInResult(
+            authToken: AuthToken(
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken
+            ),
+            isSignUpComplete: data.isSignUpComplete
+        )
+    }
+}
+
+extension TokenRefreshResponseDTO {
+    func toEntity() -> AuthToken {
+        return AuthToken(
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken
+        )
+    }
+}

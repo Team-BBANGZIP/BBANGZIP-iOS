@@ -32,3 +32,25 @@ struct SignInRequestDTO: Encodable, Sendable {
         case desktop = "DESKTOP"
     }
 }
+
+extension AuthProvider {
+    func toDTO() -> SignInRequestDTO.AuthProvider {
+        switch self {
+        case .kakao:
+            return .kakao
+        case .apple:
+            return .apple
+        }
+    }
+}
+
+extension UserRole {
+    func toDTO() -> SignInRequestDTO.UserRole {
+        switch self {
+        case .user:
+            return .user
+        case .admin:
+            return .admin
+        }
+    }
+}
