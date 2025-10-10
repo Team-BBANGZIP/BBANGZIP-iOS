@@ -17,7 +17,7 @@ enum BbangRouter {
 
 extension BbangRouter: Router {
     var baseURL: String {
-        Environment.baseURL
+        ConfigManager.baseURL
     }
     
     var path: String {
