@@ -22,7 +22,7 @@ final class LoginViewModel: NSObject, ObservableObject {
     @Published var errorMessage: String?
     
     private var started = false
-    nonisolated private let signInUseCase: SignInUseCase
+    private let signInUseCase: SignInUseCase
     
     init(signInUseCase: SignInUseCase = SignInUseCaseImpl(repository: AuthRepositoryImpl())) {
         self.signInUseCase = signInUseCase
