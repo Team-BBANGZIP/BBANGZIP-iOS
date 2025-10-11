@@ -8,11 +8,14 @@
 import Foundation
 import Alamofire
 
-final class API {
+final class API: Sendable {
     private let session: Session
     
     init(
-        session: Session = Session(eventMonitors: [Monitor()])
+        session: Session = Session(
+            interceptor: AuthInterceptor(),
+            eventMonitors: [Monitor()]
+        )
     ) {
         self.session = session
         LoggerFactory.create(category: .lifeCycle)
