@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class TodoViewModel: ObservableObject {
@@ -23,21 +24,30 @@ final class TodoViewModel: ObservableObject {
     @Published var sheetIsAlerted: Bool = false
     @Published var sheetIsCompleted: Bool = false
     
-    let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
+    @AppStorage("startWeekOnSunday") private var startWeekOnSunday: Bool = false
     
-    private let calendar: Calendar = {
+    var daysOfWeek: [String] {
+        startWeekOnSunday
+        ? ["일", "월", "화", "수", "목", "금", "토"]
+        : ["월", "화", "수", "목", "금", "토", "일"]
+    }
+    
+    private var calendar: Calendar {
         var cal = Calendar.current
         cal.locale = Locale(identifier: "ko_KR")
         cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        cal.firstWeekday = 2
-        
+        cal.firstWeekday = startWeekOnSunday ? 1 : 2
         return cal
-    }()
+    }
+
+    
     private(set) var selectedTodoForMenu: TimerTodo? = nil
     
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
+    
+    private var cancellables = Set<AnyCancellable>()
     
     init(
         fetchUseCase: FetchTimerTodosUseCase,
@@ -49,6 +59,20 @@ final class TodoViewModel: ObservableObject {
         self.addUseCase = addUseCase
         
         updateDates()
+        
+        setupStartWeekOnSundayObserver()
+    }
+    
+    private func setupStartWeekOnSundayObserver() {
+        // UserDefaults에서 startWeekOnSunday 변경 감지
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                // UserDefaults 변경 시 updateDates 호출
+                self.updateDates()
+                self.objectWillChange.send() // 명시적으로 뷰 업데이트 트리거
+            }
+            .store(in: &cancellables)
     }
     
     func fetchData() {
@@ -221,7 +245,7 @@ final class TodoViewModel: ObservableObject {
     func updateDates() {
         var dates: [Date] = []
         var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear, .weekday], from: currentDate)
-        components.weekday = 2
+        components.weekday = startWeekOnSunday ? 1 : 2
         components.hour = 0
         components.minute = 0
         components.second = 0
@@ -242,15 +266,14 @@ final class TodoViewModel: ObservableObject {
               !dates.isEmpty,
               dayIndex < dates.count else { return nil }
         
-        var date = dates[dayIndex]
-        
-        return date
+        return dates[dayIndex]
     }
 
     func moveWeek(by value: Int) {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
             updateDates()
+            objectWillChange.send()
         }
     }
     

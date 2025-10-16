@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingScreenView: View {
     @Environment(\.dismiss) private var dismiss
-    @State var isToggleOn = false
+    @AppStorage("startWeekOnSunday") private var startWeekOnSunday: Bool = false
     
     var onDismiss: (() -> Void)?
     
@@ -25,7 +25,7 @@ struct SettingScreenView: View {
             )
             .navigationBarHidden(true)
             
-            Toggle(isOn: $isToggleOn) {
+            Toggle(isOn: $startWeekOnSunday) {
                 BbangText(
                     "주 시작 요일 일요일로 설정",
                     font: .body2,
@@ -46,7 +46,6 @@ struct SettingScreenView: View {
                 
                 Spacer()
             }
-            
             
             Spacer()
         }

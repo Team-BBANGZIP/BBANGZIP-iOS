@@ -20,9 +20,9 @@ struct MyPageView: View {
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color(.secondaryLight), location: 0.0),
-                        .init(color: Color(.secondaryLight), location: 0.5), // 위쪽 50%
+                        .init(color: Color(.secondaryLight), location: 0.5), 
                         .init(color: Color(.backgroundNomal), location: 0.5),
-                        .init(color: Color(.backgroundNomal), location: 1.0) // 아래쪽 50%
+                        .init(color: Color(.backgroundNomal), location: 1.0)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -244,4 +244,3 @@ struct MyPageView: View {
 #Preview {
     MyPageView()
 }
-
