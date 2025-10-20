@@ -258,7 +258,9 @@ final class TodoViewModel: ObservableObject {
             }
         }
         
-        self.dates = dates
+        DispatchQueue.main.async {
+            self.dates = dates
+        }
     }
     
     func calculateDateForDay(_ day: String) -> Date? {
