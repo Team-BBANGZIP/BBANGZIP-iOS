@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingScreenView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("startWeekOnSunday") private var startWeekOnSunday: Bool = false
+    @State private var tempStartWeekOnSunday: Bool = false
     
     var onDismiss: (() -> Void)?
     
@@ -25,7 +26,7 @@ struct SettingScreenView: View {
             )
             .navigationBarHidden(true)
             
-            Toggle(isOn: $startWeekOnSunday) {
+            Toggle(isOn: $tempStartWeekOnSunday) {
                 BbangText(
                     "주 시작 요일 일요일로 설정",
                     font: .body2,
@@ -35,7 +36,13 @@ struct SettingScreenView: View {
             .toggleStyle(SettingToggleStyle())
             .padding(.top, 20)
             .padding(.horizontal, 20)
-            
+            .onChange(of: tempStartWeekOnSunday) {
+                // 여기서 self.tempStartWeekOnSunday 직접 접근 가능
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    startWeekOnSunday = tempStartWeekOnSunday
+                }
+            }
+
             HStack {
                 BbangText(
                     "캘린더의 주 시작 요일을\n월요일에서 일요일로 변경할 수 있어요",
@@ -48,6 +55,9 @@ struct SettingScreenView: View {
             }
             
             Spacer()
+        }
+        .onAppear {
+            tempStartWeekOnSunday = startWeekOnSunday
         }
     }
 }

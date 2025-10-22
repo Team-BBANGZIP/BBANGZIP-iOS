@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MyPageView: View {
     @State private var navigationPath = NavigationPath()
+    @State private var isActive = false
     
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -52,9 +53,7 @@ struct MyPageView: View {
     
     private var ProfileSection: some View {
         Button {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                navigationPath.append("ChangeProfile")
-            }
+            navigationPath.append("ChangeProfile")
         } label : {
             VStack(spacing: 20) {
                 HStack {
@@ -124,10 +123,9 @@ struct MyPageView: View {
                 MenuBox(
                     menu: "화면 설정",
                     onMenuTapped: {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         navigationPath.append("SettingScreen")
                     }
-                })
+                )
                 
                 settingDivider
                     .padding(.vertical, 12)

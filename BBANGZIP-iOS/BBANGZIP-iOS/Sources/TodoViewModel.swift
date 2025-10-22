@@ -24,7 +24,9 @@ final class TodoViewModel: ObservableObject {
     @Published var sheetIsAlerted: Bool = false
     @Published var sheetIsCompleted: Bool = false
     
-    @AppStorage("startWeekOnSunday") private var startWeekOnSunday: Bool = false
+    private var startWeekOnSunday: Bool {
+        UserDefaults.standard.bool(forKey: "startWeekOnSunday")
+    }
     
     var daysOfWeek: [String] {
         startWeekOnSunday
@@ -64,16 +66,19 @@ final class TodoViewModel: ObservableObject {
     }
     
     private func setupStartWeekOnSundayObserver() {
-        // UserDefaults에서 startWeekOnSunday 변경 감지
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
-                guard let self = self else { return }
-                // UserDefaults 변경 시 updateDates 호출
-                self.updateDates()
-                self.objectWillChange.send() // 명시적으로 뷰 업데이트 트리거
+                guard let self else { return }
+
+                let newValue = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
+                if newValue != self.startWeekOnSunday {
+                    self.updateDates()
+                }
             }
             .store(in: &cancellables)
     }
+
     
     func fetchData() {
         Task {
