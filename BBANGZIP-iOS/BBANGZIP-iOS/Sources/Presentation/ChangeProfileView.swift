@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ChangeProfileView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var viewModel = ChangeProfileViewModel()
     @State private var profileImage: UIImage? = nil
     @State private var draft: String
     
@@ -74,7 +75,7 @@ struct ChangeProfileView: View {
                 Spacer()
                 
                 Button {
-                    print("이름 변경 버튼 클릭")
+                    viewModel.showChangeNickNameSheet()
                 } label: {
                     HStack(spacing: 8) {
                         BbangText(
@@ -96,7 +97,7 @@ struct ChangeProfileView: View {
             
             
             Button {
-                print("상태 메세지 변경 버튼 클릭")
+                viewModel.showMyPromiseSheet()
             } label: {
                 VStack(spacing: 20) {
                     HStack {
@@ -123,6 +124,28 @@ struct ChangeProfileView: View {
             .padding(.top, 16)
             
             Spacer()
+        }
+        .sheet(isPresented: $viewModel.isChangeNickNameSheetPresented) {
+            MyNickNameView(
+                initialText: "초기 텍스트입니다",
+                onSave: { newText in
+                    viewModel.updateNickName(newText)
+                }
+            )
+            .presentationDetents([.height(230)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+            MyPromiseView(
+                initialText: "초기 텍스트입니다",
+                onSave: { newText in
+                    viewModel.updateMyPromiseMessage(newText)
+                }
+            )
+            .presentationDetents([.height(230)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
         }
     }
 }

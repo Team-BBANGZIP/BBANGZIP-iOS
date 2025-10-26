@@ -64,8 +64,6 @@ final class DatePickerViewModel: ObservableObject {
         calendar.isDateInToday(selectedDate)
     }
     
-    // MARK: - Private
-    
     private func configureCalendar() {
         var cal = Calendar(identifier: .gregorian)
         cal.locale = locale
