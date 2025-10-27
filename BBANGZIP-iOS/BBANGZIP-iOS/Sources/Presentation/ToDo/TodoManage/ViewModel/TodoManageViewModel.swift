@@ -18,9 +18,13 @@ final class TodoManageViewModel: ObservableObject {
     @Published var startTimeString: String?
     @Published var isAlerted: Bool
     @Published var isCompleted: Bool
+    @Published var changeDate: Date = Date()
+    @Published var repeatDate: Date = Date()
     
     @Published var isEditSheetPresented: Bool = false
     @Published var isStartTimeSheetPresented: Bool = false
+    @Published var isChangeDateSheetPresented: Bool = false
+    @Published var isRepeatSheetPresented: Bool = false
 
     private let onDelete: () -> Void
     private let onPostpone: () -> Void

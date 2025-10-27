@@ -71,7 +71,30 @@ struct TodoManageView: View {
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
-
+        .sheet(isPresented: $viewModel.isChangeDateSheetPresented) {
+            DatePickerView(
+                selectedDate: $viewModel.changeDate,
+                mode: .changeDate
+            ) { newDate in
+                viewModel.changeDate = newDate
+                viewModel.isChangeDateSheetPresented = false
+            }
+            .presentationDetents([.height(522)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.isRepeatSheetPresented) {
+            DatePickerView(
+                selectedDate: $viewModel.repeatDate,
+                mode: .repeatAnotherDay
+            ) { newDate in
+                viewModel.repeatDate = newDate
+                viewModel.isRepeatSheetPresented = false
+            }
+            .presentationDetents([.height(522)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -197,7 +220,7 @@ private extension TodoManageView {
             icon: Image(.icCalendar),
             title: "날짜 바꾸기",
             onTap: {
-                // TODO: 날짜 변경 액션
+                viewModel.isChangeDateSheetPresented = true
             }
         )
     }
@@ -207,7 +230,7 @@ private extension TodoManageView {
             icon: Image(.icRepeat),
             title: "다른 날 또 하기",
             onTap: {
-                // TODO: 날짜 선택 바텀시트 열기
+                viewModel.isRepeatSheetPresented = true
             }
         )
     }
