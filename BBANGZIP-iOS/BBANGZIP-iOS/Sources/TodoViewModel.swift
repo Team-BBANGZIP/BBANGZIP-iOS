@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class TodoViewModel: ObservableObject {
@@ -23,21 +24,30 @@ final class TodoViewModel: ObservableObject {
     @Published var sheetIsAlerted: Bool = false
     @Published var sheetIsCompleted: Bool = false
     
-    let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
+    @Published private var startWeekOnSunday: Bool = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
     
-    private let calendar: Calendar = {
+    var daysOfWeek: [String] {
+        startWeekOnSunday
+        ? ["일", "월", "화", "수", "목", "금", "토"]
+        : ["월", "화", "수", "목", "금", "토", "일"]
+    }
+    
+    @Published private var calendar: Calendar = {
         var cal = Calendar.current
         cal.locale = Locale(identifier: "ko_KR")
         cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        cal.firstWeekday = 2
-        
+        cal.firstWeekday = UserDefaults.standard.bool(forKey: "startWeekOnSunday") ? 1 : 2
         return cal
     }()
+
+
     private(set) var selectedTodoForMenu: TimerTodo? = nil
     
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
+    
+    private var cancellables = Set<AnyCancellable>()
     
     init(
         fetchUseCase: FetchTimerTodosUseCase,
@@ -49,8 +59,33 @@ final class TodoViewModel: ObservableObject {
         self.addUseCase = addUseCase
         
         updateDates()
+        setupStartWeekOnSundayObserver()
     }
     
+    private func setupStartWeekOnSundayObserver() {
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                let newValue = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
+                
+                if newValue != self.startWeekOnSunday {
+                    self.startWeekOnSunday = newValue
+                    self.configureCalendar()
+                    self.updateDates()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func configureCalendar() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.locale = Locale(identifier: "ko_KR")
+        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
+        cal.firstWeekday = startWeekOnSunday ? 1 : 2
+        self.calendar = cal
+    }
+
     func fetchData() {
         Task {
             do {
@@ -219,9 +254,9 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateDates() {
-        var dates: [Date] = []
+        var newDates: [Date] = []
         var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear, .weekday], from: currentDate)
-        components.weekday = 2
+        components.weekday = startWeekOnSunday ? 1 : 2
         components.hour = 0
         components.minute = 0
         components.second = 0
@@ -230,11 +265,13 @@ final class TodoViewModel: ObservableObject {
         
         for dayOffset in 0...6 {
             if let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) {
-                dates.append(date)
+                newDates.append(date)
             }
         }
         
-        self.dates = dates
+        DispatchQueue.main.async {
+            self.dates = newDates
+        }
     }
     
     func calculateDateForDay(_ day: String) -> Date? {
@@ -242,15 +279,14 @@ final class TodoViewModel: ObservableObject {
               !dates.isEmpty,
               dayIndex < dates.count else { return nil }
         
-        var date = dates[dayIndex]
-        
-        return date
+        return dates[dayIndex]
     }
 
     func moveWeek(by value: Int) {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
             updateDates()
+            objectWillChange.send()
         }
     }
     

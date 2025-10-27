@@ -50,18 +50,16 @@ public struct ContentView: View {
                     }
                 }
         } else {
-            NavigationStack {
-                ZStack {
-                    if showCheckedOffView {
-                        checkedOffView
-                            .transition(.move(edge: .trailing))
-                    } else {
-                        mainTabView
-                            .transition(.opacity)
-                    }
+            ZStack {
+                if showCheckedOffView {
+                    checkedOffView
+                        .transition(.move(edge: .trailing))
+                } else {
+                    mainTabView
+                        .transition(.opacity)
                 }
-                .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
             }
+            .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
             .onChange(of: scenePhase) { newPhase in
                 handleScenePhaseChange(newPhase)
             }
@@ -100,7 +98,7 @@ public struct ContentView: View {
                     Text("이웃")
                 }
             
-            Text("마이")
+            MyPageView()
                 .tabItem {
                     Image(.icPerson)
                         .renderingMode(.template)
