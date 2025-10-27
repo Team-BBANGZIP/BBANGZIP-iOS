@@ -115,10 +115,10 @@ public struct ContentView: View {
     }
     
     private var checkedOffView: some View {
-        let mockRepo = MockTodoRepository()
-        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: mockRepo)
-        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
-        let addUseCase = DefaultAddTodoUseCase(repository: mockRepo)
+        let repo = TodoRepositoryImpl()
+        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: repo)
+        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
+        let addUseCase = DefaultAddTodoUseCase(repository: repo)
         
         let checkedOffViewModel = TimerCheckedOffViewModel(
             fetchUseCase: fetchUseCase,
@@ -140,7 +140,7 @@ public struct ContentView: View {
     }
     
     private func makeTodoViewModel() -> TodoViewModel {
-        let repo = MockTodoRepository()
+        let repo = TodoRepositoryImpl()
         let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)

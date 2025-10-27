@@ -10,8 +10,9 @@ import SwiftUI
 struct ToDoView: View {
     @StateObject private var viewModel: TodoViewModel
     @StateObject private var categoryListViewModel = CategoryListViewModel(
-        repository: MockTodoRepository()
+        repository: TodoRepositoryImpl()
     )
+    @State private var addTodoViewModel: TodoAddViewModel? = nil
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
@@ -123,19 +124,25 @@ struct ToDoView: View {
                         }
                     )
                 }
-                .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                    let addViewModel = TodoAddViewModel { content, startTime in
-                        viewModel.addTodo(content: content)
+                .sheet(
+                    isPresented: $viewModel.isAddTodoSheetPresented,
+                    onDismiss: {
+                        addTodoViewModel?.addTodo()
+                        addTodoViewModel = nil
+                    },
+                    content: {
+                        if let vm = addTodoViewModel {
+                            TodoAddView(
+                                viewModel: vm,
+                                isPresented: $viewModel.isAddTodoSheetPresented
+                            )
+                            .presentationDetents([.height(190)])
+                            .presentationCornerRadius(48)
+                            .presentationDragIndicator(.visible)
+                        }
                     }
-                    
-                    TodoAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                }
+                )
+
                 .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
                     MyPromiseView(
                         initialText: viewModel.todoData?.myPromiseMessage ?? "",
@@ -308,6 +315,7 @@ struct ToDoView: View {
                 .padding(.top, 8)
                 .onTapGesture {
                     viewModel.selectedCategoryIndex = index
+                    addTodoViewModel = viewModel.makeAddTodoViewModel()
                     viewModel.isAddTodoSheetPresented = true
                 }
                 .moveDisabled(true)

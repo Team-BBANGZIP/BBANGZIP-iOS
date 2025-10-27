@@ -120,20 +120,31 @@ final class MockTodoRepository: TodoRepository {
     }
     
     func addTodo(
-        categoryIndex: Int,
+        categoryId: Int,
         content: String,
+        targetDate: Date,
         startTime: Date?
-    ) async throws {
-        let category = todoData.categories[categoryIndex]
+    ) async throws -> TimerTodo {
+        
+        guard let index = todoData.categories.firstIndex(where: { $0.id == categoryId }) else {
+            LoggerFactory.create(category: .data)
+                .error("Mock AddTodo failed: category not found (id=\(categoryId))")
+            
+            // TODO: 에러 메시지 매핑
+            throw RouterError.server(message: "Category not found: \(categoryId)")
+        }
         
         let newTodo = TimerTodo(
             id: UUID().hashValue,
             content: content,
             isCompleted: false,
             startTime: startTime.map { DateFormatter.inputTimeFormatter.string(from: $0) },
-            colorType: category.colorType
+            colorType: todoData.categories[index].colorType
         )
-        todoData.categories[categoryIndex].todos.append(newTodo)
+        
+        todoData.categories[index].todos.append(newTodo)
+        
+        return newTodo
     }
     
     func updateCategory(_ category: Category) async throws {

@@ -13,9 +13,19 @@ final class TimerCheckedOffViewModel: ObservableObject {
     @Published var isSheetPresented: Bool = false
     @Published var selectedCategoryIndex: Int?
     
+    let addUseCase: AddTodoUseCase
     private let fetchUseCase: FetchTimerTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
-    private let addUseCase: AddTodoUseCase
+    
+    var selectedCategory: Category? {
+        guard let index = selectedCategoryIndex,
+              index < categories.count else { return nil }
+        return categories[index]
+    }
+
+    var currentTargetDate: Date {
+        return Date()
+    }
     
     init(
         fetchUseCase: FetchTimerTodosUseCase,
@@ -47,15 +57,19 @@ final class TimerCheckedOffViewModel: ObservableObject {
         )
     }
     
-    func addTodo(content: String, startTime: Date?) {
-        guard let index = selectedCategoryIndex else { return }
-
+    func addTodo(
+        categoryId: Int,
+        content: String,
+        targetDate: Date,
+        startTime: Date?
+    ) {
         let localAddUseCase = addUseCase
         Task {
             do {
-                try await localAddUseCase.execute(
-                    categoryIndex: index,
+                _ = try await localAddUseCase.execute(
+                    categoryId: categoryId,
                     content: content,
+                    targetDate: targetDate,
                     startTime: startTime
                 )
                 fetchData()

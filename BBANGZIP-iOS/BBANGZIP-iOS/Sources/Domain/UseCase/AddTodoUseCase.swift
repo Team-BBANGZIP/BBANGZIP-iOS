@@ -7,8 +7,13 @@
 
 import Foundation
 
-protocol AddTodoUseCase {
-    func execute(categoryIndex: Int, content: String, startTime: Date?) async throws
+protocol AddTodoUseCase: Sendable {
+    func execute(
+        categoryId: Int,
+        content: String,
+        targetDate: Date,
+        startTime: Date?
+    ) async throws -> TimerTodo
 }
 
 final class DefaultAddTodoUseCase: AddTodoUseCase {
@@ -16,16 +21,21 @@ final class DefaultAddTodoUseCase: AddTodoUseCase {
 
     init(repository: TodoRepository) {
         self.repository = repository
+        print("🧩 AddTodoUseCase repository type =", type(of: repository))
     }
 
     func execute(
-        categoryIndex: Int,
+        categoryId: Int,
         content: String,
+        targetDate: Date,
         startTime: Date?
-    ) async throws {
-        try await repository.addTodo(
-            categoryIndex: categoryIndex,
+    ) async throws -> TimerTodo {
+        print("🧭 execute() using repo:", type(of: repository))
+        
+        return try await repository.addTodo(
+            categoryId: categoryId,
             content: content,
+            targetDate: targetDate,
             startTime: startTime
         )
     }

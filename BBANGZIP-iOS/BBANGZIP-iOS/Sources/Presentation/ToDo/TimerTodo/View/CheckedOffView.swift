@@ -30,17 +30,21 @@ struct CheckedOffView: View {
             bottomButtons
         }
         .sheet(isPresented: $viewModel.isSheetPresented) {
-            let addViewModel = TodoAddViewModel { content, startTime in
-                viewModel.addTodo(content: content, startTime: startTime)
+            if let selectedCategory = viewModel.selectedCategory {
+                let addViewModel = TodoAddViewModel(
+                    addTodoUseCase: viewModel.addUseCase,
+                    categoryId: selectedCategory.id,
+                    targetDate: viewModel.currentTargetDate
+                )
+
+                TodoAddView(
+                    viewModel: addViewModel,
+                    isPresented: $viewModel.isSheetPresented
+                )
+                .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
             }
-            
-            TodoAddView(
-                viewModel: addViewModel,
-                isPresented: $viewModel.isSheetPresented
-            )
-            .presentationDetents([.height(190)])
-            .presentationCornerRadius(48)
-            .presentationDragIndicator(.visible)
         }
         .navigationBarHidden(true)
         .onAppear {

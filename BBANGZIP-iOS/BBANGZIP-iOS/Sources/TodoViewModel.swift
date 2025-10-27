@@ -39,6 +39,17 @@ final class TodoViewModel: ObservableObject {
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
     
+    var selectedCategoryId: Int? {
+        guard let index = selectedCategoryIndex,
+              let categories = todoData?.categories,
+              index < categories.count else { return nil }
+        return categories[index].id
+    }
+    
+    var currentTargetDate: Date {
+        return currentDate
+    }
+    
     init(
         fetchUseCase: FetchTimerTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
@@ -192,16 +203,31 @@ final class TodoViewModel: ObservableObject {
         )
     }
     
-    func addTodo(content: String) {
-        guard let index = selectedCategoryIndex else { return }
+    func makeAddTodoViewModel() -> TodoAddViewModel? {
+        guard let categoryId = selectedCategoryId else { return nil }
+        return TodoAddViewModel(
+            addTodoUseCase: addUseCase,
+            categoryId: categoryId,
+            targetDate: currentTargetDate
+        )
+    }
+    
+    func addTodo(content: String, startTime: Date? = nil) {
+        guard let categoryId = selectedCategoryId else {
+            print("❌ 카테고리 ID를 찾을 수 없습니다.")
+            return
+        }
 
         let localAddUseCase = addUseCase
+        let targetDate = currentTargetDate
+
         Task {
             do {
-                try await localAddUseCase.execute(
-                    categoryIndex: index,
+                _ = try await localAddUseCase.execute(
+                    categoryId: categoryId,
                     content: content,
-                    startTime: currentDate
+                    targetDate: targetDate,
+                    startTime: startTime
                 )
                 fetchData()
             } catch {
