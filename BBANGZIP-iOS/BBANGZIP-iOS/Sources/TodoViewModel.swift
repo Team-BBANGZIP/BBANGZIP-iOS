@@ -24,9 +24,7 @@ final class TodoViewModel: ObservableObject {
     @Published var sheetIsAlerted: Bool = false
     @Published var sheetIsCompleted: Bool = false
     
-    private var startWeekOnSunday: Bool {
-        UserDefaults.standard.bool(forKey: "startWeekOnSunday")
-    }
+    @Published private var startWeekOnSunday: Bool = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
     
     var daysOfWeek: [String] {
         startWeekOnSunday
@@ -34,13 +32,13 @@ final class TodoViewModel: ObservableObject {
         : ["월", "화", "수", "목", "금", "토", "일"]
     }
     
-    private var calendar: Calendar {
+    @Published private var calendar: Calendar = {
         var cal = Calendar.current
         cal.locale = Locale(identifier: "ko_KR")
         cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        cal.firstWeekday = startWeekOnSunday ? 1 : 2
+        cal.firstWeekday = UserDefaults.standard.bool(forKey: "startWeekOnSunday") ? 1 : 2
         return cal
-    }
+    }()
 
     
     private(set) var selectedTodoForMenu: TimerTodo? = nil
@@ -61,25 +59,33 @@ final class TodoViewModel: ObservableObject {
         self.addUseCase = addUseCase
         
         updateDates()
-        
         setupStartWeekOnSundayObserver()
     }
     
     private func setupStartWeekOnSundayObserver() {
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
-
                 let newValue = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
+                
                 if newValue != self.startWeekOnSunday {
+                    self.startWeekOnSunday = newValue
+                    self.configureCalendar()
                     self.updateDates()
                 }
             }
             .store(in: &cancellables)
     }
-
     
+    private func configureCalendar() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.locale = Locale(identifier: "ko_KR")
+        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
+        cal.firstWeekday = startWeekOnSunday ? 1 : 2
+        self.calendar = cal
+    }
+
     func fetchData() {
         Task {
             do {
@@ -248,7 +254,7 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateDates() {
-        var dates: [Date] = []
+        var newDates: [Date] = []
         var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear, .weekday], from: currentDate)
         components.weekday = startWeekOnSunday ? 1 : 2
         components.hour = 0
@@ -259,12 +265,12 @@ final class TodoViewModel: ObservableObject {
         
         for dayOffset in 0...6 {
             if let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) {
-                dates.append(date)
+                newDates.append(date)
             }
         }
         
         DispatchQueue.main.async {
-            self.dates = dates
+            self.dates = newDates
         }
     }
     
