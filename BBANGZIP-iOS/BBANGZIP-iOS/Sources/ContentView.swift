@@ -114,7 +114,7 @@ public struct ContentView: View {
     
     private var checkedOffView: some View {
         let repo = TodoRepositoryImpl()
-        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: repo)
+        let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
         
@@ -139,7 +139,7 @@ public struct ContentView: View {
     
     private func makeTodoViewModel() -> TodoViewModel {
         let repo = TodoRepositoryImpl()
-        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: repo)
+        let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
         return TodoViewModel(

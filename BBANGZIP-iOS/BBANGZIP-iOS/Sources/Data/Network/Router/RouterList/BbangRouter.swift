@@ -14,6 +14,7 @@ enum BbangRouter {
     
     //송희
     case addTodo(dto: TodoAddRequestDTO, accessToken: String)
+    case fetchTodos(params: TodoFetchRequestDTO, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -31,6 +32,8 @@ extension BbangRouter: Router {
             return "/api/v1/auth/re-issue"
         case .addTodo:
             return "/api/v1/todos"
+        case .fetchTodos:
+            return "/api/v1/todos"
         }
     }
     
@@ -38,6 +41,8 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .refreshToken, .addTodo:
             return .post
+        case .fetchTodos:
+            return .get
         }
     }
     
@@ -49,7 +54,7 @@ extension BbangRouter: Router {
         case .refreshToken(let refreshToken):
             return ["Authorization": "Bearer \(refreshToken)"]
             
-        case .addTodo(_, let accessToken):
+        case .addTodo(_, let accessToken), .fetchTodos(_, let accessToken):
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
@@ -65,6 +70,8 @@ extension BbangRouter: Router {
             return [:]
         case .addTodo(let dto, _):
             return dto.asDictionary()
+        case .fetchTodos(let params, _):
+            return params.asDictionary()
         }
     }
     
@@ -72,6 +79,8 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .addTodo:
             return JSONEncoding.default
+        case .fetchTodos:
+            return URLEncoding(destination: .queryString)
         case .refreshToken:
             return nil
         }

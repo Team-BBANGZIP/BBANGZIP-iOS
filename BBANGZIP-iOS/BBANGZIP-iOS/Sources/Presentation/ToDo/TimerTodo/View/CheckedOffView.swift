@@ -175,7 +175,7 @@ private extension CheckedOffView {
 struct CheckedOffView_Previews: PreviewProvider {
     static var previews: some View {
         let mockRepo = MockTodoRepository()
-        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: mockRepo)
+        let fetchUseCase = DefaultFetchTodosUseCase(repository: mockRepo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
         
         let previewViewModel = TimerCheckedOffViewModel(

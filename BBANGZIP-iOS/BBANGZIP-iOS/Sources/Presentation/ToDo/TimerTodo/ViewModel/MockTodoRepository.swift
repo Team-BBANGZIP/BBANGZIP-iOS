@@ -107,8 +107,23 @@ final class MockTodoRepository: TodoRepository {
         ]
     )
     
-    func fetchTimerTodos() async throws -> TodoData {
-        return todoData
+    func fetchTodos(
+        date: Date,
+        accessToken: String
+    ) async throws -> TodoData {
+        let dateString = DateFormatter.inputDateYMDFormatter.string(from: date)
+
+        let newData = TodoData(
+            myPromiseMessage: todoData.myPromiseMessage,
+            summary: TodoSummary(
+                date: dateString,
+                totalCount: todoData.summary.totalCount,
+                completedCount: todoData.summary.completedCount
+            ),
+            categories: todoData.categories
+        )
+        return newData
+
     }
     
     

@@ -30,9 +30,14 @@ final class CategoryListViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            categories = try await repository.fetchTimerTodos().categories
+            // TODO: 카테고리 조회 API 연결
+            let today = Date()
+            categories = try await repository.fetchTodos(date: today, accessToken: "").categories
             makeSections()
         } catch {
+            errorMessage = "카테고리를 불러오지 못했습니다."
+            LoggerFactory.create(category: .data)
+                .error("FetchCategories Error: \(error.localizedDescription)")
         }
     }
     

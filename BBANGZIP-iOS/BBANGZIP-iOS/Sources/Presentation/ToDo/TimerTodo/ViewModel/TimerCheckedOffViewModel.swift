@@ -14,7 +14,7 @@ final class TimerCheckedOffViewModel: ObservableObject {
     @Published var selectedCategoryIndex: Int?
     
     let addUseCase: AddTodoUseCase
-    private let fetchUseCase: FetchTimerTodosUseCase
+    private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     
     var selectedCategory: Category? {
@@ -28,7 +28,7 @@ final class TimerCheckedOffViewModel: ObservableObject {
     }
     
     init(
-        fetchUseCase: FetchTimerTodosUseCase,
+        fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
         addUseCase: AddTodoUseCase
     ) {
@@ -40,7 +40,8 @@ final class TimerCheckedOffViewModel: ObservableObject {
     func fetchData() {
         Task {
             do {
-                self.categories = try await fetchUseCase.execute().categories
+                let data = try await fetchUseCase.execute(date: currentTargetDate)
+                self.categories = data.categories
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }

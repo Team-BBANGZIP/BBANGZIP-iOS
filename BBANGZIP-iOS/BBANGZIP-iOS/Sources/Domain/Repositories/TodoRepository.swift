@@ -8,7 +8,10 @@
 import Foundation
 
 protocol TodoRepository: Sendable {
-    func fetchTimerTodos() async throws -> TodoData
+    func fetchTodos(
+        date: Date,
+        accessToken: String
+    ) async throws -> TodoData
     
     func updateTodoCompletion(
         todoId: Int,
@@ -34,9 +37,41 @@ final class TodoRepositoryImpl: TodoRepository {
         self.api = api
     }
     
-    func fetchTimerTodos() async throws -> TodoData {
-        // TODO: 구현
-        throw RouterError.invalidURL
+    func fetchTodos(
+        date: Date,
+        accessToken: String
+    ) async throws -> TodoData {
+        guard
+            let token = accessToken.isEmpty
+                ? tokenManager.getAccessToken()
+                : accessToken
+        else {
+            LoggerFactory.create(category: .data)
+                .error("FetchTodos Error: AccessToken is nil")
+            throw AuthError.invalidToken
+        }
+        
+        let dto = TodoFetchRequestDTO(
+            date: DateFormatter.inputDateYMDFormatter.string(from: date)
+        )
+        
+        let router = BbangRouter.fetchTodos(params: dto, accessToken: token)
+
+        do {
+            let response: TodoFetchResponseDTO = try await api.request(api: router)
+            
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("FetchTodos Error: Unexpected response code \(response.code)")
+            }
+            
+            return response.data.toEntity()
+            
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("FetchTodos Request Failed: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     func updateTodoCompletion(todoId: Int, isCompleted: Bool) async throws {

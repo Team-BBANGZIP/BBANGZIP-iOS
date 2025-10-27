@@ -43,7 +43,7 @@ final class TodoViewModel: ObservableObject {
 
     private(set) var selectedTodoForMenu: TimerTodo? = nil
     
-    private let fetchUseCase: FetchTimerTodosUseCase
+    private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
     
@@ -61,7 +61,7 @@ final class TodoViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init(
-        fetchUseCase: FetchTimerTodosUseCase,
+        fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
         addUseCase: AddTodoUseCase
     ) {
@@ -100,7 +100,7 @@ final class TodoViewModel: ObservableObject {
     func fetchData() {
         Task {
             do {
-                self.todoData = try await fetchUseCase.execute()
+                self.todoData = try await fetchUseCase.execute(date: currentDate)
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }
@@ -313,6 +313,7 @@ final class TodoViewModel: ObservableObject {
             currentDate = newDate
             updateDates()
             objectWillChange.send()
+            fetchData()
         }
     }
     
