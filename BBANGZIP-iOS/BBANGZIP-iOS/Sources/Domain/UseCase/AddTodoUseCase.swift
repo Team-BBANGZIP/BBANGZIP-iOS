@@ -21,7 +21,6 @@ final class DefaultAddTodoUseCase: AddTodoUseCase {
 
     init(repository: TodoRepository) {
         self.repository = repository
-        print("🧩 AddTodoUseCase repository type =", type(of: repository))
     }
 
     func execute(
@@ -29,9 +28,7 @@ final class DefaultAddTodoUseCase: AddTodoUseCase {
         content: String,
         targetDate: Date,
         startTime: Date?
-    ) async throws -> TimerTodo {
-        print("🧭 execute() using repo:", type(of: repository))
-        
+    ) async throws -> TimerTodo {        
         return try await repository.addTodo(
             categoryId: categoryId,
             content: content,
