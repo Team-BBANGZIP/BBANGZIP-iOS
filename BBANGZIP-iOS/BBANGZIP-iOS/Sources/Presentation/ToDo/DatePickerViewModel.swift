@@ -53,11 +53,23 @@ final class DatePickerViewModel: ObservableObject {
     }
     
     func isSelected(_ day: CalendarDay, selectedDate: Date) -> Bool {
-        calendar.isDate(day.date, inSameDayAs: selectedDate)
+        let adjustedSelected = DatePickerViewModel.adjustedDate(for: selectedDate)
+        return calendar.isDate(day.date, inSameDayAs: adjustedSelected)
     }
     
     func isToday(_ day: CalendarDay) -> Bool {
-        calendar.isDateInToday(day.date)
+        let adjustedToday = DatePickerViewModel.adjustedDate(for: Date())
+        return calendar.isDate(day.date, inSameDayAs: adjustedToday)
+    }
+    
+    private static func adjustedDate(for date: Date) -> Date {
+        let calendar = Calendar(identifier: .gregorian)
+        let components = calendar.dateComponents([.hour], from: date)
+        if let hour = components.hour, hour < 5 {
+            return calendar.date(byAdding: .day, value: -1, to: date) ?? date
+        } else {
+            return date
+        }
     }
     
     func isSaveDisabled(selectedDate: Date) -> Bool {

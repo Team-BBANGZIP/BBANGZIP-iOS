@@ -40,7 +40,7 @@ final class TodoViewModel: ObservableObject {
         return cal
     }()
 
-    
+
     private(set) var selectedTodoForMenu: TimerTodo? = nil
     
     private let fetchUseCase: FetchTimerTodosUseCase
