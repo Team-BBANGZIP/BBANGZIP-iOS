@@ -129,6 +129,7 @@ struct ToDoView: View {
                     onDismiss: {
                         addTodoViewModel?.addTodo()
                         addTodoViewModel = nil
+                        viewModel.fetchData()
                     },
                     content: {
                         if let vm = addTodoViewModel {

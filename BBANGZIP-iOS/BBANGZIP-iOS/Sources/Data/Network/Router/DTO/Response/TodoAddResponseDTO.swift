@@ -24,7 +24,7 @@ struct TodoAddResponseDTO: Decodable {
 
 extension TodoAddResponseDTO.TodoAddedDataDTO {
     func toEntity() -> TimerTodo {
-        let color = CategoryColor(rawValue: categoryColor) ?? .Todored1
+        let color = CategoryColor.fromAPI(categoryColor)
         return TimerTodo(
             id: todoId,
             content: content,

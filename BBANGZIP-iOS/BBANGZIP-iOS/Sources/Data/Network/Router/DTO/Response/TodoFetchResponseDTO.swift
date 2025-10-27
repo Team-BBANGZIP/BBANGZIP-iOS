@@ -54,12 +54,12 @@ extension TodoFetchResponseDTO.DataDTO {
 
 extension TodoFetchResponseDTO.CategoryDTO {
     func toEntity() -> Category {
-        let color = CategoryColor(rawValue: categoryColor ?? "") ?? .Todored1
+        let mappedColor = CategoryColor.fromAPI(categoryColor ?? "")
         return Category(
             id: categoryId,
             name: categoryName,
-            colorType: color,
-            todos: todos.map { $0.toEntity(color: color) },
+            colorType: mappedColor,
+            todos: todos.map { $0.toEntity(color: mappedColor) },
             isStopped: false
         )
     }

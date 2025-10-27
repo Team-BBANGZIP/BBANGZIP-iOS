@@ -15,6 +15,7 @@ enum BbangRouter {
     //송희
     case addTodo(dto: TodoAddRequestDTO, accessToken: String)
     case fetchTodos(params: TodoFetchRequestDTO, accessToken: String)
+    case addCategory(dto: CategoryAddRequestDTO, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -34,12 +35,14 @@ extension BbangRouter: Router {
             return "/api/v1/todos"
         case .fetchTodos:
             return "/api/v1/todos"
+        case .addCategory:
+            return "/api/v1/categories"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .signIn, .refreshToken, .addTodo:
+        case .signIn, .refreshToken, .addTodo, .addCategory:
             return .post
         case .fetchTodos:
             return .get
@@ -59,6 +62,11 @@ extension BbangRouter: Router {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
             ]
+        case .addCategory(_, let accessToken):
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(accessToken)"
+            ]
         }
     }
     
@@ -72,12 +80,14 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .fetchTodos(let params, _):
             return params.asDictionary()
+        case .addCategory(let dto, _):
+            return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .addTodo:
+        case .signIn, .addTodo, .addCategory:
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)

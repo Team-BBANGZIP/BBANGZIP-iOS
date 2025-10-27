@@ -102,7 +102,8 @@ final class TodoRepositoryImpl: TodoRepository {
         do {
             let response: TodoAddResponseDTO = try await api.request(api: router)
             
-            if response.code != 20100 {
+            let okCodes: Set<Int> = [20000, 20100]
+            if !okCodes.contains(response.code) {
                 LoggerFactory.create(category: .data)
                     .error("AddTodo Error: Unexpected response code \(response.code)")
             }
