@@ -143,7 +143,6 @@ struct ToDoView: View {
                         }
                     }
                 )
-
                 .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
                     MyPromiseView(
                         initialText: viewModel.todoData?.myPromiseMessage ?? "",

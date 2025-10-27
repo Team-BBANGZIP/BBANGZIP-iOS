@@ -10,7 +10,7 @@ import SwiftUI
 @MainActor
 class CategoryAddViewModel: ObservableObject {
     @Published var categoryName: String = ""
-    @Published var selectedColor: CategoryColor = .Todored1 // 여기 때문은 아니야?
+    @Published var selectedColor: CategoryColor = .Todored1
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var isCompleted: Bool = false
