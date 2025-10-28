@@ -19,6 +19,7 @@ final class TodoViewModel: ObservableObject {
     
     @Published var isMeatballSheetPresented: Bool = false
     @Published var sheetTodoTitle: String = ""
+    @Published var sheetTodoId: Int = 0
     @Published var sheetCategoryName: String = ""
     @Published var sheetStartTime: String? = ""
     @Published var sheetIsAlerted: Bool = false
@@ -333,6 +334,7 @@ final class TodoViewModel: ObservableObject {
     func presentMeatball(for todo: TimerTodo) {
         selectedTodoForMenu = todo
         sheetTodoTitle = todo.content
+        sheetTodoId = todo.id
         sheetCategoryName = categoryName(for: todo.id) ?? ""
         sheetStartTime = todo.startTime ?? nil
         // TODO: 미룬이 알림 여부 모델에 추가
@@ -368,5 +370,49 @@ extension TodoViewModel {
         }
         result.append(.globalTail)
         return result
+    }
+}
+
+extension TodoViewModel {
+    func todoDataTitle(for id: Int) -> String? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if let t = cat.todos.first(where: { $0.id == id }) {
+                return t.content
+            }
+        }
+        return nil
+    }
+
+    func todoDataStartTime(for id: Int) -> String? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if let t = cat.todos.first(where: { $0.id == id }) {
+                return t.startTime
+            }
+        }
+        return nil
+    }
+
+    func updateTodoTitle(id: Int, newTitle: String) {
+        guard var data = todoData else { return }
+        for ci in data.categories.indices {
+            if let ti = data.categories[ci].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[ci].todos[ti].content = newTitle
+                todoData = data
+                return
+            }
+        }
+    }
+
+    func updateTodoStartTime(id: Int, newTime: String?) {
+        guard var data = todoData else { return }
+        for ci in data.categories.indices {
+            if let ti = data.categories[ci].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[ci].todos[ti].startTime = newTime
+                todoData = data
+                return
+            }
+        }
     }
 }

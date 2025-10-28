@@ -9,9 +9,9 @@ import Foundation
 
 struct TimerTodo: Identifiable, Equatable, Hashable, Codable {
     let id: Int
-    let content: String
+    var content: String
     var isCompleted: Bool
-    let startTime: String?
+    var startTime: String?
     let colorType: CategoryColor
     
     func toggledCompleted() -> TimerTodo {
@@ -44,5 +44,12 @@ extension TimerTodo {
             startTime: startTime,
             colorType: colorType
         )
+    }
+    
+    func withUpdatedContent(_ content: String) -> TimerTodo {
+        var c = self; c.content = content; return c
+    }
+    func withUpdatedStartTime(_ time: String?) -> TimerTodo {
+        var c = self; c.startTime = time; return c
     }
 }

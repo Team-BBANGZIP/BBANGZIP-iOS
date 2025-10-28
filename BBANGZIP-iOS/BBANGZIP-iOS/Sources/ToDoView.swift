@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ToDoView: View {
+    private let repository = TodoRepositoryImpl()
+
     @StateObject private var viewModel: TodoViewModel
     @StateObject private var categoryListViewModel = CategoryListViewModel(
         repository: TodoRepositoryImpl()
@@ -16,7 +18,7 @@ struct ToDoView: View {
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
-    
+        
     init(
         viewModel: TodoViewModel,
         selectedDate: Date? = nil,
@@ -155,18 +157,38 @@ struct ToDoView: View {
                     .presentationDragIndicator(.visible)
                 }
                 .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
+                    let id = viewModel.sheetTodoId
+
+                    let titleBinding = Binding<String>(
+                        get: { viewModel.todoDataTitle(for: id) ?? viewModel.sheetTodoTitle },
+                        set: { new in
+                            viewModel.updateTodoTitle(id: id, newTitle: new)
+                        }
+                    )
+
+                    let startTimeBinding = Binding<String?>(
+                        get: { viewModel.todoDataStartTime(for: id) ?? viewModel.sheetStartTime },
+                        set: { new in
+                            viewModel.updateTodoStartTime(id: id, newTime: new)
+                        }
+                    )
+                    
                     TodoManageView(
                         viewModel: TodoManageViewModel(
-                            title: $viewModel.sheetTodoTitle,
+                            title: titleBinding,
                             category: viewModel.sheetCategoryName,
-                            startTime: $viewModel.sheetStartTime,
+                            startTime: startTimeBinding,
                             isAlerted: $viewModel.sheetIsAlerted,
                             isCompleted: viewModel.sheetIsCompleted,
+                            todoId: id,
+                            repository: repository,
                             onDelete: {},
                             onPostpone: {},
                             onDuplicate: {},
-                            onChangeDate: {}
-                            
+                            onChangeDate: {},
+                            onPatchedTitle: { [weak viewModel] _ in
+                                viewModel?.fetchData()
+                            }
                         )
                     )
                     .presentationDetents(viewModel.sheetIsCompleted ? [.height(278)] : [.height(466)])

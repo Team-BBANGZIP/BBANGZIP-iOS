@@ -145,7 +145,6 @@ final class MockTodoRepository: TodoRepository {
             LoggerFactory.create(category: .data)
                 .error("Mock AddTodo failed: category not found (id=\(categoryId))")
             
-            // TODO: 에러 메시지 매핑
             throw RouterError.server(message: "Category not found: \(categoryId)")
         }
         
@@ -167,8 +166,21 @@ final class MockTodoRepository: TodoRepository {
             todoData.categories[idx] = category
         }
     }
-    
+
     func deleteCategory(id: Int) async throws {
         todoData.categories.removeAll { $0.id == id }
+    }
+    
+    func editTodo(id: Int, content: String) async throws {
+        for (catIndex, category) in todoData.categories.enumerated() {
+            if let todoIndex = category.todos.firstIndex(where: { $0.id == id }) {
+                print("🧩 Mock editTodo: id=\(id) → content='\(content)' 로 변경됨")
+                return
+            }
+        }
+
+        LoggerFactory.create(category: .data)
+            .error("Mock editTodo failed: Todo not found (id=\(id))")
+        throw RouterError.server(message: "Todo not found: \(id)")
     }
 }

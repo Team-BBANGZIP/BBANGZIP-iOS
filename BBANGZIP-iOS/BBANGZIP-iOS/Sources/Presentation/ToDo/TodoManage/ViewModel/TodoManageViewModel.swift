@@ -9,6 +9,9 @@ import SwiftUI
 
 @MainActor
 final class TodoManageViewModel: ObservableObject {
+    private let repository: TodoRepository
+    private let todoId: Int
+    
     private let titleBinding: Binding<String>
     private let startTimeBinding: Binding<String?>
     private let isAlertedBinding: Binding<Bool>
@@ -25,11 +28,12 @@ final class TodoManageViewModel: ObservableObject {
     @Published var isStartTimeSheetPresented: Bool = false
     @Published var isChangeDateSheetPresented: Bool = false
     @Published var isRepeatSheetPresented: Bool = false
-
+    
     private let onDelete: () -> Void
     private let onPostpone: () -> Void
     private let onDuplicate: () -> Void
     private let onChangeDate: () -> Void
+    private let onPatchedTitle: (String) -> Void
     
     init(
         title: Binding<String>,
@@ -37,11 +41,16 @@ final class TodoManageViewModel: ObservableObject {
         startTime: Binding<String?>,
         isAlerted: Binding<Bool>,
         isCompleted: Bool,
+        todoId: Int,
+        repository: TodoRepository,
         onDelete: @escaping () -> Void,
         onPostpone: @escaping () -> Void,
         onDuplicate: @escaping () -> Void,
-        onChangeDate: @escaping () -> Void
+        onChangeDate: @escaping () -> Void,
+        onPatchedTitle: @escaping (String) -> Void
     ) {
+        self.repository = repository
+        self.todoId = todoId
         self.titleBinding = title
         self.startTimeBinding = startTime
         self.isAlertedBinding = isAlerted
@@ -54,6 +63,7 @@ final class TodoManageViewModel: ObservableObject {
         self.onPostpone = onPostpone
         self.onDuplicate = onDuplicate
         self.onChangeDate = onChangeDate
+        self.onPatchedTitle = onPatchedTitle
     }
     
     var startTimeDate: Date? {
@@ -79,6 +89,20 @@ final class TodoManageViewModel: ObservableObject {
     func setAlerted(_ newValue: Bool) {
         isAlerted = newValue
         isAlertedBinding.wrappedValue = newValue
+    }
+    
+    func patchTodoTitle(_ newTitle: String) async throws {
+        guard newTitle != title else { return }
+        let old = title
+
+        do {
+            try await repository.editTodo(id: todoId, content: newTitle)
+            setTitle(newTitle)
+            onPatchedTitle(newTitle)
+        } catch {
+            setTitle(old)
+            throw error
+        }
     }
     
     // TODO: 삭제, 미루기, 복제하기, 날짜 바꾸기 기능 구현

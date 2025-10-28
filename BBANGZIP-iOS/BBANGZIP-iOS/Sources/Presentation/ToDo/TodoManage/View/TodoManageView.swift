@@ -51,7 +51,7 @@ struct TodoManageView: View {
                 originalTodo: viewModel.title,
                 isPresented: $viewModel.isEditSheetPresented,
                 onSave: { newTitle in
-                    viewModel.title = newTitle
+                    try await viewModel.patchTodoTitle(newTitle)
                 }
             )
             .presentationDetents([.height(161)])

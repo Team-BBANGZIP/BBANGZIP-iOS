@@ -27,6 +27,7 @@ protocol TodoRepository: Sendable {
     
     func updateCategory(_ category: Category) async throws
     func deleteCategory(id: Int) async throws
+    func editTodo(id: Int, content: String) async throws
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -56,7 +57,7 @@ final class TodoRepositoryImpl: TodoRepository {
         )
         
         let router = BbangRouter.fetchTodos(params: dto, accessToken: token)
-
+        
         do {
             let response: TodoFetchResponseDTO = try await api.request(api: router)
             
@@ -89,16 +90,16 @@ final class TodoRepositoryImpl: TodoRepository {
                 .error("AddTodo Error: AccessToken is nil")
             throw AuthError.invalidToken
         }
-                
+        
         let dto = TodoAddRequestDTO(
             categoryId: categoryId,
             content: content,
             targetDate: DateFormatter.inputDateYMDFormatter.string(from: targetDate),
             startTime: startTime.map { DateFormatter.inputTimeFormatter.string(from: $0) }
         )
-                
+        
         let router = BbangRouter.addTodo(dto: dto, accessToken: accessToken)
-                
+        
         do {
             let response: TodoAddResponseDTO = try await api.request(api: router)
             
@@ -107,16 +108,40 @@ final class TodoRepositoryImpl: TodoRepository {
                 LoggerFactory.create(category: .data)
                     .error("AddTodo Error: Unexpected response code \(response.code)")
             }
-
+            
             return response.data.toEntity()
             
         } catch {
             LoggerFactory.create(category: .data)
                 .error("AddTodo Request Failed: \(error.localizedDescription)")
-
+            
             throw error
         }
     }
+    
+    func editTodo(id: Int, content: String) async throws {
+        guard let accessToken = tokenManager.getAccessToken() else {
+            LoggerFactory.create(category: .data)
+                .error("EditTodo Error: AccessToken is nil")
+            throw AuthError.invalidToken
+        }
+        
+        let dto = TodoEditRequestDTO(content: content)
+        let router = BbangRouter.editTodo(id: id, dto: dto, accessToken: accessToken)
+        
+        do {
+            let response: BaseResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("EditTodo Error: Unexpected response code \(response.code)")
+            }
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("EditTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
     
     func updateCategory(_ category: Category) async throws {}
     func deleteCategory(id: Int) async throws {}
