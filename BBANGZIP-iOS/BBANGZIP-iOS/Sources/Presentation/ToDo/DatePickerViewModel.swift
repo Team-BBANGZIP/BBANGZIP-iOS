@@ -39,7 +39,11 @@ final class DatePickerViewModel: ObservableObject {
     }
     
     func moveMonth(by delta: Int) -> Date {
-        guard let newMonth = calendar.date(byAdding: .month, value: delta, to: currentMonth) else {
+        guard let newMonth = calendar.date(
+            byAdding: .month,
+            value: delta,
+            to: currentMonth
+        ) else {
             return currentMonth
         }
         currentMonth = newMonth
@@ -53,8 +57,7 @@ final class DatePickerViewModel: ObservableObject {
     }
     
     func isSelected(_ day: CalendarDay, selectedDate: Date) -> Bool {
-        let adjustedSelected = DatePickerViewModel.adjustedDate(for: selectedDate)
-        return calendar.isDate(day.date, inSameDayAs: adjustedSelected)
+        return calendar.isDate(day.date, inSameDayAs: selectedDate)
     }
     
     func isToday(_ day: CalendarDay) -> Bool {
