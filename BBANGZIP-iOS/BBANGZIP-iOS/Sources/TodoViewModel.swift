@@ -381,6 +381,17 @@ final class TodoViewModel: ObservableObject {
 
         todoData = data
     }
+    
+    func replaceTodoStartTime(id: Int, newStartTime: String?) {
+        guard var data = todoData else { return }
+        for c in data.categories.indices {
+            if let idx = data.categories[c].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[c].todos[idx].startTime = newStartTime
+                break
+            }
+        }
+        todoData = data
+    }
 }
 
 extension TodoViewModel {

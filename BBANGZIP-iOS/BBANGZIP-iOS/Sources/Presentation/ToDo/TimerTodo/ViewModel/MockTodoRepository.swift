@@ -213,4 +213,14 @@ final class MockTodoRepository: TodoRepository {
         throw RouterError.server(message: "Todo not found: \(id)")
     }
 
+    func editTodoStartTime(id: Int, startTime: Date) async throws -> String {
+        let timeStr = DateFormatter.inputTimeFormatter.string(from: startTime)
+        for c in todoData.categories.indices {
+            if let t = todoData.categories[c].todos.firstIndex(where: { $0.id == id }) {
+                todoData.categories[c].todos[t].startTime = timeStr
+                return timeStr
+            }
+        }
+        throw RouterError.server(message: "Todo not found: \(id)")
+    }
 }

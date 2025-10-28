@@ -37,6 +37,11 @@ protocol TodoRepository: Sendable {
         completedCount: Int,
         totalCount: Int
     )
+    
+    func editTodoStartTime(
+        id: Int,
+        startTime: Date
+    ) async throws -> String
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -174,6 +179,31 @@ final class TodoRepositoryImpl: TodoRepository {
         } catch {
             LoggerFactory.create(category: .data)
                 .error("DeleteTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func editTodoStartTime(id: Int, startTime: Date) async throws -> String {
+        guard let accessToken = tokenManager.getAccessToken() else {
+            LoggerFactory.create(category: .data)
+                .error("EditTodoStartTime Error: AccessToken is nil")
+            throw AuthError.invalidToken
+        }
+
+        let timeStr = DateFormatter.inputTimeFormatter.string(from: startTime)
+        let dto = TodoStartTimeEditRequestDTO(startTime: timeStr)
+        let router = BbangRouter.updateTodoStartTime(id: id, dto: dto, accessToken: accessToken)
+
+        do {
+            let response: TodoStartTimeEditResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("EditTodoStartTime Error: Unexpected response code \(response.code)")
+            }
+            return response.data.startTime
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("EditTodoStartTime Request Failed: \(error.localizedDescription)")
             throw error
         }
     }

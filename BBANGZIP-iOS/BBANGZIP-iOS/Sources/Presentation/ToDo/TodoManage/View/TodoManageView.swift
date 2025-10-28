@@ -65,7 +65,7 @@ struct TodoManageView: View {
                 viewModel: vm,
                 isSheetPresented: $viewModel.isStartTimeSheetPresented
             ) { selectedDate in
-                viewModel.startTimeDate = selectedDate
+                Task { await viewModel.patchStartTime(selectedDate) }
             }
             .presentationDetents([.height(454)])
             .presentationCornerRadius(48)

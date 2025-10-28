@@ -18,6 +18,7 @@ enum BbangRouter {
     case addCategory(dto: CategoryAddRequestDTO, accessToken: String)
     case editTodo(id: Int, dto: TodoEditRequestDTO, accessToken: String)
     case deleteTodo(id: Int, accessToken: String)
+    case updateTodoStartTime(id: Int, dto: TodoStartTimeEditRequestDTO, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -43,6 +44,8 @@ extension BbangRouter: Router {
             return "/api/v1/todos/\(id)"
         case .deleteTodo(let id, _):
             return "/api/v1/todos/\(id)"
+        case .updateTodoStartTime(let id, _, _):
+                    return "/api/v1/todos/\(id)/start-time"
         }
     }
     
@@ -52,7 +55,7 @@ extension BbangRouter: Router {
             return .post
         case .fetchTodos:
             return .get
-        case .editTodo:
+        case .editTodo, .updateTodoStartTime:
             return .patch
         case .deleteTodo:
             return .delete
@@ -87,6 +90,11 @@ extension BbangRouter: Router {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
             ]
+        case .updateTodoStartTime(_, _, let accessToken):
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(accessToken)"
+            ]
         }
     }
     
@@ -106,12 +114,14 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .deleteTodo:
             return [:]
+        case .updateTodoStartTime(_, let dto, _):
+            return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .addTodo, .addCategory, .editTodo:
+        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime:
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)

@@ -35,6 +35,7 @@ final class TodoManageViewModel: ObservableObject {
     private let onChangeDate: () -> Void
     private let onPatchedTitle: (String) -> Void
     private let onDeleted: (Int, Int, Int) -> Void
+    private let onPatchedStartTime: (Int, String?) -> Void
     
     init(
         title: Binding<String>,
@@ -49,7 +50,8 @@ final class TodoManageViewModel: ObservableObject {
         onDuplicate: @escaping () -> Void,
         onChangeDate: @escaping () -> Void,
         onPatchedTitle: @escaping (String) -> Void,
-        onDeleted: @escaping (Int, Int, Int) -> Void
+        onDeleted: @escaping (Int, Int, Int) -> Void,
+        onPatchedStartTime: @escaping (Int, String?) -> Void
     ) {
         self.repository = repository
         self.todoId = todoId
@@ -67,6 +69,7 @@ final class TodoManageViewModel: ObservableObject {
         self.onChangeDate = onChangeDate
         self.onPatchedTitle = onPatchedTitle
         self.onDeleted = onDeleted
+        self.onPatchedStartTime = onPatchedStartTime
     }
     
     var startTimeDate: Date? {
@@ -114,6 +117,21 @@ final class TodoManageViewModel: ObservableObject {
             onDeleted(todoId, result.completedCount, result.totalCount)
         } catch {
             print("❌ Delete failed: \(error)")
+        }
+    }
+    
+    func patchStartTime(_ date: Date?) async {
+        guard let date else { return }
+
+        let old = startTimeString
+        do {
+            let newHHmm = try await repository.editTodoStartTime(id: todoId, startTime: date)
+            startTimeDate = date
+            onPatchedStartTime(todoId, newHHmm)
+        } catch {
+            startTimeString = old
+            startTimeBinding.wrappedValue = old
+            print("❌ StartTime patch failed: \(error)")
         }
     }
     

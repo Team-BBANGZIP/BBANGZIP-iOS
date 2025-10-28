@@ -203,6 +203,9 @@ struct ToDoView: View {
                                     newTotal: newTotal
                                 )
                                 viewModel.isMeatballSheetPresented = false
+                            },
+                            onPatchedStartTime: { id, newHHmm in
+                                viewModel.replaceTodoStartTime(id: id, newStartTime: newHHmm)
                             }
                         )
                     )
