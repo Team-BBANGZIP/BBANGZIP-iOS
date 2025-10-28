@@ -129,9 +129,12 @@ struct ToDoView: View {
                 .sheet(
                     isPresented: $viewModel.isAddTodoSheetPresented,
                     onDismiss: {
-                        addTodoViewModel?.addTodo()
+                        if let vm = addTodoViewModel {
+                            vm.addTodo { [weak viewModel] in
+                                viewModel?.fetchData()
+                            }
+                        }
                         addTodoViewModel = nil
-                        viewModel.fetchData()
                     },
                     content: {
                         if let vm = addTodoViewModel {
