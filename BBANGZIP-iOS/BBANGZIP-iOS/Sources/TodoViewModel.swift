@@ -358,6 +358,29 @@ final class TodoViewModel: ObservableObject {
         }
         return nil
     }
+    
+    func removeTodo(id: Int, newCompleted: Int, newTotal: Int) {
+        guard var data = todoData else { return }
+
+        for i in data.categories.indices {
+            if let idx = data.categories[i].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[i].todos.remove(at: idx)
+                break
+            }
+        }
+
+        data = TodoData(
+            myPromiseMessage: data.myPromiseMessage,
+            summary: TodoSummary(
+                date: data.summary.date,
+                totalCount: newTotal,
+                completedCount: newCompleted
+            ),
+            categories: data.categories
+        )
+
+        todoData = data
+    }
 }
 
 extension TodoViewModel {

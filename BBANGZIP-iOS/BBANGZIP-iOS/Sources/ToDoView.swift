@@ -182,12 +182,24 @@ struct ToDoView: View {
                             isCompleted: viewModel.sheetIsCompleted,
                             todoId: id,
                             repository: repository,
-                            onDelete: {},
+                            onDelete: {
+                            },
                             onPostpone: {},
                             onDuplicate: {},
                             onChangeDate: {},
                             onPatchedTitle: { [weak viewModel] _ in
                                 viewModel?.fetchData()
+                            },
+                            onDeleted: {
+                                id,
+                                newCompleted,
+                                newTotal in
+                                viewModel.removeTodo(
+                                    id: id,
+                                    newCompleted: newCompleted,
+                                    newTotal: newTotal
+                                )
+                                viewModel.isMeatballSheetPresented = false
                             }
                         )
                     )

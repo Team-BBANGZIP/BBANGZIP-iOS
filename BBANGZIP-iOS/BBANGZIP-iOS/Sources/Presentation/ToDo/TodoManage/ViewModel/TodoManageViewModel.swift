@@ -34,6 +34,7 @@ final class TodoManageViewModel: ObservableObject {
     private let onDuplicate: () -> Void
     private let onChangeDate: () -> Void
     private let onPatchedTitle: (String) -> Void
+    private let onDeleted: (Int, Int, Int) -> Void
     
     init(
         title: Binding<String>,
@@ -47,7 +48,8 @@ final class TodoManageViewModel: ObservableObject {
         onPostpone: @escaping () -> Void,
         onDuplicate: @escaping () -> Void,
         onChangeDate: @escaping () -> Void,
-        onPatchedTitle: @escaping (String) -> Void
+        onPatchedTitle: @escaping (String) -> Void,
+        onDeleted: @escaping (Int, Int, Int) -> Void
     ) {
         self.repository = repository
         self.todoId = todoId
@@ -64,6 +66,7 @@ final class TodoManageViewModel: ObservableObject {
         self.onDuplicate = onDuplicate
         self.onChangeDate = onChangeDate
         self.onPatchedTitle = onPatchedTitle
+        self.onDeleted = onDeleted
     }
     
     var startTimeDate: Date? {
@@ -105,5 +108,14 @@ final class TodoManageViewModel: ObservableObject {
         }
     }
     
-    // TODO: 삭제, 미루기, 복제하기, 날짜 바꾸기 기능 구현
+    func deleteTodo() async {
+        do {
+            let result = try await repository.deleteTodo(id: todoId)
+            onDeleted(todoId, result.completedCount, result.totalCount)
+        } catch {
+            print("❌ Delete failed: \(error)")
+        }
+    }
+    
+    // TODO: 미루기, 복제하기, 날짜 바꾸기 기능 구현
 }

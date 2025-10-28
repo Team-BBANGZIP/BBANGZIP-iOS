@@ -174,6 +174,7 @@ final class MockTodoRepository: TodoRepository {
     func editTodo(id: Int, content: String) async throws {
         for (catIndex, category) in todoData.categories.enumerated() {
             if let todoIndex = category.todos.firstIndex(where: { $0.id == id }) {
+                todoData.categories[catIndex].todos[todoIndex].content = content
                 print("🧩 Mock editTodo: id=\(id) → content='\(content)' 로 변경됨")
                 return
             }
@@ -183,4 +184,33 @@ final class MockTodoRepository: TodoRepository {
             .error("Mock editTodo failed: Todo not found (id=\(id))")
         throw RouterError.server(message: "Todo not found: \(id)")
     }
+    
+    func deleteTodo(id: Int) async throws -> (completedCount: Int, totalCount: Int) {
+        for catIdx in todoData.categories.indices {
+            if let todoIdx = todoData.categories[catIdx].todos.firstIndex(where: { $0.id == id }) {
+                let wasCompleted = todoData.categories[catIdx].todos[todoIdx].isCompleted
+                todoData.categories[catIdx].todos.remove(at: todoIdx)
+
+                let newTotal = todoData.categories.reduce(0) { $0 + $1.todos.count }
+                let newCompleted = todoData.categories.reduce(0) { $0 + $1.todos.filter({ $0.isCompleted }).count }
+
+                todoData = TodoData(
+                    myPromiseMessage: todoData.myPromiseMessage,
+                    summary: TodoSummary(
+                        date: todoData.summary.date,
+                        totalCount: newTotal,
+                        completedCount: newCompleted
+                    ),
+                    categories: todoData.categories
+                )
+
+                print("🧽 Mock deleteTodo: removed id=\(id), wasCompleted=\(wasCompleted)")
+                return (newCompleted, newTotal)
+            }
+        }
+        LoggerFactory.create(category: .data)
+            .error("Mock deleteTodo failed: Todo not found (id=\(id))")
+        throw RouterError.server(message: "Todo not found: \(id)")
+    }
+
 }

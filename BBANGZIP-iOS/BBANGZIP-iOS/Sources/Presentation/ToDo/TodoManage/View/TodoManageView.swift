@@ -126,7 +126,7 @@ private extension TodoManageView {
             )
             
             Button("삭제하기") {
-                // TODO: 투두 삭제
+                Task{ await viewModel.deleteTodo() }
             }
             .buttonStyle(
                 BbangButtonStyle(

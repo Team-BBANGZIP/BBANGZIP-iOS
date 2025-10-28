@@ -17,6 +17,7 @@ enum BbangRouter {
     case fetchTodos(params: TodoFetchRequestDTO, accessToken: String)
     case addCategory(dto: CategoryAddRequestDTO, accessToken: String)
     case editTodo(id: Int, dto: TodoEditRequestDTO, accessToken: String)
+    case deleteTodo(id: Int, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -39,7 +40,9 @@ extension BbangRouter: Router {
         case .addCategory:
             return "/api/v1/categories"
         case .editTodo(let id, _, _):
-                    return "/api/v1/todos/\(id)"
+            return "/api/v1/todos/\(id)"
+        case .deleteTodo(let id, _):
+            return "/api/v1/todos/\(id)"
         }
     }
     
@@ -51,6 +54,8 @@ extension BbangRouter: Router {
             return .get
         case .editTodo:
             return .patch
+        case .deleteTodo:
+            return .delete
         }
     }
     
@@ -77,6 +82,11 @@ extension BbangRouter: Router {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
             ]
+        case .deleteTodo(_, let accessToken):
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(accessToken)"
+            ]
         }
     }
     
@@ -94,6 +104,8 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .editTodo(_, let dto, _):
             return dto.asDictionary()
+        case .deleteTodo:
+            return [:]
         }
     }
     
@@ -103,7 +115,7 @@ extension BbangRouter: Router {
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)
-        case .refreshToken:
+        case .refreshToken, .deleteTodo:
             return nil
         }
     }

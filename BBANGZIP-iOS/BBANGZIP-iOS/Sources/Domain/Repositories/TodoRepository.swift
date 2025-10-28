@@ -27,7 +27,16 @@ protocol TodoRepository: Sendable {
     
     func updateCategory(_ category: Category) async throws
     func deleteCategory(id: Int) async throws
-    func editTodo(id: Int, content: String) async throws
+    
+    func editTodo(
+        id: Int,
+        content: String
+    ) async throws
+    
+    func deleteTodo(id: Int) async throws -> (
+        completedCount: Int,
+        totalCount: Int
+    )
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -145,4 +154,27 @@ final class TodoRepositoryImpl: TodoRepository {
     
     func updateCategory(_ category: Category) async throws {}
     func deleteCategory(id: Int) async throws {}
+    
+    func deleteTodo(id: Int) async throws -> (completedCount: Int, totalCount: Int) {
+        guard let accessToken = tokenManager.getAccessToken() else {
+            LoggerFactory.create(category: .data)
+                .error("DeleteTodo Error: AccessToken is nil")
+            throw AuthError.invalidToken
+        }
+
+        let router = BbangRouter.deleteTodo(id: id, accessToken: accessToken)
+
+        do {
+            let response: TodoDeleteResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("DeleteTodo Error: Unexpected response code \(response.code)")
+            }
+            return (response.data.completedCount, response.data.totalCount)
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("DeleteTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
 }
