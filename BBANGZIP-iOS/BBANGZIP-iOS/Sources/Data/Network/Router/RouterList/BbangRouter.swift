@@ -58,12 +58,10 @@ extension BbangRouter: Router {
             return .post
         case .fetchTodos:
             return .get
-        case .editTodo, .updateTodoStartTime:
+        case .editTodo, .updateTodoStartTime, .rescheduleTodo:
             return .patch
         case .deleteTodo:
             return .delete
-        case .rescheduleTodo:
-            return .patch
         }
     }
     
@@ -75,32 +73,14 @@ extension BbangRouter: Router {
         case .refreshToken(let refreshToken):
             return ["Authorization": "Bearer \(refreshToken)"]
             
-        case .addTodo(_, let accessToken), .fetchTodos(_, let accessToken):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(accessToken)"
-            ]
-        case .addCategory(_, let accessToken):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(accessToken)"
-            ]
-        case .editTodo(_, _, let accessToken):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(accessToken)"
-            ]
-        case .deleteTodo(_, let accessToken):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(accessToken)"
-            ]
-        case .updateTodoStartTime(_, _, let accessToken):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(accessToken)"
-            ]
-        case .rescheduleTodo(_, _, let accessToken):
+        case .addTodo(_, let accessToken),
+                .fetchTodos(_, let accessToken), 
+                .addCategory(_, let accessToken),
+                .editTodo(_, _, let accessToken),
+                .deleteTodo(_, let accessToken),
+                .updateTodoStartTime(_, _, let accessToken),
+                .rescheduleTodo(_, _, let accessToken)
+            :
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"

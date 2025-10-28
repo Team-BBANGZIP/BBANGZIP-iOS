@@ -131,7 +131,7 @@ final class MockTodoRepository: TodoRepository {
         todoId: Int,
         isCompleted: Bool
     ) async throws {
-        print("✅ Mock updateTodoCompletion called for id=\(todoId), isCompleted=\(isCompleted)")
+        print("Mock updateTodoCompletion called for id=\(todoId), isCompleted=\(isCompleted)")
     }
     
     func addTodo(
@@ -175,7 +175,7 @@ final class MockTodoRepository: TodoRepository {
         for (catIndex, category) in todoData.categories.enumerated() {
             if let todoIndex = category.todos.firstIndex(where: { $0.id == id }) {
                 todoData.categories[catIndex].todos[todoIndex].content = content
-                print("🧩 Mock editTodo: id=\(id) → content='\(content)' 로 변경됨")
+                print("Mock editTodo: id=\(id) → content='\(content)' 로 변경됨")
                 return
             }
         }
@@ -204,7 +204,7 @@ final class MockTodoRepository: TodoRepository {
                     categories: todoData.categories
                 )
                 
-                print("🧽 Mock deleteTodo: removed id=\(id), wasCompleted=\(wasCompleted)")
+                print("Mock deleteTodo: removed id=\(id), wasCompleted=\(wasCompleted)")
                 return (newCompleted, newTotal)
             }
         }

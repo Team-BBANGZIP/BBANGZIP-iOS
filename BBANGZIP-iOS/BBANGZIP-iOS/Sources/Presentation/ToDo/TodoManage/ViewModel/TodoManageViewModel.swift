@@ -105,8 +105,10 @@ final class TodoManageViewModel: ObservableObject {
             try await repository.editTodo(id: todoId, content: newTitle)
             setTitle(newTitle)
             onPatchedTitle(newTitle)
+            print("✅ Patch Todo Title successed: \(newTitle)")
         } catch {
             setTitle(old)
+            print("❌ Patch Todo Title failed: \(error)")
             throw error
         }
     }
@@ -115,6 +117,7 @@ final class TodoManageViewModel: ObservableObject {
         do {
             let result = try await repository.deleteTodo(id: todoId)
             onDeleted(todoId, result.completedCount, result.totalCount)
+            print("✅ Deleted Successed: \(todoId)")
         } catch {
             print("❌ Delete failed: \(error)")
         }
@@ -128,6 +131,7 @@ final class TodoManageViewModel: ObservableObject {
             let newHHmm = try await repository.editTodoStartTime(id: todoId, startTime: date)
             startTimeDate = date
             onPatchedStartTime(todoId, newHHmm)
+            print("✅ StartTime patch successed: \(date)")
         } catch {
             startTimeString = old
             startTimeBinding.wrappedValue = old
