@@ -70,6 +70,7 @@ final class TodoViewModel: ObservableObject {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
         self.addUseCase = addUseCase
+        self.currentDate = calendar.appToday()
         
         updateDates()
         setupStartWeekOnSundayObserver()
@@ -465,5 +466,15 @@ extension TodoViewModel {
                 return
             }
         }
+    }
+    
+    func todoDataTargetDate(for id: Int) -> Date? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if let t = cat.todos.first(where: { $0.id == id }) {
+                return t.targetDateAsDate
+            }
+        }
+        return nil
     }
 }

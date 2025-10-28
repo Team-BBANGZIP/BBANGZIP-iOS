@@ -13,6 +13,23 @@ struct TimerTodo: Identifiable, Equatable, Hashable, Codable {
     var isCompleted: Bool
     var startTime: String?
     let colorType: CategoryColor
+    var targetDate: String?
+    
+    init(
+        id: Int,
+        content: String,
+        isCompleted: Bool,
+        startTime: String?,
+        colorType: CategoryColor,
+        targetDate: String? = nil
+    ) {
+        self.id = id
+        self.content = content
+        self.isCompleted = isCompleted
+        self.startTime = startTime
+        self.colorType = colorType
+        self.targetDate = targetDate
+    }
     
     func toggledCompleted() -> TimerTodo {
         TimerTodo(
@@ -20,7 +37,8 @@ struct TimerTodo: Identifiable, Equatable, Hashable, Codable {
             content: content,
             isCompleted: !isCompleted,
             startTime: startTime,
-            colorType: colorType
+            colorType: colorType,
+            targetDate: targetDate
         )
     }
     
@@ -30,7 +48,8 @@ struct TimerTodo: Identifiable, Equatable, Hashable, Codable {
             content: content,
             isCompleted: completed,
             startTime: startTime,
-            colorType: colorType
+            colorType: colorType,
+            targetDate: targetDate
         )
     }
 }
@@ -49,7 +68,17 @@ extension TimerTodo {
     func withUpdatedContent(_ content: String) -> TimerTodo {
         var c = self; c.content = content; return c
     }
+    
     func withUpdatedStartTime(_ time: String?) -> TimerTodo {
         var c = self; c.startTime = time; return c
+    }
+    
+    func withUpdatedTargetDate(_ date: String?) -> TimerTodo {
+        var c = self; c.targetDate = date; return c
+    }
+
+    var targetDateAsDate: Date? {
+        guard let s = targetDate else { return nil }
+        return DateFormatter.inputDateYMDFormatter.date(from: s)
     }
 }

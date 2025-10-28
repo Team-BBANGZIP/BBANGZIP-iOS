@@ -176,6 +176,9 @@ struct ToDoView: View {
                         }
                     )
                     
+                    let initialTargetDate = viewModel.todoDataTargetDate(for: id)
+                            ?? viewModel.currentTargetDate
+                    
                     TodoManageView(
                         viewModel: TodoManageViewModel(
                             title: titleBinding,
@@ -185,6 +188,7 @@ struct ToDoView: View {
                             isCompleted: viewModel.sheetIsCompleted,
                             todoId: id,
                             repository: repository,
+                            initialTargetDate: initialTargetDate,
                             onDelete: {
                             },
                             onPostpone: {},

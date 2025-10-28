@@ -21,8 +21,8 @@ final class TodoManageViewModel: ObservableObject {
     @Published var startTimeString: String?
     @Published var isAlerted: Bool
     @Published var isCompleted: Bool
-    @Published var changeDate: Date = Date()
-    @Published var repeatDate: Date = Date()
+    @Published var changeDate: Date
+    @Published var repeatDate: Date
     
     @Published var isEditSheetPresented: Bool = false
     @Published var isStartTimeSheetPresented: Bool = false
@@ -45,6 +45,7 @@ final class TodoManageViewModel: ObservableObject {
         isCompleted: Bool,
         todoId: Int,
         repository: TodoRepository,
+        initialTargetDate: Date?,
         onDelete: @escaping () -> Void,
         onPostpone: @escaping () -> Void,
         onDuplicate: @escaping () -> Void,
@@ -70,6 +71,9 @@ final class TodoManageViewModel: ObservableObject {
         self.onPatchedTitle = onPatchedTitle
         self.onDeleted = onDeleted
         self.onPatchedStartTime = onPatchedStartTime
+        let fallback = Calendar.current.appToday()
+        self.changeDate = initialTargetDate ?? fallback
+        self.repeatDate = initialTargetDate ?? fallback
     }
     
     var startTimeDate: Date? {
