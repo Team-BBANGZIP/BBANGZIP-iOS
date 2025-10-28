@@ -277,13 +277,21 @@ struct ToDoView: View {
     
     private var calendarBodyView: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-            ForEach(viewModel.daysOfWeek.indices, id: \.self) { index in
-                let day = viewModel.daysOfWeek[index]
+            ForEach(Array(viewModel.daysOfWeek.enumerated()), id: \.offset) { index, day in
                 if let date = viewModel.calculateDateForDay(day) {
+
+                    let selectedDateBinding = Binding<Date?>(
+                        get: { selectedDate },
+                        set: { new in
+                            selectedDate = new
+                            viewModel.setSelectedDate(new ?? viewModel.currentDate)
+                        }
+                    )
+
                     CalendarCellView(
                         day: day,
                         date: date,
-                        selectedDate: $selectedDate
+                        selectedDate: selectedDateBinding
                     )
                 }
             }

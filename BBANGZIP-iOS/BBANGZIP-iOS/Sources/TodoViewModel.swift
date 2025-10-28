@@ -11,6 +11,7 @@ import Combine
 @MainActor
 final class TodoViewModel: ObservableObject {
     @Published var currentDate: Date = Date()
+    @Published var selectedDate: Date? = nil
     @Published var dates: [Date] = []
     @Published var todoData: TodoData?
     @Published var isAddTodoSheetPresented: Bool = false
@@ -33,6 +34,10 @@ final class TodoViewModel: ObservableObject {
         : ["월", "화", "수", "목", "금", "토", "일"]
     }
     
+    var currentTargetDate: Date {
+        return selectedDate ?? currentDate
+    }
+    
     @Published private var calendar: Calendar = {
         var cal = Calendar.current
         cal.locale = Locale(identifier: "ko_KR")
@@ -53,10 +58,6 @@ final class TodoViewModel: ObservableObject {
               let categories = todoData?.categories,
               index < categories.count else { return nil }
         return categories[index].id
-    }
-    
-    var currentTargetDate: Date {
-        return currentDate
     }
     
     private var cancellables = Set<AnyCancellable>()
@@ -101,11 +102,16 @@ final class TodoViewModel: ObservableObject {
     func fetchData() {
         Task {
             do {
-                self.todoData = try await fetchUseCase.execute(date: currentDate)
+                self.todoData = try await fetchUseCase.execute(date: currentTargetDate)
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }
         }
+    }
+    
+    func setSelectedDate(_ date: Date) {
+        selectedDate = date
+        fetchData()
     }
 
     func moveTodoItems(from source: IndexSet, to destination: Int) {
