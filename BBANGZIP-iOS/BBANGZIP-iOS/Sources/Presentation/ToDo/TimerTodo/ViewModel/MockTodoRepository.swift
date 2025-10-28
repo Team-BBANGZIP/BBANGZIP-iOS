@@ -112,7 +112,7 @@ final class MockTodoRepository: TodoRepository {
         accessToken: String
     ) async throws -> TodoData {
         let dateString = DateFormatter.inputDateYMDFormatter.string(from: date)
-
+        
         let newData = TodoData(
             myPromiseMessage: todoData.myPromiseMessage,
             summary: TodoSummary(
@@ -123,7 +123,7 @@ final class MockTodoRepository: TodoRepository {
             categories: todoData.categories
         )
         return newData
-
+        
     }
     
     
@@ -166,7 +166,7 @@ final class MockTodoRepository: TodoRepository {
             todoData.categories[idx] = category
         }
     }
-
+    
     func deleteCategory(id: Int) async throws {
         todoData.categories.removeAll { $0.id == id }
     }
@@ -179,7 +179,7 @@ final class MockTodoRepository: TodoRepository {
                 return
             }
         }
-
+        
         LoggerFactory.create(category: .data)
             .error("Mock editTodo failed: Todo not found (id=\(id))")
         throw RouterError.server(message: "Todo not found: \(id)")
@@ -190,10 +190,10 @@ final class MockTodoRepository: TodoRepository {
             if let todoIdx = todoData.categories[catIdx].todos.firstIndex(where: { $0.id == id }) {
                 let wasCompleted = todoData.categories[catIdx].todos[todoIdx].isCompleted
                 todoData.categories[catIdx].todos.remove(at: todoIdx)
-
+                
                 let newTotal = todoData.categories.reduce(0) { $0 + $1.todos.count }
                 let newCompleted = todoData.categories.reduce(0) { $0 + $1.todos.filter({ $0.isCompleted }).count }
-
+                
                 todoData = TodoData(
                     myPromiseMessage: todoData.myPromiseMessage,
                     summary: TodoSummary(
@@ -203,7 +203,7 @@ final class MockTodoRepository: TodoRepository {
                     ),
                     categories: todoData.categories
                 )
-
+                
                 print("🧽 Mock deleteTodo: removed id=\(id), wasCompleted=\(wasCompleted)")
                 return (newCompleted, newTotal)
             }
@@ -212,13 +212,38 @@ final class MockTodoRepository: TodoRepository {
             .error("Mock deleteTodo failed: Todo not found (id=\(id))")
         throw RouterError.server(message: "Todo not found: \(id)")
     }
-
+    
     func editTodoStartTime(id: Int, startTime: Date) async throws -> String {
         let timeStr = DateFormatter.inputTimeFormatter.string(from: startTime)
         for c in todoData.categories.indices {
             if let t = todoData.categories[c].todos.firstIndex(where: { $0.id == id }) {
                 todoData.categories[c].todos[t].startTime = timeStr
                 return timeStr
+            }
+        }
+        throw RouterError.server(message: "Todo not found: \(id)")
+    }
+    
+    func rescheduleTodo(id: Int, targetDate: Date?) async throws -> TodoRescheduleDataDTO {
+        let dateStr = targetDate.map { DateFormatter.inputDateYMDFormatter.string(from: $0) }
+        ?? DateFormatter.inputDateYMDFormatter.string(
+            from: Calendar.current.date(
+                byAdding: .day,
+                value: 1,
+                to: Date()
+            )!
+        )
+        
+        for c in todoData.categories.indices {
+            if let t = todoData.categories[c].todos.firstIndex(where: { $0.id == id }) {
+                todoData.categories[c].todos.remove(at: t)
+                return TodoRescheduleDataDTO(
+                    todoId: id,
+                    content: "Mock content",
+                    targetDate: dateStr,
+                    startTime: "09:00",
+                    isCompleted: false
+                )
             }
         }
         throw RouterError.server(message: "Todo not found: \(id)")

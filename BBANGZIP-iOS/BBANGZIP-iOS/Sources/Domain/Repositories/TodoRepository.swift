@@ -42,6 +42,11 @@ protocol TodoRepository: Sendable {
         id: Int,
         startTime: Date
     ) async throws -> String
+    
+    func rescheduleTodo(
+        id: Int,
+        targetDate: Date?
+    ) async throws -> TodoRescheduleDataDTO
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -206,5 +211,25 @@ final class TodoRepositoryImpl: TodoRepository {
                 .error("EditTodoStartTime Request Failed: \(error.localizedDescription)")
             throw error
         }
+    }
+    
+    func rescheduleTodo(id: Int, targetDate: Date?) async throws -> TodoRescheduleDataDTO {
+        guard let accessToken = tokenManager.getAccessToken() else {
+            throw AuthError.invalidToken
+        }
+
+        let dateStr = targetDate.map {
+            DateFormatter.inputDateYMDFormatter.string(from: $0)
+        }
+
+        let dto = TodoRescheduleRequestDTO(targetDate: dateStr)
+        let router = BbangRouter.rescheduleTodo(id: id, dto: dto, accessToken: accessToken)
+
+        let response: TodoRescheduleResponseDTO = try await api.request(api: router)
+        if response.code != 20000 {
+            LoggerFactory.create(category: .data)
+                .error("RescheduleTodo Error: Unexpected response code \(response.code)")
+        }
+        return response.data
     }
 }

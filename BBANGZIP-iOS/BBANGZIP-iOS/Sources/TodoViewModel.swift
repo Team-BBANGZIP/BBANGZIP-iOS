@@ -392,6 +392,17 @@ final class TodoViewModel: ObservableObject {
         }
         todoData = data
     }
+    
+    func removeTodoAfterReschedule(id: Int) {
+        guard var data = todoData else { return }
+        for i in data.categories.indices {
+            if let idx = data.categories[i].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[i].todos.remove(at: idx)
+                break
+            }
+        }
+        todoData = data
+    }
 }
 
 extension TodoViewModel {

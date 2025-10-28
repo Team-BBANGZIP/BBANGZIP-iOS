@@ -76,7 +76,7 @@ struct TodoManageView: View {
                 selectedDate: $viewModel.changeDate,
                 mode: .changeDate
             ) { newDate in
-                viewModel.changeDate = newDate
+                Task { await viewModel.rescheduleTodo(to: newDate) }
                 viewModel.isChangeDateSheetPresented = false
             }
             .presentationDetents([.height(522)])
@@ -200,7 +200,7 @@ private extension TodoManageView {
             icon: Image(.icShare),
             title: "내일로 미루기",
             onTap: {
-                // TODO: 내일로 미루기 액션
+                Task { await viewModel.rescheduleTodoToTomorrow() }
             }
         )
     }

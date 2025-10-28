@@ -19,6 +19,7 @@ enum BbangRouter {
     case editTodo(id: Int, dto: TodoEditRequestDTO, accessToken: String)
     case deleteTodo(id: Int, accessToken: String)
     case updateTodoStartTime(id: Int, dto: TodoStartTimeEditRequestDTO, accessToken: String)
+    case rescheduleTodo(id: Int, dto: TodoRescheduleRequestDTO, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -45,7 +46,9 @@ extension BbangRouter: Router {
         case .deleteTodo(let id, _):
             return "/api/v1/todos/\(id)"
         case .updateTodoStartTime(let id, _, _):
-                    return "/api/v1/todos/\(id)/start-time"
+            return "/api/v1/todos/\(id)/start-time"
+        case .rescheduleTodo(let id, _, _):
+            return "/api/v1/todos/\(id)/reschedule"
         }
     }
     
@@ -59,6 +62,8 @@ extension BbangRouter: Router {
             return .patch
         case .deleteTodo:
             return .delete
+        case .rescheduleTodo:
+            return .patch
         }
     }
     
@@ -95,6 +100,11 @@ extension BbangRouter: Router {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
             ]
+        case .rescheduleTodo(_, _, let accessToken):
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(accessToken)"
+            ]
         }
     }
     
@@ -116,12 +126,14 @@ extension BbangRouter: Router {
             return [:]
         case .updateTodoStartTime(_, let dto, _):
             return dto.asDictionary()
+        case .rescheduleTodo(_, let dto, _):
+            return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime:
+        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo:
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)

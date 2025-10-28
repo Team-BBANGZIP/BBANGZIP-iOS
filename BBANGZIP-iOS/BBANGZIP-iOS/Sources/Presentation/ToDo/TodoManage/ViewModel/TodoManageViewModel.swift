@@ -135,5 +135,25 @@ final class TodoManageViewModel: ObservableObject {
         }
     }
     
-    // TODO: 미루기, 복제하기, 날짜 바꾸기 기능 구현
+    func rescheduleTodoToTomorrow() async {
+        do {
+            let newData = try await repository.rescheduleTodo(id: todoId, targetDate: nil)
+            onDeleted(todoId, 0, 0)
+            print("✅ Todo \(newData.todoId) moved to \(newData.targetDate)")
+        } catch {
+            print("❌ Reschedule to tomorrow failed: \(error)")
+        }
+    }
+
+    func rescheduleTodo(to targetDate: Date) async {
+        do {
+            let newData = try await repository.rescheduleTodo(id: todoId, targetDate: targetDate)
+            onDeleted(todoId, 0, 0)
+            print("✅ Todo \(newData.todoId) moved to \(newData.targetDate)")
+        } catch {
+            print("❌ Reschedule failed: \(error)")
+        }
+    }
+    
+    // TODO: 복제하기 기능 구현
 }
