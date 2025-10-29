@@ -51,7 +51,7 @@ struct TodoManageView: View {
                 originalTodo: viewModel.title,
                 isPresented: $viewModel.isEditSheetPresented,
                 onSave: { newTitle in
-                    viewModel.title = newTitle
+                    try await viewModel.patchTodoTitle(newTitle)
                 }
             )
             .presentationDetents([.height(161)])
@@ -65,13 +65,36 @@ struct TodoManageView: View {
                 viewModel: vm,
                 isSheetPresented: $viewModel.isStartTimeSheetPresented
             ) { selectedDate in
-                viewModel.startTimeDate = selectedDate
+                Task { await viewModel.patchStartTime(selectedDate) }
             }
             .presentationDetents([.height(454)])
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
-
+        .sheet(isPresented: $viewModel.isChangeDateSheetPresented) {
+            DatePickerView(
+                selectedDate: $viewModel.changeDate,
+                mode: .changeDate
+            ) { newDate in
+                Task { await viewModel.rescheduleTodo(to: newDate) }
+                viewModel.isChangeDateSheetPresented = false
+            }
+            .presentationDetents([.height(522)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.isRepeatSheetPresented) {
+            DatePickerView(
+                selectedDate: $viewModel.repeatDate,
+                mode: .repeatAnotherDay
+            ) { newDate in
+                viewModel.repeatDate = newDate
+                viewModel.isRepeatSheetPresented = false
+            }
+            .presentationDetents([.height(522)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -103,7 +126,7 @@ private extension TodoManageView {
             )
             
             Button("삭제하기") {
-                // TODO: 투두 삭제
+                Task{ await viewModel.deleteTodo() }
             }
             .buttonStyle(
                 BbangButtonStyle(
@@ -177,7 +200,7 @@ private extension TodoManageView {
             icon: Image(.icShare),
             title: "내일로 미루기",
             onTap: {
-                // TODO: 내일로 미루기 액션
+                Task { await viewModel.rescheduleTodoToTomorrow() }
             }
         )
     }
@@ -197,7 +220,7 @@ private extension TodoManageView {
             icon: Image(.icCalendar),
             title: "날짜 바꾸기",
             onTap: {
-                // TODO: 날짜 변경 액션
+                viewModel.isChangeDateSheetPresented = true
             }
         )
     }
@@ -207,7 +230,7 @@ private extension TodoManageView {
             icon: Image(.icRepeat),
             title: "다른 날 또 하기",
             onTap: {
-                // TODO: 날짜 선택 바텀시트 열기
+                viewModel.isRepeatSheetPresented = true
             }
         )
     }

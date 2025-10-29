@@ -14,12 +14,14 @@ final class DatePickerViewModel: ObservableObject {
 
     private var calendar: Calendar = Calendar(identifier: .gregorian)
     private let locale = Locale(identifier: "ko_KR")
+    private let initialSelectedDate: Date
     
     @Published private var startWeekOnSunday: Bool = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
     private var cancellable: AnyCancellable?
     
     init(selectedDate: Date) {
         self.currentMonth = selectedDate
+        self.initialSelectedDate = selectedDate
         configureCalendar()
         setupStartWeekObserver()
         rebuildDays()
@@ -39,7 +41,11 @@ final class DatePickerViewModel: ObservableObject {
     }
     
     func moveMonth(by delta: Int) -> Date {
-        guard let newMonth = calendar.date(byAdding: .month, value: delta, to: currentMonth) else {
+        guard let newMonth = calendar.date(
+            byAdding: .month,
+            value: delta,
+            to: currentMonth
+        ) else {
             return currentMonth
         }
         currentMonth = newMonth
@@ -53,13 +59,16 @@ final class DatePickerViewModel: ObservableObject {
     }
     
     func isSelected(_ day: CalendarDay, selectedDate: Date) -> Bool {
-        let adjustedSelected = DatePickerViewModel.adjustedDate(for: selectedDate)
-        return calendar.isDate(day.date, inSameDayAs: adjustedSelected)
+        return calendar.isDate(day.date, inSameDayAs: selectedDate)
     }
     
     func isToday(_ day: CalendarDay) -> Bool {
-        let adjustedToday = DatePickerViewModel.adjustedDate(for: Date())
-        return calendar.isDate(day.date, inSameDayAs: adjustedToday)
+        let appToday = calendar.appToday()
+        return calendar.isDate(day.date, inSameDayAs: appToday)
+    }
+
+    func isSaveDisabled(selectedDate: Date) -> Bool {
+        return calendar.isDate(selectedDate, inSameDayAs: initialSelectedDate)
     }
     
     private static func adjustedDate(for date: Date) -> Date {
@@ -70,10 +79,6 @@ final class DatePickerViewModel: ObservableObject {
         } else {
             return date
         }
-    }
-    
-    func isSaveDisabled(selectedDate: Date) -> Bool {
-        calendar.isDateInToday(selectedDate)
     }
     
     private func configureCalendar() {

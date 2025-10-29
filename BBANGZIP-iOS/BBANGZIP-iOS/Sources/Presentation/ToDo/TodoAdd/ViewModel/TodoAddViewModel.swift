@@ -11,18 +11,47 @@ import SwiftUI
 final class TodoAddViewModel: ObservableObject {
     @Published var newTodoTitle: String = ""
     @Published var startTime: Date? = nil
-    private let onAddTodo: (String, Date?) -> Void
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    
+    private let addTodoUseCase: AddTodoUseCase
+    private let categoryId: Int
+    private let targetDate: Date
 
-    init(onAddTodo: @escaping (String, Date?) -> Void) {
-        self.onAddTodo = onAddTodo
+    init(
+        addTodoUseCase: AddTodoUseCase,
+        categoryId: Int,
+        targetDate: Date
+    ) {
+        self.addTodoUseCase = addTodoUseCase
+        self.categoryId = categoryId
+        self.targetDate = targetDate
     }
 
-    func addTodo() {
+    func addTodo(onSuccess: (() -> Void)? = nil) {
         let trimmed = newTodoTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        onAddTodo(trimmed, startTime)
-        newTodoTitle = ""
-        startTime = nil
+        isLoading = true
+
+        Task {
+            do {
+                _ = try await addTodoUseCase.execute(
+                    categoryId: categoryId,
+                    content: trimmed,
+                    targetDate: targetDate,
+                    startTime: startTime
+                )
+                isLoading = false
+                onSuccess?()
+                newTodoTitle = ""
+                startTime = nil
+            } catch {
+                LoggerFactory.create(category: .data)
+                    .error("AddTodo Failed: \(error.localizedDescription)")
+                errorMessage = "할 일 추가에 실패했습니다."
+                isLoading = false
+            }
+        }
     }
 }

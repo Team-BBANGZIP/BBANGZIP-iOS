@@ -8,22 +8,39 @@
 import SwiftUI
 
 struct DatePickerView: View {
+    enum Mode { case changeDate, repeatAnotherDay }
+    
     @Binding var selectedDate: Date
     @StateObject private var viewModel: DatePickerViewModel
+    let mode: Mode
+    var onSave: ((Date) -> Void)? = nil
     
     private static let columns: [GridItem] = Array(
         repeating: GridItem(.flexible(), spacing: 0),
         count: 7
     )
     
-    init(selectedDate: Binding<Date>) {
+    init(
+        selectedDate: Binding<Date>,
+        mode: Mode = .changeDate,
+        onSave: ((Date) -> Void)? = nil
+    ) {
         self._selectedDate = selectedDate
+        self.mode = mode
+        self.onSave = onSave
         _viewModel = StateObject(wrappedValue: DatePickerViewModel(selectedDate: selectedDate.wrappedValue))
+    }
+    
+    private var titleText: String {
+        switch mode {
+        case .changeDate: return "날짜 바꾸기"
+        case .repeatAnotherDay: return "다른 날 또 하기"
+        }
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            Text("날짜 바꾸기")
+            Text(titleText)
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 25)
@@ -51,7 +68,7 @@ struct DatePickerView: View {
                 )
             
             Button("저장하기") {
-                // TODO: 저장하고 시트 닫기
+                onSave?(selectedDate)
             }
             .buttonStyle(
                 BbangButtonStyle(
