@@ -21,6 +21,9 @@ enum BbangRouter {
     case updateTodoStartTime(id: Int, dto: TodoStartTimeEditRequestDTO, accessToken: String)
     case rescheduleTodo(id: Int, dto: TodoRescheduleRequestDTO, accessToken: String)
     
+    //유빈
+    case getTodayBreadCount(accessToken: String)
+    
     // TODO: 추가 API들은 여기에 case로 추가
 }
 
@@ -49,6 +52,8 @@ extension BbangRouter: Router {
             return "/api/v1/todos/\(id)/start-time"
         case .rescheduleTodo(let id, _, _):
             return "/api/v1/todos/\(id)/reschedule"
+        case .getTodayBreadCount:
+            return "/api/v1/timers/today-count"
         }
     }
     
@@ -56,7 +61,7 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .refreshToken, .addTodo, .addCategory:
             return .post
-        case .fetchTodos:
+        case .fetchTodos, .getTodayBreadCount:
             return .get
         case .editTodo, .updateTodoStartTime, .rescheduleTodo:
             return .patch
@@ -79,7 +84,8 @@ extension BbangRouter: Router {
                 .editTodo(_, _, let accessToken),
                 .deleteTodo(_, let accessToken),
                 .updateTodoStartTime(_, _, let accessToken),
-                .rescheduleTodo(_, _, let accessToken)
+                .rescheduleTodo(_, _, let accessToken),
+                .getTodayBreadCount(let accessToken)
             :
             return [
                 "Content-Type": "application/json",
@@ -108,6 +114,8 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .rescheduleTodo(_, let dto, _):
             return dto.asDictionary()
+        case .getTodayBreadCount(_):
+            return [:]
         }
     }
     
@@ -117,7 +125,7 @@ extension BbangRouter: Router {
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)
-        case .refreshToken, .deleteTodo:
+        case .refreshToken, .deleteTodo, .getTodayBreadCount:
             return nil
         }
     }
