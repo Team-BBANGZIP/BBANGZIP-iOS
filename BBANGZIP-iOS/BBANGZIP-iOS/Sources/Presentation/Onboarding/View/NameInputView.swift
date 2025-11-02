@@ -11,6 +11,8 @@ struct NameInputView: View {
     @ObservedObject var viewModel: NameInputViewModel
     @Binding var isPresented: Bool
     @FocusState private var isTextFieldFocused: Bool
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var isDismissing = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -27,20 +29,30 @@ struct NameInputView: View {
                 .padding(.horizontal, 20)
             
             Spacer()
-                .frame(height: 300)
+                .frame(height: keyboardHeight + 28)
         }
         .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 48)
-                .fill(Color(.backgroundNomal))
-        )
+        .background(Color(.backgroundNomal))
+        .clipShape(.rect(
+            topLeadingRadius: 48,
+            topTrailingRadius: 48
+        ))
+        .ignoresSafeArea(.all, edges: .bottom)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isTextFieldFocused = true
-            }
+            isTextFieldFocused = true
         }
         .onDisappear {
             viewModel.confirmName()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                self.keyboardHeight = keyboardFrame.height
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            if !isDismissing {
+                self.keyboardHeight = 0
+            }
         }
     }
 }
@@ -58,45 +70,21 @@ private extension NameInputView {
                 text: $viewModel.tempUserName,
                 placeholder: "이름을 입력해주세요",
                 onSubmit: {
+                    isDismissing = true
                     viewModel.confirmName()
+                    isPresented = false
                 }
             )
             .focused($isTextFieldFocused)
             .onChange(of: viewModel.tempUserName) { oldValue, newValue in
                 viewModel.validateNameInput(newValue)
             }
+            
             HStack {
                 Spacer()
                 characterCounter
             }
         }
-    }
-    
-    func profileBadgePreview(_ imageName: String) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(LinearGradient(
-                    colors: [Color.blue, Color.pink],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                ))
-                .frame(height: 36)
-            
-            HStack(spacing: 4) {
-                Text(viewModel.tempUserName)
-                    .bbangFont(.subtitle2)
-                    .foregroundColor(Color(.staticwhite))
-                    .lineLimit(1)
-                
-                Image(imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 24, height: 24)
-                    .clipShape(Circle())
-            }
-            .padding(.horizontal, 8)
-        }
-        .fixedSize()
     }
     
     var characterCounter: some View {
