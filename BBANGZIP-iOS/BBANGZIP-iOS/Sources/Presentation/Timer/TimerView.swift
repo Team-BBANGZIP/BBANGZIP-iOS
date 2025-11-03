@@ -446,10 +446,17 @@ struct TimerView: View {
     }
     
     var breadSelectSheet: some View {
-        BreadSelectView()
-            .presentationDetents([.height(604)])
-            .presentationDragIndicator(.visible)
-            .modifier(CornerRadiusModifier())
+        BreadSelectView(
+            viewModel: BreadSelectViewModel(
+                breadList: BreadList(totalCount: 0, breadList: []),
+                getBreadsUseCase: GetBreadsUseCase(
+                    repository: GetBreadsRepository()
+                )
+            )
+        )
+        .presentationDetents([.height(604)])
+        .presentationDragIndicator(.visible)
+        .modifier(CornerRadiusModifier())
     }
 }
 
@@ -488,13 +495,13 @@ struct ArrowView: View {
     }
 }
 
-#Preview {
-    TimerView(
-        viewModel: TimerViewModel(
-            timerUseCase: TimerUseCaseImpl(),
-            breadCountUseCase: BreadCountUseCaseImpl(
-                repository: BreadCountRepositoryImpl()
-            )
-        )
-    )
-}
+//#Preview {
+//    TimerView(
+//        viewModel: TimerViewModel(
+//            timerUseCase: TimerUseCaseImpl(),
+//            breadCountUseCase: BreadCountUseCaseImpl(
+//                repository: BreadCountRepositoryImpl()
+//            )
+//        )
+//    )
+//}

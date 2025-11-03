@@ -23,6 +23,7 @@ enum BbangRouter {
     
     //유빈
     case getTodayBreadCount(accessToken: String)
+    case getBreads(accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -54,6 +55,8 @@ extension BbangRouter: Router {
             return "/api/v1/todos/\(id)/reschedule"
         case .getTodayBreadCount:
             return "/api/v1/timers/today-count"
+        case .getBreads:
+            return "/api/v1/timers/breads"
         }
     }
     
@@ -61,7 +64,7 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .refreshToken, .addTodo, .addCategory:
             return .post
-        case .fetchTodos, .getTodayBreadCount:
+        case .fetchTodos, .getTodayBreadCount, .getBreads:
             return .get
         case .editTodo, .updateTodoStartTime, .rescheduleTodo:
             return .patch
@@ -85,7 +88,8 @@ extension BbangRouter: Router {
                 .deleteTodo(_, let accessToken),
                 .updateTodoStartTime(_, _, let accessToken),
                 .rescheduleTodo(_, _, let accessToken),
-                .getTodayBreadCount(let accessToken)
+                .getTodayBreadCount(let accessToken),
+                .getBreads(let accessToken)
             :
             return [
                 "Content-Type": "application/json",
@@ -116,6 +120,8 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .getTodayBreadCount(_):
             return [:]
+        case .getBreads(_):
+            return [:]
         }
     }
     
@@ -125,7 +131,7 @@ extension BbangRouter: Router {
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)
-        case .refreshToken, .deleteTodo, .getTodayBreadCount:
+        case .refreshToken, .deleteTodo, .getTodayBreadCount, .getBreads:
             return nil
         }
     }

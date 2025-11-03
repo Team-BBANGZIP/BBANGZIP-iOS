@@ -8,29 +8,31 @@
 import SwiftUI
 
 struct BreadItem: View {
+    let breadId: Int
     let breadName: String
     let isUnlocked: Bool
-    let isSelected: Bool
+    let requiredCount: Int
+    let imageUrl: String
     
     var body: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .topLeading) {
-                if isSelected {
-                    Circle()
-                        .fill(Color(.secondaryLight))
-                        .frame(width: 88, height: 88)
-                    
-                    ZStack {
-                        Circle()
-                            .fill(Color(.primaryNormal))
-                        
-                        Image(.icCheck)
-                            .renderingMode(.template)
-                            .resizable()
-                            .foregroundColor(Color(.staticwhite))
-                    }
-                    .frame(width: 24, height: 24)
-                }
+//                if isSelected {
+//                    Circle()
+//                        .fill(Color(.secondaryLight))
+//                        .frame(width: 88, height: 88)
+//                    
+//                    ZStack {
+//                        Circle()
+//                            .fill(Color(.primaryNormal))
+//                        
+//                        Image(.icCheck)
+//                            .renderingMode(.template)
+//                            .resizable()
+//                            .foregroundColor(Color(.staticwhite))
+//                    }
+//                    .frame(width: 24, height: 24)
+//                }
                 
                 if isUnlocked {
                     breadImage(for: breadName)
@@ -66,19 +68,19 @@ struct BreadItem: View {
         }
     }
 }
-
-#Preview {
-    HStack(spacing: 24) {
-        BreadItem(
-            breadName: "소금빵",
-            isUnlocked: true,
-            isSelected: true
-        )
-        
-        BreadItem(
-            breadName: "???",
-            isUnlocked: false,
-            isSelected: false
-        )
-    }
-}
+//
+//#Preview {
+//    HStack(spacing: 24) {
+//        BreadItem(
+//            breadName: "소금빵",
+//            isUnlocked: true,
+//            isSelected: true
+//        )
+//        
+//        BreadItem(
+//            breadName: "???",
+//            isUnlocked: false,
+//            isSelected: false
+//        )
+//    }
+//}
