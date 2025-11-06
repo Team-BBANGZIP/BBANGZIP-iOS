@@ -34,6 +34,7 @@ final class TimerViewModel: ObservableObject {
     
     private let timerUseCase: TimerUseCase
     private let breadCountUseCase: BreadCountUseCase
+    private let timerCompleteUseCase: TimerCompleteUseCase
     private var timerTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     
@@ -41,10 +42,12 @@ final class TimerViewModel: ObservableObject {
     
     init(
         timerUseCase: TimerUseCase,
-        breadCountUseCase: BreadCountUseCase
+        breadCountUseCase: BreadCountUseCase,
+        timerCompleteUseCase: TimerCompleteUseCase
     ) {
         self.timerUseCase = timerUseCase
         self.breadCountUseCase = breadCountUseCase
+        self.timerCompleteUseCase = timerCompleteUseCase
         bind()
         loadBreadCount()
     }
@@ -102,6 +105,21 @@ final class TimerViewModel: ObservableObject {
         timerTask?.cancel()
     }
     
+    private func sendCompleteRequest() {
+        Task {
+            do {
+                let count = isHour ? 2 : 1
+                let today = DateFormatter.inputDateYMDFormatter.string(from: Date())
+                let _ = try await timerCompleteUseCase.execute(
+                    targetDate: today,
+                    count: count
+                )
+            } catch {
+                print("❌ 타이머 완료 요청 실패: \(error)")
+            }
+        }
+    }
+    
     private func resumeTimer() {
         state = .running
         currentBreadLevel = calculateBreadLevel(remainingSeconds: leftSeconds)
@@ -120,6 +138,7 @@ final class TimerViewModel: ObservableObject {
                 currentBreadLevel = 5
                 loadBreadCount()
                 isCompleteSheetOn = true
+                sendCompleteRequest()
             }
         }
     }

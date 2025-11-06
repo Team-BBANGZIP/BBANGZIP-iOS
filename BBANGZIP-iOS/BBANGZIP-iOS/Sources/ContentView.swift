@@ -5,7 +5,8 @@ import KakaoSDKAuth
 public struct ContentView: View {
     @StateObject private var timerViewModel = TimerViewModel(
         timerUseCase: TimerUseCaseImpl(),
-        breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl())
+        breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()),
+        timerCompleteUseCase: DefaultTimerCompleteUseCase(repository: TimerCompleteRepository())
     )
     
     @Environment(\.scenePhase) private var scenePhase

@@ -24,6 +24,7 @@ enum BbangRouter {
     //유빈
     case getTodayBreadCount(accessToken: String)
     case getBreads(accessToken: String)
+    case completeTimer(dto: TimerCompleteRequestDTO, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -57,12 +58,14 @@ extension BbangRouter: Router {
             return "/api/v1/timers/today-count"
         case .getBreads:
             return "/api/v1/timers/breads"
+        case .completeTimer:
+            return "/api/v1/timers"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .signIn, .refreshToken, .addTodo, .addCategory:
+        case .signIn, .refreshToken, .addTodo, .addCategory, .completeTimer:
             return .post
         case .fetchTodos, .getTodayBreadCount, .getBreads:
             return .get
@@ -89,7 +92,8 @@ extension BbangRouter: Router {
                 .updateTodoStartTime(_, _, let accessToken),
                 .rescheduleTodo(_, _, let accessToken),
                 .getTodayBreadCount(let accessToken),
-                .getBreads(let accessToken)
+                .getBreads(let accessToken),
+                .completeTimer(_, let accessToken)
             :
             return [
                 "Content-Type": "application/json",
@@ -122,12 +126,14 @@ extension BbangRouter: Router {
             return [:]
         case .getBreads(_):
             return [:]
+        case .completeTimer(let dto, _):
+            return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo:
+        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTimer:
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)
