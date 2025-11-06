@@ -52,6 +52,7 @@ final class TodoViewModel: ObservableObject {
     private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
+    private let writeCommitmentMessageUseCase: WriteCommitmentMessageUseCase
     
     var selectedCategoryId: Int? {
         guard let index = selectedCategoryIndex,
@@ -65,11 +66,13 @@ final class TodoViewModel: ObservableObject {
     init(
         fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
-        addUseCase: AddTodoUseCase
+        addUseCase: AddTodoUseCase,
+        writeCommitmentMessageUseCase: WriteCommitmentMessageUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
         self.addUseCase = addUseCase
+        self.writeCommitmentMessageUseCase = writeCommitmentMessageUseCase
         self.currentDate = calendar.appToday()
         
         updateDates()
@@ -333,9 +336,18 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateMyPromiseMessage(_ newValue: String) {
-        guard var data = todoData else { return }
-        data.myPromiseMessage = newValue
-        todoData = data
+//        guard var data = todoData else { return }
+//        data.myPromiseMessage = newValue
+//        todoData = data
+        Task {
+            do {
+                _ = try await writeCommitmentMessageUseCase.execute(commitmentMessage: newValue)
+                
+                fetchData()
+            } catch {
+                print("❌ 서버 저장 실패: \(error)")
+            }
+        }
     }
     
     func presentMeatball(for todo: TimerTodo) {

@@ -407,19 +407,3 @@ struct ToDoView: View {
         }
     }
 }
-
-struct TodoView_Previews: PreviewProvider {
-    static var previews: some View {
-        let mockRepo = MockTodoRepository()
-        let fetchUseCase = DefaultFetchTodosUseCase(repository: mockRepo)
-        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
-        
-        let previewViewModel = TodoViewModel(
-            fetchUseCase: fetchUseCase,
-            toggleUseCase: toggleUseCase,
-            addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
-        )
-        
-        return ToDoView(viewModel: previewViewModel)
-    }
-}
