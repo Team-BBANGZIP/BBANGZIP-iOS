@@ -11,14 +11,13 @@ struct NameInputView: View {
     @ObservedObject var viewModel: NameInputViewModel
     @Binding var isPresented: Bool
     @FocusState private var isTextFieldFocused: Bool
+    
     @State private var keyboardHeight: CGFloat = 0
-    @State private var isDismissing = false
     
     var body: some View {
         VStack(spacing: 0) {
-            handleBar
-                .padding(.top, 12)
-                .padding(.bottom, 20)
+            Spacer()
+                .frame(height: 33)
             
             Text("이름 설정하기")
                 .bbangFont(.title3)
@@ -29,48 +28,41 @@ struct NameInputView: View {
                 .padding(.horizontal, 20)
             
             Spacer()
-                .frame(height: keyboardHeight + 28)
         }
         .frame(maxWidth: .infinity)
         .background(Color(.backgroundNomal))
-        .clipShape(.rect(
-            topLeadingRadius: 48,
-            topTrailingRadius: 48
-        ))
-        .ignoresSafeArea(.all, edges: .bottom)
+        .background(
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isTextFieldFocused = false
+                    viewModel.confirmName()
+                    isPresented = false
+                }
+        )
         .onAppear {
-            isTextFieldFocused = true
-        }
-        .onDisappear {
-            viewModel.confirmName()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isTextFieldFocused = true
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
             if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                self.keyboardHeight = keyboardFrame.height
+                keyboardHeight = keyboardFrame.height
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            if !isDismissing {
-                self.keyboardHeight = 0
-            }
+            keyboardHeight = 0
         }
     }
 }
 
 private extension NameInputView {
-    var handleBar: some View {
-        RoundedRectangle(cornerRadius: 0)
-            .fill(Color(.labelDisable))
-            .frame(width: 60, height: 5)
-    }
-    
     var nameInputSection: some View {
         VStack(spacing: 8) {
             TaskInputField(
                 text: $viewModel.tempUserName,
                 placeholder: "이름을 입력해주세요",
                 onSubmit: {
-                    isDismissing = true
                     viewModel.confirmName()
                     isPresented = false
                 }
@@ -93,7 +85,6 @@ private extension NameInputView {
             .foregroundStyle(Color(.labelAlternative))
     }
 }
-
 #Preview {
     @Previewable @State var isPresented = true
     
