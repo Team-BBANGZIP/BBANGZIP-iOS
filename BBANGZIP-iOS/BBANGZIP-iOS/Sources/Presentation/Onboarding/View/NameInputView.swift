@@ -11,6 +11,7 @@ struct NameInputView: View {
     @ObservedObject var viewModel: NameInputViewModel
     @Binding var isPresented: Bool
     @FocusState private var isTextFieldFocused: Bool
+    @State private var keyboardHeight: CGFloat = 0
     
     var body: some View {
         VStack(spacing: 0) {
@@ -21,6 +22,7 @@ struct NameInputView: View {
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelNormal))
                 .padding(.bottom, 30)
+                .offset(y: keyboardHeight > 0 ? -10 : 0)
             
             nameInputSection
                 .padding(.horizontal, 20)
@@ -29,10 +31,19 @@ struct NameInputView: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color(.backgroundNomal))
+        .offset(y: keyboardHeight > 0 ? +10 : 0)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 isTextFieldFocused = true
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                keyboardHeight = keyboardFrame.height
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardHeight = 0
         }
     }
 }
