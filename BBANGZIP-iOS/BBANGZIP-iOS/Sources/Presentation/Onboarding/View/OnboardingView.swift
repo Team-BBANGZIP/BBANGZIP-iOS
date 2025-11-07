@@ -10,6 +10,11 @@ import SwiftUI
 struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var nameInputViewModel = NameInputViewModel(
+        currentName: "",
+        currentProfileImage: nil,
+        onSave: { _ in }
+    )
     
     var body: some View {
         ZStack {
@@ -33,18 +38,39 @@ struct OnboardingView: View {
                 
                 saveButton
             }
-            
-            if viewModel.showImagePicker {
-                imagePickerSheet
-            }
-            
-            if viewModel.showNameInput {
-                nameInputSheet
+        }
+        .sheet(isPresented: $viewModel.showImagePicker) {
+            ProfileImagePickerView(
+                viewModel: ProfileImagePickerViewModel(
+                    currentImage: viewModel.selectedProfileImage,
+                    onSave: { imageName in
+                        viewModel.setProfileImage(imageName)
+                    }
+                ),
+                isPresented: $viewModel.showImagePicker
+            )
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(48)
+        }
+        .sheet(isPresented: $viewModel.showNameInput) {
+            NameInputView(
+                viewModel: nameInputViewModel,
+                isPresented: $viewModel.showNameInput
+            )
+            .presentationDetents([.height(151)])
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(48)
+        }
+        .onChange(of: viewModel.showNameInput) { oldValue, newValue in
+            if oldValue && !newValue {
+                let trimmedName = nameInputViewModel.tempUserName.trimmingCharacters(in: .whitespaces)
+                if !trimmedName.isEmpty {
+                    viewModel.setUserName(nameInputViewModel.tempUserName)
+                }
+            } else if !oldValue && newValue {
+                nameInputViewModel.tempUserName = viewModel.userName
             }
         }
-        .animation(.spring(response: 0.3), value: viewModel.showImagePicker)
-        .animation(.spring(response: 0.3), value: viewModel.showNameInput)
-        .ignoresSafeArea(edges: .bottom)
     }
 }
 
@@ -125,36 +151,11 @@ private extension OnboardingView {
     }
     
     var nameFilledView: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(LinearGradient(
-                        colors: [Color.blue, Color.pink],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ))
-                    .frame(height: 36)
-                
-                HStack(spacing: 4) {
-                    Text(viewModel.userName)
-                        .bbangFont(.subtitle2)
-                        .foregroundColor(Color(.staticwhite))
-                    
-                    if let selectedImage = viewModel.selectedProfileImage {
-                        Image(selectedImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 24, height: 24)
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(.horizontal, 8)
-            }
-            .fixedSize()
-            
-            Spacer()
-        }
-        .padding(.leading, 20)
+        Text(viewModel.userName)
+            .bbangFont(.body1)
+            .foregroundColor(Color(.labelNormal))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 20)
     }
     
     var namePlaceholderView: some View {
@@ -189,57 +190,7 @@ private extension OnboardingView {
         }
         .disabled(!viewModel.canSave)
         .padding(.horizontal, 20)
-        .padding(.bottom, 56)
-    }
-    
-    var imagePickerSheet: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    viewModel.showImagePicker = false
-                }
-            
-            VStack {
-                Spacer()
-                ProfileImagePickerView(
-                    viewModel: ProfileImagePickerViewModel(
-                        currentImage: viewModel.selectedProfileImage,
-                        onSave: { imageName in
-                            viewModel.setProfileImage(imageName)
-                        }
-                    ),
-                    isPresented: $viewModel.showImagePicker
-                )
-            }
-            .transition(.move(edge: .bottom))
-        }
-    }
-    
-    var nameInputSheet: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    viewModel.showNameInput = false
-                }
-            
-            VStack {
-                Spacer()
-                NameInputView(
-                    viewModel: NameInputViewModel(
-                        currentName: viewModel.userName,
-                        currentProfileImage: viewModel.selectedProfileImage,
-                        onSave: { name in
-                            viewModel.setUserName(name)
-                        }
-                    ),
-                    isPresented: $viewModel.showNameInput
-                )
-            }
-            .transition(.move(edge: .bottom))
-            .ignoresSafeArea(.keyboard, edges: .bottom)
-        }
+        .padding(.bottom, 20)
     }
 }
 

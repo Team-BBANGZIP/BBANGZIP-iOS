@@ -21,7 +21,7 @@ final class NameInputViewModel: ObservableObject {
     }
     
     var isNameValid: Bool {
-        !tempUserName.isEmpty &&
+        !tempUserName.trimmingCharacters(in: .whitespaces).isEmpty &&
         tempUserName.count <= maxNameLength &&
         !containsEmoji(tempUserName)
     }
@@ -48,7 +48,8 @@ final class NameInputViewModel: ObservableObject {
     }
     
     func confirmName() {
-        if isNameValid {
+        let trimmedName = tempUserName.trimmingCharacters(in: .whitespaces)
+        if !trimmedName.isEmpty && !containsEmoji(tempUserName) {
             onSave(tempUserName)
         }
     }
@@ -57,13 +58,13 @@ final class NameInputViewModel: ObservableObject {
         for scalar in text.unicodeScalars {
             switch scalar.value {
             case 0x1F600...0x1F64F,
-                 0x1F300...0x1F5FF,
-                 0x1F680...0x1F6FF,
-                 0x2600...0x26FF,
-                 0x2700...0x27BF,
-                 0x1F900...0x1F9FF,
-                 0x1FA70...0x1FAFF,
-                 0x1F1E6...0x1F1FF:
+                0x1F300...0x1F5FF,
+                0x1F680...0x1F6FF,
+                0x2600...0x26FF,
+                0x2700...0x27BF,
+                0x1F900...0x1F9FF,
+                0x1FA70...0x1FAFF,
+                0x1F1E6...0x1F1FF:
                 return true
             default:
                 continue
@@ -76,13 +77,13 @@ final class NameInputViewModel: ObservableObject {
         text.unicodeScalars.filter {
             switch $0.value {
             case 0x1F600...0x1F64F,
-                 0x1F300...0x1F5FF,
-                 0x1F680...0x1F6FF,
-                 0x2600...0x26FF,
-                 0x2700...0x27BF,
-                 0x1F900...0x1F9FF,
-                 0x1FA70...0x1FAFF,
-                 0x1F1E6...0x1F1FF:
+                0x1F300...0x1F5FF,
+                0x1F680...0x1F6FF,
+                0x2600...0x26FF,
+                0x2700...0x27BF,
+                0x1F900...0x1F9FF,
+                0x1FA70...0x1FAFF,
+                0x1F1E6...0x1F1FF:
                 return false
             default:
                 return true

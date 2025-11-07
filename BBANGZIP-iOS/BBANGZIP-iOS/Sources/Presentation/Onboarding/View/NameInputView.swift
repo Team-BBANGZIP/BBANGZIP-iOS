@@ -12,8 +12,6 @@ struct NameInputView: View {
     @Binding var isPresented: Bool
     @FocusState private var isTextFieldFocused: Bool
     
-    @State private var keyboardHeight: CGFloat = 0
-    
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
@@ -31,27 +29,10 @@ struct NameInputView: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color(.backgroundNomal))
-        .background(
-            Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    isTextFieldFocused = false
-                    viewModel.confirmName()
-                    isPresented = false
-                }
-        )
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 isTextFieldFocused = true
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                keyboardHeight = keyboardFrame.height
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            keyboardHeight = 0
         }
     }
 }
@@ -63,7 +44,6 @@ private extension NameInputView {
                 text: $viewModel.tempUserName,
                 placeholder: "이름을 입력해주세요",
                 onSubmit: {
-                    viewModel.confirmName()
                     isPresented = false
                 }
             )
@@ -85,6 +65,7 @@ private extension NameInputView {
             .foregroundStyle(Color(.labelAlternative))
     }
 }
+
 #Preview {
     @Previewable @State var isPresented = true
     
