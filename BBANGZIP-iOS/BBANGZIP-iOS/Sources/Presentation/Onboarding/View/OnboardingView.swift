@@ -63,10 +63,7 @@ struct OnboardingView: View {
         }
         .onChange(of: viewModel.showNameInput) { oldValue, newValue in
             if oldValue && !newValue {
-                let trimmedName = nameInputViewModel.tempUserName.trimmingCharacters(in: .whitespaces)
-                if !trimmedName.isEmpty {
-                    viewModel.setUserName(nameInputViewModel.tempUserName)
-                }
+                viewModel.setUserName(nameInputViewModel.tempUserName.trimmingCharacters(in: .whitespaces))
             } else if !oldValue && newValue {
                 nameInputViewModel.tempUserName = viewModel.userName
             }
