@@ -51,6 +51,7 @@ struct OnboardingView: View {
             )
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(48)
+            .presentationDetents([.height(454)])
         }
         .sheet(isPresented: $viewModel.showNameInput) {
             NameInputView(
@@ -104,13 +105,11 @@ private extension OnboardingView {
                 .fill(Color(.backgroundStrong))
                 .frame(width: 100, height: 100)
             
-            if let selectedImage = viewModel.selectedProfileImage {
-                Image(selectedImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-            }
+            Image(viewModel.selectedProfileImage ?? "profileBasic")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 100, height: 100)
+                .clipShape(Circle())
             
             VStack {
                 Spacer()
