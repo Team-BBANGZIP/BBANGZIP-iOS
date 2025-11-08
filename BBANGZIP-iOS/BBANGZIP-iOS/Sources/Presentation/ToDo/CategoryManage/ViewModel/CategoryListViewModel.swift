@@ -32,7 +32,7 @@ final class CategoryListViewModel: ObservableObject {
         do {
             // TODO: 카테고리 조회 API 연결
             let today = Date()
-            categories = try await repository.fetchTodos(date: today, accessToken: "").categories
+            categories = try await repository.fetchTodos(date: today).categories
             makeSections()
         } catch {
             errorMessage = "카테고리를 불러오지 못했습니다."
