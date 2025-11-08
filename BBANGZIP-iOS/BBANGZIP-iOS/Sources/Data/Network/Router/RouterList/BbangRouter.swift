@@ -8,11 +8,15 @@
 import Alamofire
 
 enum BbangRouter {
-    //여경
-    case signIn(dto: SignInRequestDTO, providerToken: String)
+    case signIn(
+        dto: SignInRequestDTO,
+        providerToken: String
+    )
     case refreshToken(refreshToken: String)
-    
-    // TODO: 추가 API들은 여기에 case로 추가
+    case signUp(
+        dto: SignUpRequestDTO,
+        accessToken: String
+    )
 }
 
 extension BbangRouter: Router {
@@ -26,12 +30,14 @@ extension BbangRouter: Router {
             return "/api/v1/auth/signin"
         case .refreshToken:
             return "/api/v1/auth/re-issue"
+        case .signUp:
+            return "/api/v1/auth/signup"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .signIn, .refreshToken:
+        case .signIn, .refreshToken, .signUp:
             return .post
         }
     }
@@ -43,6 +49,15 @@ extension BbangRouter: Router {
             
         case .refreshToken(let refreshToken):
             return ["Authorization": "Bearer \(refreshToken)"]
+            
+        case .signUp(
+            _,
+            let accessToken
+        ):
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(accessToken)"
+            ]
         }
     }
     
@@ -52,12 +67,14 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .refreshToken:
             return [:]
+        case .signUp(let dto, _):
+            return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn:
+        case .signIn, .signUp:
             return JSONEncoding.default
         case .refreshToken:
             return nil
