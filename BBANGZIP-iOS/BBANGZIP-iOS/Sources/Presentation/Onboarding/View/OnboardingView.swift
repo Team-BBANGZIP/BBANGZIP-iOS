@@ -84,7 +84,6 @@ struct OnboardingView: View {
         }
     }
 }
-}
 
 private extension OnboardingView {
     var navigationBar: some View {
