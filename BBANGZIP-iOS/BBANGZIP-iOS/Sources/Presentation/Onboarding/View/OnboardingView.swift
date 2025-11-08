@@ -38,6 +38,10 @@ struct OnboardingView: View {
                 
                 saveButton
             }
+            
+            if viewModel.isLoading {
+                LoadingView()
+            }
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
             ProfileImagePickerView(
@@ -61,6 +65,15 @@ struct OnboardingView: View {
             .presentationDetents([.height(151)])
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(48)
+        }
+        .alert("오류", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("확인") {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+            }
         }
         .onChange(of: viewModel.showNameInput) { oldValue, newValue in
             if oldValue && !newValue {
@@ -150,7 +163,10 @@ private extension OnboardingView {
         Text(viewModel.userName)
             .bbangFont(.body1)
             .foregroundColor(Color(.labelNormal))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(
+                maxWidth: .infinity,
+                alignment: .leading
+            )
             .padding(.leading, 20)
     }
     
@@ -158,13 +174,18 @@ private extension OnboardingView {
         Text("이름을 입력해주세요")
             .bbangFont(.body1)
             .foregroundColor(Color(.labelAssistive))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(
+                maxWidth: .infinity,
+                alignment: .leading
+            )
             .padding(.leading, 20)
     }
     
     var saveButton: some View {
         Button(action: {
-            viewModel.saveProfile()
+            Task {
+                await viewModel.saveProfile()
+            }
         }) {
             HStack {
                 Text("저장하기")
@@ -184,12 +205,26 @@ private extension OnboardingView {
                     .fill(viewModel.canSave ? Color(.primaryNormal) : Color(.disabled))
             )
         }
-        .disabled(!viewModel.canSave)
+        .disabled(!viewModel.canSave || viewModel.isLoading)
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
+    }
+}
+
+private struct LoadingView: View {
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+            
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .scaleEffect(1.5)
+        }
     }
 }
 
 #Preview {
     OnboardingView()
 }
+
