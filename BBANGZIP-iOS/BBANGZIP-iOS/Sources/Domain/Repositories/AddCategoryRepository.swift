@@ -12,15 +12,42 @@ protocol AddCategoryRepositoryProtocol: Sendable {
 }
 
 final class AddCategoryRepository: AddCategoryRepositoryProtocol {
-    
+    private let api: API
+    private let tokenManager: TokenManager
+
+    init(
+        api: API = API(),
+        tokenManager: TokenManager = .shared
+    ) {
+        self.api = api
+        self.tokenManager = tokenManager
+    }
+
     func addCategory(request: CategoryAddRequestDTO) async throws -> AddCategory {
-        // TODO: API 연결 예정
-        // 임시 더미 데이터 반환
-        return AddCategory(
-            categoryId: Int.random(in: 1...1000),
-            name: request.name,
-            color: request.color,
-            isStopped: false
-        )
+        guard let accessToken = tokenManager.getAccessToken() else {
+            LoggerFactory.create(category: .data)
+                .error("AddCategory Error: AccessToken is nil")
+            throw AuthError.invalidToken
+        }
+
+        let router = BbangRouter.addCategory(dto: request, accessToken: accessToken)
+
+        do {
+            let response: CategoryAddResponseDTO = try await api.request(api: router)
+
+            let okCodes: Set<Int> = [20000, 20100]
+            guard okCodes.contains(response.code) else {
+                LoggerFactory.create(category: .data)
+                    .error("AddCategory Error: Unexpected response code \(response.code)")
+                throw RouterError.server(message: "AddCategory Error: Unexpected \(response.code)")
+            }
+
+            return response.data.toAddCategory()
+
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("AddCategory Request Failed: \(error.localizedDescription)")
+            throw error
+        }
     }
 }

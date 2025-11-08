@@ -23,4 +23,12 @@ extension DateFormatter {
         formatter.dateFormat = "HH:mm"
         return formatter
     }()
+    
+    static let inputDateYMDFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "Asia/Seoul")
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
 }

@@ -8,14 +8,17 @@
 import SwiftUI
 
 struct ToDoView: View {
+    private let repository = TodoRepositoryImpl()
+
     @StateObject private var viewModel: TodoViewModel
     @StateObject private var categoryListViewModel = CategoryListViewModel(
-        repository: MockTodoRepository()
+        repository: TodoRepositoryImpl()
     )
+    @State private var addTodoViewModel: TodoAddViewModel? = nil
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
-    
+        
     init(
         viewModel: TodoViewModel,
         selectedDate: Date? = nil,
@@ -123,19 +126,28 @@ struct ToDoView: View {
                         }
                     )
                 }
-                .sheet(isPresented: $viewModel.isAddTodoSheetPresented) {
-                    let addViewModel = TodoAddViewModel { content, startTime in
-                        viewModel.addTodo(content: content)
+                .sheet(
+                    isPresented: $viewModel.isAddTodoSheetPresented,
+                    onDismiss: {
+                        if let vm = addTodoViewModel {
+                            vm.addTodo { [weak viewModel] in
+                                viewModel?.fetchData()
+                            }
+                        }
+                        addTodoViewModel = nil
+                    },
+                    content: {
+                        if let vm = addTodoViewModel {
+                            TodoAddView(
+                                viewModel: vm,
+                                isPresented: $viewModel.isAddTodoSheetPresented
+                            )
+                            .presentationDetents([.height(190)])
+                            .presentationCornerRadius(48)
+                            .presentationDragIndicator(.visible)
+                        }
                     }
-                    
-                    TodoAddView(
-                        viewModel: addViewModel,
-                        isPresented: $viewModel.isAddTodoSheetPresented
-                    )
-                    .presentationDetents([.height(190)])
-                    .presentationCornerRadius(48)
-                    .presentationDragIndicator(.visible)
-                }
+                )
                 .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
                     MyPromiseView(
                         initialText: viewModel.todoData?.myPromiseMessage ?? "",
@@ -148,18 +160,57 @@ struct ToDoView: View {
                     .presentationDragIndicator(.visible)
                 }
                 .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
+                    let id = viewModel.sheetTodoId
+
+                    let titleBinding = Binding<String>(
+                        get: { viewModel.todoDataTitle(for: id) ?? viewModel.sheetTodoTitle },
+                        set: { new in
+                            viewModel.updateTodoTitle(id: id, newTitle: new)
+                        }
+                    )
+
+                    let startTimeBinding = Binding<String?>(
+                        get: { viewModel.todoDataStartTime(for: id) ?? viewModel.sheetStartTime },
+                        set: { new in
+                            viewModel.updateTodoStartTime(id: id, newTime: new)
+                        }
+                    )
+                    
+                    let initialTargetDate = viewModel.todoDataTargetDate(for: id)
+                            ?? viewModel.currentTargetDate
+                    
                     TodoManageView(
                         viewModel: TodoManageViewModel(
-                            title: $viewModel.sheetTodoTitle,
+                            title: titleBinding,
                             category: viewModel.sheetCategoryName,
-                            startTime: $viewModel.sheetStartTime,
+                            startTime: startTimeBinding,
                             isAlerted: $viewModel.sheetIsAlerted,
                             isCompleted: viewModel.sheetIsCompleted,
-                            onDelete: {},
+                            todoId: id,
+                            repository: repository,
+                            initialTargetDate: initialTargetDate,
+                            onDelete: {
+                            },
                             onPostpone: {},
                             onDuplicate: {},
-                            onChangeDate: {}
-                            
+                            onChangeDate: {},
+                            onPatchedTitle: { [weak viewModel] _ in
+                                viewModel?.fetchData()
+                            },
+                            onDeleted: {
+                                id,
+                                newCompleted,
+                                newTotal in
+                                viewModel.removeTodo(
+                                    id: id,
+                                    newCompleted: newCompleted,
+                                    newTotal: newTotal
+                                )
+                                viewModel.isMeatballSheetPresented = false
+                            },
+                            onPatchedStartTime: { id, newHHmm in
+                                viewModel.replaceTodoStartTime(id: id, newStartTime: newHHmm)
+                            }
                         )
                     )
                     .presentationDetents(viewModel.sheetIsCompleted ? [.height(278)] : [.height(466)])
@@ -248,13 +299,21 @@ struct ToDoView: View {
     
     private var calendarBodyView: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-            ForEach(viewModel.daysOfWeek.indices, id: \.self) { index in
-                let day = viewModel.daysOfWeek[index]
+            ForEach(Array(viewModel.daysOfWeek.enumerated()), id: \.offset) { index, day in
                 if let date = viewModel.calculateDateForDay(day) {
+
+                    let selectedDateBinding = Binding<Date?>(
+                        get: { selectedDate },
+                        set: { new in
+                            selectedDate = new
+                            viewModel.setSelectedDate(new ?? viewModel.currentDate)
+                        }
+                    )
+
                     CalendarCellView(
                         day: day,
                         date: date,
-                        selectedDate: $selectedDate
+                        selectedDate: selectedDateBinding
                     )
                 }
             }
@@ -308,6 +367,7 @@ struct ToDoView: View {
                 .padding(.top, 8)
                 .onTapGesture {
                     viewModel.selectedCategoryIndex = index
+                    addTodoViewModel = viewModel.makeAddTodoViewModel()
                     viewModel.isAddTodoSheetPresented = true
                 }
                 .moveDisabled(true)
@@ -351,7 +411,7 @@ struct ToDoView: View {
 struct TodoView_Previews: PreviewProvider {
     static var previews: some View {
         let mockRepo = MockTodoRepository()
-        let fetchUseCase = DefaultFetchTimerTodosUseCase(repository: mockRepo)
+        let fetchUseCase = DefaultFetchTodosUseCase(repository: mockRepo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
         
         let previewViewModel = TodoViewModel(

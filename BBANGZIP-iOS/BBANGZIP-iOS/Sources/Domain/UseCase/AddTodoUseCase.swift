@@ -7,8 +7,13 @@
 
 import Foundation
 
-protocol AddTodoUseCase {
-    func execute(categoryIndex: Int, content: String, startTime: Date?) async throws
+protocol AddTodoUseCase: Sendable {
+    func execute(
+        categoryId: Int,
+        content: String,
+        targetDate: Date,
+        startTime: Date?
+    ) async throws -> TimerTodo
 }
 
 final class DefaultAddTodoUseCase: AddTodoUseCase {
@@ -19,13 +24,15 @@ final class DefaultAddTodoUseCase: AddTodoUseCase {
     }
 
     func execute(
-        categoryIndex: Int,
+        categoryId: Int,
         content: String,
+        targetDate: Date,
         startTime: Date?
-    ) async throws {
-        try await repository.addTodo(
-            categoryIndex: categoryIndex,
+    ) async throws -> TimerTodo {        
+        return try await repository.addTodo(
+            categoryId: categoryId,
             content: content,
+            targetDate: targetDate,
             startTime: startTime
         )
     }

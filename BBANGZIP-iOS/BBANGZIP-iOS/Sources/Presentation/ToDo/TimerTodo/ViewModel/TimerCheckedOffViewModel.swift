@@ -13,12 +13,22 @@ final class TimerCheckedOffViewModel: ObservableObject {
     @Published var isSheetPresented: Bool = false
     @Published var selectedCategoryIndex: Int?
     
-    private let fetchUseCase: FetchTimerTodosUseCase
+    let addUseCase: AddTodoUseCase
+    private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
-    private let addUseCase: AddTodoUseCase
+    
+    var selectedCategory: Category? {
+        guard let index = selectedCategoryIndex,
+              index < categories.count else { return nil }
+        return categories[index]
+    }
+
+    var currentTargetDate: Date {
+        return Date()
+    }
     
     init(
-        fetchUseCase: FetchTimerTodosUseCase,
+        fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
         addUseCase: AddTodoUseCase
     ) {
@@ -30,7 +40,8 @@ final class TimerCheckedOffViewModel: ObservableObject {
     func fetchData() {
         Task {
             do {
-                self.categories = try await fetchUseCase.execute().categories
+                let data = try await fetchUseCase.execute(date: currentTargetDate)
+                self.categories = data.categories
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }
@@ -47,15 +58,19 @@ final class TimerCheckedOffViewModel: ObservableObject {
         )
     }
     
-    func addTodo(content: String, startTime: Date?) {
-        guard let index = selectedCategoryIndex else { return }
-
+    func addTodo(
+        categoryId: Int,
+        content: String,
+        targetDate: Date,
+        startTime: Date?
+    ) {
         let localAddUseCase = addUseCase
         Task {
             do {
-                try await localAddUseCase.execute(
-                    categoryIndex: index,
+                _ = try await localAddUseCase.execute(
+                    categoryId: categoryId,
                     content: content,
+                    targetDate: targetDate,
                     startTime: startTime
                 )
                 fetchData()

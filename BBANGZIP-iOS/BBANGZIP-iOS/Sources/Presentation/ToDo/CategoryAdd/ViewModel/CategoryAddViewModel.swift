@@ -54,11 +54,3 @@ class CategoryAddViewModel: ObservableObject {
         errorMessage = nil
     }
 }
-
-extension CategoryColor {
-    var displayColor: Color {
-        Color(rawValue)
-    }
-    
-    var apiValue: String { rawValue }
-}

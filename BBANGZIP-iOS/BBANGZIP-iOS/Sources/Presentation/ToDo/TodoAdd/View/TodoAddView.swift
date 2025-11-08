@@ -21,7 +21,6 @@ struct TodoAddView: View {
                 .padding(.top, 25)
             
             TaskInputField(text: $viewModel.newTodoTitle) {
-                viewModel.addTodo()
                 isPresented = false
             }
             .padding(.top, 31)
@@ -39,9 +38,6 @@ struct TodoAddView: View {
                 .padding(.top, 16)
         }
         .padding(.horizontal, 20)
-        .onDisappear {
-            viewModel.addTodo()
-        }
         .sheet(isPresented: $isStartTimeSheetPresented) {
             let startTimeViewModel = StartTimeViewModel(selectedTime: viewModel.startTime)
             

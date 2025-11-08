@@ -107,8 +107,23 @@ final class MockTodoRepository: TodoRepository {
         ]
     )
     
-    func fetchTimerTodos() async throws -> TodoData {
-        return todoData
+    func fetchTodos(
+        date: Date,
+        accessToken: String
+    ) async throws -> TodoData {
+        let dateString = DateFormatter.inputDateYMDFormatter.string(from: date)
+        
+        let newData = TodoData(
+            myPromiseMessage: todoData.myPromiseMessage,
+            summary: TodoSummary(
+                date: dateString,
+                totalCount: todoData.summary.totalCount,
+                completedCount: todoData.summary.completedCount
+            ),
+            categories: todoData.categories
+        )
+        return newData
+        
     }
     
     
@@ -116,24 +131,34 @@ final class MockTodoRepository: TodoRepository {
         todoId: Int,
         isCompleted: Bool
     ) async throws {
-        print("✅ Mock updateTodoCompletion called for id=\(todoId), isCompleted=\(isCompleted)")
+        print("Mock updateTodoCompletion called for id=\(todoId), isCompleted=\(isCompleted)")
     }
     
     func addTodo(
-        categoryIndex: Int,
+        categoryId: Int,
         content: String,
+        targetDate: Date,
         startTime: Date?
-    ) async throws {
-        let category = todoData.categories[categoryIndex]
+    ) async throws -> TimerTodo {
+        
+        guard let index = todoData.categories.firstIndex(where: { $0.id == categoryId }) else {
+            LoggerFactory.create(category: .data)
+                .error("Mock AddTodo failed: category not found (id=\(categoryId))")
+            
+            throw RouterError.server(message: "Category not found: \(categoryId)")
+        }
         
         let newTodo = TimerTodo(
             id: UUID().hashValue,
             content: content,
             isCompleted: false,
             startTime: startTime.map { DateFormatter.inputTimeFormatter.string(from: $0) },
-            colorType: category.colorType
+            colorType: todoData.categories[index].colorType
         )
-        todoData.categories[categoryIndex].todos.append(newTodo)
+        
+        todoData.categories[index].todos.append(newTodo)
+        
+        return newTodo
     }
     
     func updateCategory(_ category: Category) async throws {
@@ -144,5 +169,83 @@ final class MockTodoRepository: TodoRepository {
     
     func deleteCategory(id: Int) async throws {
         todoData.categories.removeAll { $0.id == id }
+    }
+    
+    func editTodo(id: Int, content: String) async throws {
+        for (catIndex, category) in todoData.categories.enumerated() {
+            if let todoIndex = category.todos.firstIndex(where: { $0.id == id }) {
+                todoData.categories[catIndex].todos[todoIndex].content = content
+                print("Mock editTodo: id=\(id) → content='\(content)' 로 변경됨")
+                return
+            }
+        }
+        
+        LoggerFactory.create(category: .data)
+            .error("Mock editTodo failed: Todo not found (id=\(id))")
+        throw RouterError.server(message: "Todo not found: \(id)")
+    }
+    
+    func deleteTodo(id: Int) async throws -> (completedCount: Int, totalCount: Int) {
+        for catIdx in todoData.categories.indices {
+            if let todoIdx = todoData.categories[catIdx].todos.firstIndex(where: { $0.id == id }) {
+                let wasCompleted = todoData.categories[catIdx].todos[todoIdx].isCompleted
+                todoData.categories[catIdx].todos.remove(at: todoIdx)
+                
+                let newTotal = todoData.categories.reduce(0) { $0 + $1.todos.count }
+                let newCompleted = todoData.categories.reduce(0) { $0 + $1.todos.filter({ $0.isCompleted }).count }
+                
+                todoData = TodoData(
+                    myPromiseMessage: todoData.myPromiseMessage,
+                    summary: TodoSummary(
+                        date: todoData.summary.date,
+                        totalCount: newTotal,
+                        completedCount: newCompleted
+                    ),
+                    categories: todoData.categories
+                )
+                
+                print("Mock deleteTodo: removed id=\(id), wasCompleted=\(wasCompleted)")
+                return (newCompleted, newTotal)
+            }
+        }
+        LoggerFactory.create(category: .data)
+            .error("Mock deleteTodo failed: Todo not found (id=\(id))")
+        throw RouterError.server(message: "Todo not found: \(id)")
+    }
+    
+    func editTodoStartTime(id: Int, startTime: Date) async throws -> String {
+        let timeStr = DateFormatter.inputTimeFormatter.string(from: startTime)
+        for c in todoData.categories.indices {
+            if let t = todoData.categories[c].todos.firstIndex(where: { $0.id == id }) {
+                todoData.categories[c].todos[t].startTime = timeStr
+                return timeStr
+            }
+        }
+        throw RouterError.server(message: "Todo not found: \(id)")
+    }
+    
+    func rescheduleTodo(id: Int, targetDate: Date?) async throws -> TodoRescheduleDataDTO {
+        let dateStr = targetDate.map { DateFormatter.inputDateYMDFormatter.string(from: $0) }
+        ?? DateFormatter.inputDateYMDFormatter.string(
+            from: Calendar.current.date(
+                byAdding: .day,
+                value: 1,
+                to: Date()
+            )!
+        )
+        
+        for c in todoData.categories.indices {
+            if let t = todoData.categories[c].todos.firstIndex(where: { $0.id == id }) {
+                todoData.categories[c].todos.remove(at: t)
+                return TodoRescheduleDataDTO(
+                    todoId: id,
+                    content: "Mock content",
+                    targetDate: dateStr,
+                    startTime: "09:00",
+                    isCompleted: false
+                )
+            }
+        }
+        throw RouterError.server(message: "Todo not found: \(id)")
     }
 }

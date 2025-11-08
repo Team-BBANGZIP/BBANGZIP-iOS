@@ -14,7 +14,7 @@ struct TodoContentEditView: View {
     init(
         originalTodo: String,
         isPresented: Binding<Bool>,
-        onSave: @escaping (String) -> Void
+        onSave: @escaping (String) async throws -> Void
     ) {
         _viewModel = StateObject(
             wrappedValue: TodoContentEditViewModel(
@@ -33,16 +33,15 @@ struct TodoContentEditView: View {
                 .padding(.top, 25)
             
             TaskInputField(text: $viewModel.newTodo) {
-                viewModel.editTodoTitle()
-                isPresented = false
+                Task {
+                    await viewModel.editTodoTitle()
+                    isPresented = false
+                }
             }
             .padding(.top, 31)
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 20)
-        .onDisappear {
-            viewModel.editTodoTitle()
-        }
     }
 }
 

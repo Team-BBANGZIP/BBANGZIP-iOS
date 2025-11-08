@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class TodoViewModel: ObservableObject {
     @Published var currentDate: Date = Date()
+    @Published var selectedDate: Date? = nil
     @Published var dates: [Date] = []
     @Published var todoData: TodoData?
     @Published var isAddTodoSheetPresented: Bool = false
@@ -18,47 +20,99 @@ final class TodoViewModel: ObservableObject {
     
     @Published var isMeatballSheetPresented: Bool = false
     @Published var sheetTodoTitle: String = ""
+    @Published var sheetTodoId: Int = 0
     @Published var sheetCategoryName: String = ""
     @Published var sheetStartTime: String? = ""
     @Published var sheetIsAlerted: Bool = false
     @Published var sheetIsCompleted: Bool = false
     
-    let daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"]
+    @Published private var startWeekOnSunday: Bool = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
     
-    private let calendar: Calendar = {
+    var daysOfWeek: [String] {
+        startWeekOnSunday
+        ? ["일", "월", "화", "수", "목", "금", "토"]
+        : ["월", "화", "수", "목", "금", "토", "일"]
+    }
+    
+    var currentTargetDate: Date {
+        return selectedDate ?? currentDate
+    }
+    
+    @Published private var calendar: Calendar = {
         var cal = Calendar.current
         cal.locale = Locale(identifier: "ko_KR")
         cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
-        cal.firstWeekday = 2
-        
+        cal.firstWeekday = UserDefaults.standard.bool(forKey: "startWeekOnSunday") ? 1 : 2
         return cal
     }()
+
+
     private(set) var selectedTodoForMenu: TimerTodo? = nil
     
-    private let fetchUseCase: FetchTimerTodosUseCase
+    private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
     
+    var selectedCategoryId: Int? {
+        guard let index = selectedCategoryIndex,
+              let categories = todoData?.categories,
+              index < categories.count else { return nil }
+        return categories[index].id
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     init(
-        fetchUseCase: FetchTimerTodosUseCase,
+        fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
         addUseCase: AddTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
         self.addUseCase = addUseCase
+        self.currentDate = calendar.appToday()
         
         updateDates()
+        setupStartWeekOnSundayObserver()
     }
     
+    private func setupStartWeekOnSundayObserver() {
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                let newValue = UserDefaults.standard.bool(forKey: "startWeekOnSunday")
+                
+                if newValue != self.startWeekOnSunday {
+                    self.startWeekOnSunday = newValue
+                    self.configureCalendar()
+                    self.updateDates()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func configureCalendar() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.locale = Locale(identifier: "ko_KR")
+        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
+        cal.firstWeekday = startWeekOnSunday ? 1 : 2
+        self.calendar = cal
+    }
+
     func fetchData() {
         Task {
             do {
-                self.todoData = try await fetchUseCase.execute()
+                self.todoData = try await fetchUseCase.execute(date: currentTargetDate)
             } catch {
                 print("❌ 데이터 가져오기 실패: \(error)")
             }
         }
+    }
+    
+    func setSelectedDate(_ date: Date) {
+        selectedDate = date
+        fetchData()
     }
 
     func moveTodoItems(from source: IndexSet, to destination: Int) {
@@ -192,16 +246,31 @@ final class TodoViewModel: ObservableObject {
         )
     }
     
-    func addTodo(content: String) {
-        guard let index = selectedCategoryIndex else { return }
+    func makeAddTodoViewModel() -> TodoAddViewModel? {
+        guard let categoryId = selectedCategoryId else { return nil }
+        return TodoAddViewModel(
+            addTodoUseCase: addUseCase,
+            categoryId: categoryId,
+            targetDate: currentTargetDate
+        )
+    }
+    
+    func addTodo(content: String, startTime: Date? = nil) {
+        guard let categoryId = selectedCategoryId else {
+            print("❌ 카테고리 ID를 찾을 수 없습니다.")
+            return
+        }
 
         let localAddUseCase = addUseCase
+        let targetDate = currentTargetDate
+
         Task {
             do {
-                try await localAddUseCase.execute(
-                    categoryIndex: index,
+                _ = try await localAddUseCase.execute(
+                    categoryId: categoryId,
                     content: content,
-                    startTime: currentDate
+                    targetDate: targetDate,
+                    startTime: startTime
                 )
                 fetchData()
             } catch {
@@ -219,9 +288,9 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateDates() {
-        var dates: [Date] = []
+        var newDates: [Date] = []
         var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear, .weekday], from: currentDate)
-        components.weekday = 2
+        components.weekday = startWeekOnSunday ? 1 : 2
         components.hour = 0
         components.minute = 0
         components.second = 0
@@ -230,11 +299,13 @@ final class TodoViewModel: ObservableObject {
         
         for dayOffset in 0...6 {
             if let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) {
-                dates.append(date)
+                newDates.append(date)
             }
         }
         
-        self.dates = dates
+        DispatchQueue.main.async {
+            self.dates = newDates
+        }
     }
     
     func calculateDateForDay(_ day: String) -> Date? {
@@ -242,15 +313,15 @@ final class TodoViewModel: ObservableObject {
               !dates.isEmpty,
               dayIndex < dates.count else { return nil }
         
-        var date = dates[dayIndex]
-        
-        return date
+        return dates[dayIndex]
     }
 
     func moveWeek(by value: Int) {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
             updateDates()
+            objectWillChange.send()
+            fetchData()
         }
     }
     
@@ -270,6 +341,7 @@ final class TodoViewModel: ObservableObject {
     func presentMeatball(for todo: TimerTodo) {
         selectedTodoForMenu = todo
         sheetTodoTitle = todo.content
+        sheetTodoId = todo.id
         sheetCategoryName = categoryName(for: todo.id) ?? ""
         sheetStartTime = todo.startTime ?? nil
         // TODO: 미룬이 알림 여부 모델에 추가
@@ -286,6 +358,51 @@ final class TodoViewModel: ObservableObject {
             }
         }
         return nil
+    }
+    
+    func removeTodo(id: Int, newCompleted: Int, newTotal: Int) {
+        guard var data = todoData else { return }
+
+        for i in data.categories.indices {
+            if let idx = data.categories[i].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[i].todos.remove(at: idx)
+                break
+            }
+        }
+
+        data = TodoData(
+            myPromiseMessage: data.myPromiseMessage,
+            summary: TodoSummary(
+                date: data.summary.date,
+                totalCount: newTotal,
+                completedCount: newCompleted
+            ),
+            categories: data.categories
+        )
+
+        todoData = data
+    }
+    
+    func replaceTodoStartTime(id: Int, newStartTime: String?) {
+        guard var data = todoData else { return }
+        for c in data.categories.indices {
+            if let idx = data.categories[c].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[c].todos[idx].startTime = newStartTime
+                break
+            }
+        }
+        todoData = data
+    }
+    
+    func removeTodoAfterReschedule(id: Int) {
+        guard var data = todoData else { return }
+        for i in data.categories.indices {
+            if let idx = data.categories[i].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[i].todos.remove(at: idx)
+                break
+            }
+        }
+        todoData = data
     }
 }
 
@@ -305,5 +422,59 @@ extension TodoViewModel {
         }
         result.append(.globalTail)
         return result
+    }
+}
+
+extension TodoViewModel {
+    func todoDataTitle(for id: Int) -> String? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if let t = cat.todos.first(where: { $0.id == id }) {
+                return t.content
+            }
+        }
+        return nil
+    }
+
+    func todoDataStartTime(for id: Int) -> String? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if let t = cat.todos.first(where: { $0.id == id }) {
+                return t.startTime
+            }
+        }
+        return nil
+    }
+
+    func updateTodoTitle(id: Int, newTitle: String) {
+        guard var data = todoData else { return }
+        for ci in data.categories.indices {
+            if let ti = data.categories[ci].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[ci].todos[ti].content = newTitle
+                todoData = data
+                return
+            }
+        }
+    }
+
+    func updateTodoStartTime(id: Int, newTime: String?) {
+        guard var data = todoData else { return }
+        for ci in data.categories.indices {
+            if let ti = data.categories[ci].todos.firstIndex(where: { $0.id == id }) {
+                data.categories[ci].todos[ti].startTime = newTime
+                todoData = data
+                return
+            }
+        }
+    }
+    
+    func todoDataTargetDate(for id: Int) -> Date? {
+        guard let categories = todoData?.categories else { return nil }
+        for cat in categories {
+            if let t = cat.todos.first(where: { $0.id == id }) {
+                return t.targetDateAsDate
+            }
+        }
+        return nil
     }
 }

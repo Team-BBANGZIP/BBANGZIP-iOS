@@ -13,10 +13,17 @@ enum BbangRouter {
         providerToken: String
     )
     case refreshToken(refreshToken: String)
-    case signUp(
-        dto: SignUpRequestDTO,
-        accessToken: String
-    )
+    
+    //송희
+    case addTodo(dto: TodoAddRequestDTO, accessToken: String)
+    case fetchTodos(params: TodoFetchRequestDTO, accessToken: String)
+    case addCategory(dto: CategoryAddRequestDTO, accessToken: String)
+    case editTodo(id: Int, dto: TodoEditRequestDTO, accessToken: String)
+    case deleteTodo(id: Int, accessToken: String)
+    case updateTodoStartTime(id: Int, dto: TodoStartTimeEditRequestDTO, accessToken: String)
+    case rescheduleTodo(id: Int, dto: TodoRescheduleRequestDTO, accessToken: String)
+    
+    // TODO: 추가 API들은 여기에 case로 추가
 }
 
 extension BbangRouter: Router {
@@ -30,15 +37,33 @@ extension BbangRouter: Router {
             return "/api/v1/auth/signin"
         case .refreshToken:
             return "/api/v1/auth/re-issue"
-        case .signUp:
-            return "/api/v1/auth/signup"
+        case .addTodo:
+            return "/api/v1/todos"
+        case .fetchTodos:
+            return "/api/v1/todos"
+        case .addCategory:
+            return "/api/v1/categories"
+        case .editTodo(let id, _, _):
+            return "/api/v1/todos/\(id)"
+        case .deleteTodo(let id, _):
+            return "/api/v1/todos/\(id)"
+        case .updateTodoStartTime(let id, _, _):
+            return "/api/v1/todos/\(id)/start-time"
+        case .rescheduleTodo(let id, _, _):
+            return "/api/v1/todos/\(id)/reschedule"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .signIn, .refreshToken, .signUp:
+        case .signIn, .refreshToken, .addTodo, .addCategory:
             return .post
+        case .fetchTodos:
+            return .get
+        case .editTodo, .updateTodoStartTime, .rescheduleTodo:
+            return .patch
+        case .deleteTodo:
+            return .delete
         }
     }
     
@@ -50,10 +75,14 @@ extension BbangRouter: Router {
         case .refreshToken(let refreshToken):
             return ["Authorization": "Bearer \(refreshToken)"]
             
-        case .signUp(
-            _,
-            let accessToken
-        ):
+        case .addTodo(_, let accessToken),
+                .fetchTodos(_, let accessToken), 
+                .addCategory(_, let accessToken),
+                .editTodo(_, _, let accessToken),
+                .deleteTodo(_, let accessToken),
+                .updateTodoStartTime(_, _, let accessToken),
+                .rescheduleTodo(_, _, let accessToken)
+            :
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
@@ -67,16 +96,30 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .refreshToken:
             return [:]
-        case .signUp(let dto, _):
+        case .addTodo(let dto, _):
+            return dto.asDictionary()
+        case .fetchTodos(let params, _):
+            return params.asDictionary()
+        case .addCategory(let dto, _):
+            return dto.asDictionary()
+        case .editTodo(_, let dto, _):
+            return dto.asDictionary()
+        case .deleteTodo:
+            return [:]
+        case .updateTodoStartTime(_, let dto, _):
+            return dto.asDictionary()
+        case .rescheduleTodo(_, let dto, _):
             return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .signUp:
+        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo:
             return JSONEncoding.default
-        case .refreshToken:
+        case .fetchTodos:
+            return URLEncoding(destination: .queryString)
+        case .refreshToken, .deleteTodo:
             return nil
         }
     }
