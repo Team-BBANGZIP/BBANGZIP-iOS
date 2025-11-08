@@ -118,7 +118,7 @@ private extension OnboardingView {
                 .fill(Color(.backgroundStrong))
                 .frame(width: 100, height: 100)
             
-            Image(viewModel.selectedProfileImage ?? "profileBasic")
+            Image(viewModel.selectedProfileImage ?? "profile_basic")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 100)
@@ -187,24 +187,14 @@ private extension OnboardingView {
                 await viewModel.saveProfile()
             }
         }) {
-            HStack {
-                Text("저장하기")
-                    .bbangFont(.body2)
-                    .foregroundColor(Color(.staticwhite))
-                
-                Image(.icPencil)
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 16, height: 16)
-                    .foregroundColor(Color(.staticwhite))
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .background(
-                RoundedRectangle(cornerRadius: 32)
-                    .fill(viewModel.canSave ? Color(.primaryNormal) : Color(.disabled))
-            )
+            Text("저장하기")
         }
+        .buttonStyle(
+            BbangButtonStyle(
+                style: viewModel.canSave ? .secondary : .disabled,
+                rightIcon: Image(.icPencil)
+            )
+        )
         .disabled(!viewModel.canSave || viewModel.isLoading)
         .padding(.horizontal, 20)
         .padding(.bottom, 20)

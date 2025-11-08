@@ -10,7 +10,7 @@ import SwiftUI
 @MainActor
 final class OnboardingViewModel: ObservableObject {
     @Published private(set) var userName: String = ""
-    @Published private(set) var selectedProfileImage: String? = "profile_basic"
+    @Published private(set) var selectedProfileImage: String? = nil
     @Published var showImagePicker: Bool = false
     @Published var showNameInput: Bool = false
     @Published var isLoading: Bool = false
