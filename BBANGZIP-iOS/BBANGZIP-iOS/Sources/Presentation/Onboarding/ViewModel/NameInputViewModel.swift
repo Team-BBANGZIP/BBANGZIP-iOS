@@ -21,7 +21,7 @@ final class NameInputViewModel: ObservableObject {
     }
     
     var isNameValid: Bool {
-        !tempUserName.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !tempUserName.isEmpty &&
         tempUserName.count <= maxNameLength &&
         !containsEmoji(tempUserName)
     }
@@ -48,8 +48,7 @@ final class NameInputViewModel: ObservableObject {
     }
     
     func confirmName() {
-        let trimmedName = tempUserName.trimmingCharacters(in: .whitespaces)
-        if !trimmedName.isEmpty && !containsEmoji(tempUserName) {
+        if !tempUserName.isEmpty && !containsEmoji(tempUserName) {
             onSave(tempUserName)
         }
     }

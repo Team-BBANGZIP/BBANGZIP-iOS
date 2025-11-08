@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Alamofire
 
 protocol SignUpRepository: Sendable {
     func signUp(
@@ -16,33 +15,30 @@ protocol SignUpRepository: Sendable {
 }
 
 final class SignUpRepositoryImpl: SignUpRepository {
-    func signUp(nickname: String, profileImageKey: Int) async throws -> SignUp {
-        guard let accessToken = TokenManager.shared.getAccessToken() else {
-            throw NSError(
-                domain: "SignUpRepository",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "Access token not found"]
-            )
-        }
-        
+    private let api: API
+    
+    init(api: API = API()) {
+        self.api = api
+    }
+    
+    func signUp(
+        nickname: String,
+        profileImageKey: Int
+    ) async throws -> SignUp {
         let requestDTO = SignUpRequestDTO(
             nickname: nickname,
             profileImageKey: profileImageKey
         )
         
-        return try await withCheckedThrowingContinuation { continuation in
-            AF.request(
-                BbangRouter.signUp(dto: requestDTO, accessToken: accessToken)
-            )
-            .validate()
-            .responseDecodable(of: SignUpResponseDTO.self) { response in
-                switch response.result {
-                case .success(let dto):
-                    continuation.resume(returning: dto.toEntity())
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        let router = BbangRouter.signUp(dto: requestDTO)
+        
+        do {
+            let response: SignUpResponseDTO = try await api.request(api: router)
+            return response.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("SignUp Error: \(error.localizedDescription)")
+            throw error
         }
     }
 }

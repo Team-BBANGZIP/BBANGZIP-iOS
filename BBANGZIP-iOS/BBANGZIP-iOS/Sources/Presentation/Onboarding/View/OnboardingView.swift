@@ -77,12 +77,13 @@ struct OnboardingView: View {
         }
         .onChange(of: viewModel.showNameInput) { oldValue, newValue in
             if oldValue && !newValue {
-                viewModel.setUserName(nameInputViewModel.tempUserName.trimmingCharacters(in: .whitespaces))
+                viewModel.setUserName(nameInputViewModel.tempUserName)
             } else if !oldValue && newValue {
                 nameInputViewModel.tempUserName = viewModel.userName
             }
         }
     }
+}
 }
 
 private extension OnboardingView {

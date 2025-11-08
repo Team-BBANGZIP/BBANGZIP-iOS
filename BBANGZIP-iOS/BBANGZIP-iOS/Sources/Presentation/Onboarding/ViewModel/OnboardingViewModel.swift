@@ -65,8 +65,8 @@ final class OnboardingViewModel: ObservableObject {
             return
         }
         
-        guard TokenManager.shared.getAccessToken() != nil else {
-            errorMessage = "인증 정보가 없습니다. 다시 로그인해주세요."
+        guard !userName.isEmpty else {
+            errorMessage = "닉네임을 입력해주세요."
             return
         }
         
@@ -80,10 +80,14 @@ final class OnboardingViewModel: ObservableObject {
             )
             
             if result.isSuccess {
-                // ✅ 회원가입 성공 시에만 UserDefaults에 저장
-                UserDefaults.standard.set(userName, forKey: "userName")
-                UserDefaults.standard.set(selectedProfileImage, forKey: "profileImage")
-                // ❌ hasCompletedOnboarding 제거 - 서버의 isSignUpComplete를 신뢰
+                UserDefaults.standard.set(
+                    userName,
+                    forKey: "userName"
+                )
+                UserDefaults.standard.set(
+                    selectedProfileImage,
+                    forKey: "profileImage"
+                )
                 
                 NotificationCenter.default.post(
                     name: NSNotification.Name("OnboardingCompleted"),

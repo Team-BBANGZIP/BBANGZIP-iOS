@@ -14,10 +14,7 @@ enum BbangRouter {
         providerToken: String
     )
     case refreshToken(refreshToken: String)
-    case signUp(
-        dto: SignUpRequestDTO,
-        accessToken: String
-    )
+    case signUp(dto: SignUpRequestDTO)
 
     // 송희
     case addTodo(dto: TodoAddRequestDTO, accessToken: String)
@@ -86,11 +83,8 @@ extension BbangRouter: Router {
         case .refreshToken(let refreshToken):
             return ["Authorization": "Bearer \(refreshToken)"]
 
-        case .signUp(_, let accessToken):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(accessToken)"
-            ]
+        case .signUp:
+            return ["Content-Type": "application/json"]
 
         case .addTodo(_, let accessToken),
              .fetchTodos(_, let accessToken),
@@ -112,7 +106,7 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .refreshToken:
             return [:]
-        case .signUp(let dto, _):
+        case .signUp(let dto):
             return dto.asDictionary()
 
         case .addTodo(let dto, _):
