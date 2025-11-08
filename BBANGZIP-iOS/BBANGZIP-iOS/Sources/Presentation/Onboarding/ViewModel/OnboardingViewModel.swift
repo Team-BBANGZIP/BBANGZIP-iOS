@@ -13,6 +13,20 @@ final class OnboardingViewModel: ObservableObject {
     @Published private(set) var selectedProfileImage: String? = "profile_basic"
     @Published var showImagePicker: Bool = false
     @Published var showNameInput: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    
+    private let signUpUseCase: SignUpUseCase
+    
+    private let profileImageKeyMap: [String: Int] = [
+        "profile_basic": 0,
+        "Profile_1": 1,
+        "Profile_2": 2,
+        "Profile_3": 3,
+        "Profile_4": 4,
+        "Profile_5": 5,
+        "Profile_6": 6
+    ]
     
     var nameFilled: Bool {
         !userName.isEmpty
@@ -20,6 +34,10 @@ final class OnboardingViewModel: ObservableObject {
     
     var canSave: Bool {
         !userName.isEmpty && selectedProfileImage != nil
+    }
+    
+    init(signUpUseCase: SignUpUseCase = SignUpUseCaseImpl()) {
+        self.signUpUseCase = signUpUseCase
     }
     
     func openImagePicker() {
@@ -38,27 +56,47 @@ final class OnboardingViewModel: ObservableObject {
         userName = name
     }
     
-    func saveProfile() {
+    func saveProfile() async {
         guard canSave else { return }
         
-        UserDefaults.standard.set(
-            userName,
-            forKey: "userName"
-        )
-        UserDefaults.standard.set(
-            selectedProfileImage,
-            forKey: "profileImage"
-        )
-        UserDefaults.standard.set(
-            true,
-            forKey: "hasCompletedOnboarding"
-        )
+        guard let profileImage = selectedProfileImage,
+              let profileImageKey = profileImageKeyMap[profileImage] else {
+            errorMessage = "프로필 이미지를 선택해주세요."
+            return
+        }
         
-        NotificationCenter.default.post(
-            name: NSNotification.Name(
-                "OnboardingCompleted"
-            ),
-            object: nil
-        )
+        guard TokenManager.shared.getAccessToken() != nil else {
+            errorMessage = "인증 정보가 없습니다. 다시 로그인해주세요."
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let result = try await signUpUseCase.execute(
+                nickname: userName,
+                profileImageKey: profileImageKey
+            )
+            
+            if result.isSuccess {
+                // ✅ 회원가입 성공 시에만 UserDefaults에 저장
+                UserDefaults.standard.set(userName, forKey: "userName")
+                UserDefaults.standard.set(selectedProfileImage, forKey: "profileImage")
+                // ❌ hasCompletedOnboarding 제거 - 서버의 isSignUpComplete를 신뢰
+                
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("OnboardingCompleted"),
+                    object: nil
+                )
+            } else {
+                errorMessage = "회원가입에 실패했습니다."
+            }
+        } catch {
+            errorMessage = "회원가입 중 오류가 발생했습니다: \(error.localizedDescription)"
+            LoggerFactory.create(category: .data).error("Sign Up Failed: \(error)")
+        }
+        
+        isLoading = false
     }
 }
