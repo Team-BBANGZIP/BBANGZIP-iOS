@@ -109,7 +109,6 @@ final class MockTodoRepository: TodoRepository {
     
     func fetchTodos(
         date: Date,
-        accessToken: String
     ) async throws -> TodoData {
         let dateString = DateFormatter.inputDateYMDFormatter.string(from: date)
         

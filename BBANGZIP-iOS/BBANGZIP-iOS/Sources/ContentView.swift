@@ -13,10 +13,10 @@ public struct ContentView: View {
     @State private var showCheckedOffView = false
     @State private var isLaunch: Bool = true
     @State private var isLoggedIn: Bool = false
+    @State private var showOnboarding: Bool = false
     
     public init() {
         KakaoSDK.initSDK(appKey: ConfigManager.kakaoAppKey)
-        
         let appearance = UITabBarAppearance()
         appearance.backgroundColor = UIColor(Color(.componentAlternative))
         appearance.shadowColor = UIColor(Color(.labelDisable))
@@ -28,28 +28,65 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        if isLaunch {
-            LaunchView()
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            self.isLaunch = false
+        Group {
+            if isLaunch {
+                LaunchView()
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                checkAuthStatusAndNavigate()
+                            }
                         }
                     }
-                }
-        } else if !isLoggedIn {
-            LoginView()
-                .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        self.isLoggedIn = true
+            } else if showOnboarding {
+                OnboardingView()
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OnboardingCompleted"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.showOnboarding = false
+                            self.isLoggedIn = true
+                        }
                     }
-                }
-                .onOpenURL { url in
-                    if AuthApi.isKakaoTalkLoginUrl(url) {
-                        _ = AuthController.handleOpenUrl(url: url)
+            } else if !isLoggedIn {
+                LoginView()
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.isLoggedIn = true
+                        }
                     }
-                }
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowOnboarding"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.showOnboarding = true
+                        }
+                    }
+                    .onOpenURL { url in
+                        if AuthApi.isKakaoTalkLoginUrl(url) {
+                            _ = AuthController.handleOpenUrl(url: url)
+                        }
+                    }
+            } else {
+                mainContent
+            }
+        }
+    }
+    
+    private func checkAuthStatusAndNavigate() {
+        // ✅ 토큰이 있는지만 확인
+        let hasToken = TokenManager.shared.hasValidTokens()
+        
+        self.isLaunch = false
+        
+        if hasToken {
+            // ✅ 토큰이 있으면 바로 메인 화면
+            // Interceptor가 API 호출 시 자동으로 토큰을 넣어줌
+            self.isLoggedIn = true
         } else {
+            // ❌ 토큰이 없으면 로그인 화면
+            self.isLoggedIn = false
+        }
+    }
+    
+    private var mainContent: some View {
+        NavigationStack {
             ZStack {
                 if showCheckedOffView {
                     checkedOffView
@@ -60,17 +97,17 @@ public struct ContentView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
-            .onChange(of: scenePhase) { newPhase in
-                handleScenePhaseChange(newPhase)
-            }
-            .onChange(of: timerViewModel.state) { newState in
-                handleTimerStateChange(newState)
-            }
-            .onReceive(timerViewModel.$shouldShowCheckedOffView) { shouldShow in
-                if shouldShow {
-                    showCheckedOffView = true
-                    timerViewModel.resetCheckedOffViewFlag()
-                }
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(newPhase)
+        }
+        .onChange(of: timerViewModel.state) { oldState, newState in
+            handleTimerStateChange(newState)
+        }
+        .onReceive(timerViewModel.$shouldShowCheckedOffView) { shouldShow in
+            if shouldShow {
+                showCheckedOffView = true
+                timerViewModel.resetCheckedOffViewFlag()
             }
         }
     }

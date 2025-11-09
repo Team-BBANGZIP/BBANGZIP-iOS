@@ -30,7 +30,7 @@ final class AddCategoryRepository: AddCategoryRepositoryProtocol {
             throw AuthError.invalidToken
         }
 
-        let router = BbangRouter.addCategory(dto: request, accessToken: accessToken)
+        let router = BbangRouter.addCategory(dto: request)
 
         do {
             let response: CategoryAddResponseDTO = try await api.request(api: router)

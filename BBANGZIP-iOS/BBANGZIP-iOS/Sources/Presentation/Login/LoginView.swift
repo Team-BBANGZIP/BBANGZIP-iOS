@@ -67,10 +67,39 @@ struct LoginView: View {
                     .opacity(vm.showBbangBackground ? 1 : 0)
                     .ignoresSafeArea(edges: .bottom)
                     .zIndex(-1)
+                
+                if vm.isLoading {
+                    LoadingView()
+                }
             }
             .onAppear { vm.startIntroAnimation() }
         }
         .preferredColorScheme(.light)
+        .alert("로그인 오류", isPresented: .constant(vm.errorMessage != nil)) {
+            Button("확인") {
+                vm.errorMessage = nil
+            }
+        } message: {
+            if let errorMessage = vm.errorMessage {
+                Text(errorMessage)
+            }
+        }
+        .onChange(of: vm.shouldShowOnboarding) { oldValue, newValue in
+            if newValue {
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ShowOnboarding"),
+                    object: nil
+                )
+            }
+        }
+        .onChange(of: vm.shouldNavigateToMain) { oldValue, newValue in
+            if newValue {
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("LoginSuccess"),
+                    object: nil
+                )
+            }
+        }
     }
     
     private func safeBottomInset() -> CGFloat {
@@ -79,6 +108,19 @@ struct LoginView: View {
             .flatMap { $0.windows }
             .first { $0.isKeyWindow }?
             .safeAreaInsets.bottom ?? 0
+    }
+}
+
+private struct LoadingView: View {
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+            
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .scaleEffect(1.5)
+        }
     }
 }
 

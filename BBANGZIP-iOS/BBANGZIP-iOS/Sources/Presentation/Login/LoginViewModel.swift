@@ -20,6 +20,8 @@ final class LoginViewModel: NSObject, ObservableObject {
     
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var shouldShowOnboarding = false
+    @Published var shouldNavigateToMain = false
     
     private var started = false
     private let signInUseCase: SignInUseCase
@@ -108,12 +110,15 @@ final class LoginViewModel: NSObject, ObservableObject {
                     role: .user
                 )
                 
+                LoggerFactory.create(category: .data).debug("Login Success - Token saved")
+                LoggerFactory.create(category: .data).debug("isSignUpComplete: \(result.isSignUpComplete)")
+                
                 isLoading = false
                 
                 if result.isSignUpComplete {
-                    // TODO: 메인 화면으로 이동
+                    shouldNavigateToMain = true
                 } else {
-                    // TODO: 온보딩 화면으로 이동
+                    shouldShowOnboarding = true
                 }
                 
             } catch {
@@ -150,12 +155,15 @@ final class LoginViewModel: NSObject, ObservableObject {
                     role: .user
                 )
                 
+                LoggerFactory.create(category: .data).debug("Login Success - Token saved")
+                LoggerFactory.create(category: .data).debug("isSignUpComplete: \(result.isSignUpComplete)")
+                
                 isLoading = false
                 
                 if result.isSignUpComplete {
-                    // TODO: 메인 화면으로 이동
+                    shouldNavigateToMain = true
                 } else {
-                    // TODO: 온보딩 화면으로 이동
+                    shouldShowOnboarding = true
                 }
                 
             } catch {
