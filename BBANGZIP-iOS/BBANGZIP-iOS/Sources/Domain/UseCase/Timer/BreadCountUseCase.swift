@@ -13,22 +13,13 @@ protocol BreadCountUseCase: Sendable {
 
 final class BreadCountUseCaseImpl: BreadCountUseCase {
     private let repository: BreadCountRepository
-    private let tokenManager: TokenManager
     
-    init(repository: BreadCountRepository, tokenManager: TokenManager = .shared) {
+    init(repository: BreadCountRepository) {
         self.repository = repository
-        self.tokenManager = tokenManager
     }
     
     func getTodayBreadCount() async throws -> Int {
         
-        guard let accessToken = tokenManager.getAccessToken() else {
-            LoggerFactory.create(category: .data)
-                .error("getTodayBreadCount Error: AccessToken is nil")
-            
-            throw AuthError.invalidToken
-        }
-        
-        return try await repository.getTodayBreadCount(accessToken: accessToken).todayBakedCount
+        return try await repository.getTodayBreadCount().todayBakedCount
     }
 }

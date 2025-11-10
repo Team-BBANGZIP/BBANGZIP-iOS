@@ -13,24 +13,15 @@ protocol TimerCompleteRepositoryProtocol: Sendable {
 
 final class TimerCompleteRepository: TimerCompleteRepositoryProtocol {
     private let api: API
-    private let tokenManager: TokenManager
     
     init(
-        api: API = API(),
-        tokenManager: TokenManager = .shared
+        api: API = API()
     ) {
         self.api = api
-        self.tokenManager = tokenManager
     }
     
     func completeTimer(request: TimerCompleteRequestDTO) async throws -> TimerCompleteCount {
-        guard let accessToken = tokenManager.getAccessToken() else {
-            LoggerFactory.create(category: .data)
-                .error("CompleteTimer Error: AccessToken is nil")
-            throw AuthError.invalidToken
-        }
-        
-        let router = BbangRouter.completeTimer(dto: request, accessToken: accessToken)
+        let router = BbangRouter.completeTimer(dto: request)
         
         do {
             let response: TimerCompleteResponseDTO = try await api.request(api: router)

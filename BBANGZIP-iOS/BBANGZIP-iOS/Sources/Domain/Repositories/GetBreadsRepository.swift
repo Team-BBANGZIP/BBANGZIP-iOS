@@ -9,37 +9,20 @@ import Foundation
 
 protocol GetBreadsRepositoryProtocol: Sendable {
     func getBreads(
-        accessToken: String
     ) async throws -> BreadList
 }
 
 final class GetBreadsRepository: GetBreadsRepositoryProtocol {
     private let api: API
-    private let tokenManager: TokenManager
 
     init(
-        api: API = API(),
-        tokenManager: TokenManager = .shared
+        api: API = API()
     ) {
         self.api = api
-        self.tokenManager = tokenManager
     }
     
-    func getBreads(
-        accessToken: String
-    ) async throws -> BreadList {
-        
-        guard
-            let token = accessToken.isEmpty
-                ? tokenManager.getAccessToken()
-                : accessToken
-        else {
-            LoggerFactory.create(category: .data)
-                .error("getBreads: accessToken is nil")
-            throw AuthError.invalidToken
-        }
-        
-        let router = BbangRouter.getBreads(accessToken: token)
+    func getBreads() async throws -> BreadList {
+        let router = BbangRouter.getBreads
         
         do {
             let response: BreadsResponseDTO = try await api.request(api: router)

@@ -13,19 +13,13 @@ protocol GetBreadsUseCaseProtocol: Sendable {
 
 final class GetBreadsUseCase: GetBreadsUseCaseProtocol {
     private let repository: GetBreadsRepository
-    private let tokenManager: TokenManager
     
-    init(repository: GetBreadsRepository, tokenManager: TokenManager = .shared) {
+    init(repository: GetBreadsRepository) {
         self.repository = repository
-        self.tokenManager = tokenManager
     }
     
     func execute() async throws -> BreadList {
-        guard let accessToken = tokenManager.getAccessToken() else {
-            LoggerFactory.create(category: .data)
-                .error("getBreads Error: AccessToken is nil")
-            throw AuthError.invalidToken
-        }
-        return try await repository.getBreads(accessToken: accessToken)
+        
+        return try await repository.getBreads()
     }
 }

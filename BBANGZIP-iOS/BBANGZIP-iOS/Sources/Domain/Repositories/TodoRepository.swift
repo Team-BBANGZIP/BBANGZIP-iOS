@@ -94,14 +94,8 @@ final class TodoRepositoryImpl: TodoRepository {
     }
     
     func completeTodo(todoId: Int, isCompleted: Bool) async throws -> TodoComplete {
-        guard let accessToken = tokenManager.getAccessToken() else {
-            LoggerFactory.create(category: .data)
-                .error("AddTodo Error: AccessToken is nil")
-            throw AuthError.invalidToken
-        }
-        
         let dto = TodoCompleteRequestDTO(isCompleted: isCompleted)
-        let router = BbangRouter.completeTodo(id: todoId, dto: dto, accessToken: accessToken)
+        let router = BbangRouter.completeTodo(id: todoId, dto: dto)
         
         do {
             let response: TodoCompleteResponseDTO = try await api.request(api: router)

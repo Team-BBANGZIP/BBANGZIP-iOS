@@ -13,27 +13,15 @@ protocol WriteCommitmentMessageRepositoryProtocol: Sendable {
 
 final class WriteCommitmentMessageRepository: WriteCommitmentMessageRepositoryProtocol {
     private let api: API
-    private let tokenManager: TokenManager
     
     init(
-        api: API = API(),
-        tokenManager: TokenManager = .shared
+        api: API = API()
     ) {
         self.api = api
-        self.tokenManager = tokenManager
     }
     
     func writeCommitmentMessage(request: CommitmentMessageWriteRequestDTO) async throws -> CommitmentMessage {
-        guard let accessToken = tokenManager.getAccessToken() else {
-            LoggerFactory.create(category: .data)
-                .error("WriteCommitmentMessage Error: AccessToken is nil")
-            throw AuthError.invalidToken
-        }
-        
-        let router = BbangRouter.writeCommitmentMessage(
-            dto: request,
-            accessToken: accessToken
-        )
+        let router = BbangRouter.writeCommitmentMessage(dto: request)
         
         do {
             let response: CommitmentMessageWriteResponseDTO = try await api.request(api: router)

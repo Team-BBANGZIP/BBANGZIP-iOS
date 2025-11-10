@@ -22,11 +22,11 @@ enum BbangRouter {
     case rescheduleTodo(id: Int, dto: TodoRescheduleRequestDTO, accessToken: String)
     
     //유빈
-    case getTodayBreadCount(accessToken: String)
-    case getBreads(accessToken: String)
-    case completeTimer(dto: TimerCompleteRequestDTO, accessToken: String)
-    case writeCommitmentMessage(dto: CommitmentMessageWriteRequestDTO, accessToken: String)
-    case completeTodo(id: Int, dto: TodoCompleteRequestDTO, accessToken: String)
+    case getTodayBreadCount
+    case getBreads
+    case completeTimer(dto: TimerCompleteRequestDTO)
+    case writeCommitmentMessage(dto: CommitmentMessageWriteRequestDTO)
+    case completeTodo(id: Int, dto: TodoCompleteRequestDTO)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -64,7 +64,7 @@ extension BbangRouter: Router {
             return "/api/v1/timers"
         case .writeCommitmentMessage:
             return "/api/v1/users/commitments"
-        case .completeTodo(let id, _, _):
+        case .completeTodo(let id, _):
             return "/api/v1/todos/\(id)/completion"
         }
     }
@@ -96,17 +96,18 @@ extension BbangRouter: Router {
                 .editTodo(_, _, let accessToken),
                 .deleteTodo(_, let accessToken),
                 .updateTodoStartTime(_, _, let accessToken),
-                .rescheduleTodo(_, _, let accessToken),
-                .getTodayBreadCount(let accessToken),
-                .getBreads(let accessToken),
-                .completeTimer(_, let accessToken),
-                .writeCommitmentMessage(_, let accessToken),
-                .completeTodo(_, _, let accessToken)
-            :
+                .rescheduleTodo(_, _, let accessToken):
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(accessToken)"
             ]
+            
+        case .getTodayBreadCount,
+                .getBreads,
+                .completeTimer,
+                .writeCommitmentMessage,
+                .completeTodo:
+            return ["Content-Type": "application/json"]
         }
     }
     
@@ -130,15 +131,15 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .rescheduleTodo(_, let dto, _):
             return dto.asDictionary()
-        case .getTodayBreadCount(_):
+        case .getTodayBreadCount:
             return [:]
-        case .getBreads(_):
+        case .getBreads:
             return [:]
-        case .completeTimer(let dto, _):
+        case .completeTimer(let dto):
             return dto.asDictionary()
-        case .writeCommitmentMessage(let dto, _):
+        case .writeCommitmentMessage(let dto):
             return dto.asDictionary()
-        case .completeTodo(_, let dto, _):
+        case .completeTodo(_, let dto):
             return dto.asDictionary()
         }
     }

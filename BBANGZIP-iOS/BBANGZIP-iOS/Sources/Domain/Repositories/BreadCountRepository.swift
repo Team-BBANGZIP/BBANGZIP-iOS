@@ -8,38 +8,20 @@
 import Foundation
 
 protocol BreadCountRepository: Sendable {
-    func getTodayBreadCount(
-        accessToken: String
-    ) async throws -> BreadCount
+    func getTodayBreadCount() async throws -> BreadCount
 }
 
 final class BreadCountRepositoryImpl: BreadCountRepository {
     private let api: API
-    private let tokenManager: TokenManager
 
     init(
-        api: API = API(),
-        tokenManager: TokenManager = .shared
+        api: API = API()
     ) {
         self.api = api
-        self.tokenManager = tokenManager
     }
     
-    func getTodayBreadCount(
-        accessToken: String
-    ) async throws -> BreadCount {
-        
-        guard
-            let token = accessToken.isEmpty
-                ? tokenManager.getAccessToken()
-                : accessToken
-        else {
-            LoggerFactory.create(category: .data)
-                .error("getTodayBreadCount: accessToken is nil")
-            throw AuthError.invalidToken
-        }
-        
-        let router = BbangRouter.getTodayBreadCount(accessToken: token)
+    func getTodayBreadCount() async throws -> BreadCount {
+        let router = BbangRouter.getTodayBreadCount
         
         do {
             let response: BreadCountResponseDTO = try await api.request(api: router)
