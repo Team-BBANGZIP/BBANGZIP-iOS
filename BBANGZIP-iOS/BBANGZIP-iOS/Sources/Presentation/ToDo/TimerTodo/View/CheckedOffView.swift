@@ -172,30 +172,6 @@ private extension CheckedOffView {
     }
 }
 
-struct CheckedOffView_Previews: PreviewProvider {
-    static var previews: some View {
-        let mockRepo = MockTodoRepository()
-        let fetchUseCase = DefaultFetchTodosUseCase(repository: mockRepo)
-        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
-        
-        let previewViewModel = TimerCheckedOffViewModel(
-            fetchUseCase: fetchUseCase,
-            toggleUseCase: toggleUseCase,
-            addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
-        )
-        
-        return CheckedOffView(
-            viewModel: previewViewModel,
-            onBackToTimer: {
-                print("Preview: Back to timer")
-            },
-            onStartAdditionalTimer: {
-                print("Preview: Start additional timer")
-            }
-        )
-    }
-}
-
 extension CategoryColor {
     var color: Color {
         switch self {

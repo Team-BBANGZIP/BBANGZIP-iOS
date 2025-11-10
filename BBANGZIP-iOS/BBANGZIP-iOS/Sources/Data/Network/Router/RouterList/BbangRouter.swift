@@ -26,6 +26,7 @@ enum BbangRouter {
     case getBreads(accessToken: String)
     case completeTimer(dto: TimerCompleteRequestDTO, accessToken: String)
     case writeCommitmentMessage(dto: CommitmentMessageWriteRequestDTO, accessToken: String)
+    case completeTodo(id: Int, dto: TodoCompleteRequestDTO, accessToken: String)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -63,6 +64,8 @@ extension BbangRouter: Router {
             return "/api/v1/timers"
         case .writeCommitmentMessage:
             return "/api/v1/users/commitments"
+        case .completeTodo(let id, _, _):
+            return "/api/v1/todos/\(id)/completion"
         }
     }
     
@@ -72,7 +75,7 @@ extension BbangRouter: Router {
             return .post
         case .fetchTodos, .getTodayBreadCount, .getBreads:
             return .get
-        case .editTodo, .updateTodoStartTime, .rescheduleTodo:
+        case .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTodo:
             return .patch
         case .deleteTodo:
             return .delete
@@ -97,7 +100,8 @@ extension BbangRouter: Router {
                 .getTodayBreadCount(let accessToken),
                 .getBreads(let accessToken),
                 .completeTimer(_, let accessToken),
-                .writeCommitmentMessage(_, let accessToken)
+                .writeCommitmentMessage(_, let accessToken),
+                .completeTodo(_, _, let accessToken)
             :
             return [
                 "Content-Type": "application/json",
@@ -134,12 +138,14 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .writeCommitmentMessage(let dto, _):
             return dto.asDictionary()
+        case .completeTodo(_, let dto, _):
+            return dto.asDictionary()
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTimer, .writeCommitmentMessage:
+        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTimer, .writeCommitmentMessage, .completeTodo:
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)

@@ -13,10 +13,10 @@ protocol TodoRepository: Sendable {
         accessToken: String
     ) async throws -> TodoData
     
-    func updateTodoCompletion(
+    func completeTodo(
         todoId: Int,
         isCompleted: Bool
-    ) async throws
+    ) async throws -> TodoComplete
     
     func addTodo(
         categoryId: Int,
@@ -93,8 +93,28 @@ final class TodoRepositoryImpl: TodoRepository {
         }
     }
     
-    func updateTodoCompletion(todoId: Int, isCompleted: Bool) async throws {
-        // TODO: 구현
+    func completeTodo(todoId: Int, isCompleted: Bool) async throws -> TodoComplete {
+        guard let accessToken = tokenManager.getAccessToken() else {
+            LoggerFactory.create(category: .data)
+                .error("AddTodo Error: AccessToken is nil")
+            throw AuthError.invalidToken
+        }
+        
+        let dto = TodoCompleteRequestDTO(isCompleted: isCompleted)
+        let router = BbangRouter.completeTodo(id: todoId, dto: dto, accessToken: accessToken)
+        
+        do {
+            let response: TodoCompleteResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("CompleteTodo Error: Unexpected response code \(response.code)")
+            }
+            return response.data.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("CompleteTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     func addTodo(
