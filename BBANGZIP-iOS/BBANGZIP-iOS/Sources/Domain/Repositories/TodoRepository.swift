@@ -47,6 +47,11 @@ protocol TodoRepository: Sendable {
         id: Int,
         targetDate: Date?
     ) async throws -> TodoRescheduleDataDTO
+    
+    func repeatTodo(
+        id: Int,
+        targetDate: Date
+    ) async throws -> TodoRepeat
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -248,6 +253,24 @@ final class TodoRepositoryImpl: TodoRepository {
         } catch {
             LoggerFactory.create(category: .data)
                 .error("RescheduleTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func repeatTodo(id: Int, targetDate: Date) async throws -> TodoRepeat {
+        let dto = TodoRepeatRequestDTO(targetDate: DateFormatter.inputDateYMDFormatter.string(from: targetDate))
+        let router = BbangRouter.repeatTodo(id: id, dto: dto)
+        
+        do {
+            let response: TodoRepeatResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("RepeatTodo Error: Unexpected response code \(response.code)")
+            }
+            return response.data.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("RepeatTodo Request Failed: \(error.localizedDescription)")
             throw error
         }
     }

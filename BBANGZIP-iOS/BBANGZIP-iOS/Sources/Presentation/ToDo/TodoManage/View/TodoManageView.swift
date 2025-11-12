@@ -88,8 +88,10 @@ struct TodoManageView: View {
                 selectedDate: $viewModel.repeatDate,
                 mode: .repeatAnotherDay
             ) { newDate in
-                viewModel.repeatDate = newDate
-                viewModel.isRepeatSheetPresented = false
+                Task {
+                    await viewModel.repeatTodo(at: newDate)
+                    viewModel.isRepeatSheetPresented = false
+                }
             }
             .presentationDetents([.height(522)])
             .presentationCornerRadius(48)

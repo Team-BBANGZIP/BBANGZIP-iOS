@@ -11,6 +11,7 @@ import SwiftUI
 final class TodoManageViewModel: ObservableObject {
     private let repository: TodoRepository
     private let todoId: Int
+    private let repeatTodoUseCase: RepeatTodoUseCase
     
     private let titleBinding: Binding<String>
     private let startTimeBinding: Binding<String?>
@@ -45,6 +46,7 @@ final class TodoManageViewModel: ObservableObject {
         isCompleted: Bool,
         todoId: Int,
         repository: TodoRepository,
+        repeatTodoUseCase: RepeatTodoUseCase,
         initialTargetDate: Date?,
         onDelete: @escaping () -> Void,
         onPostpone: @escaping () -> Void,
@@ -55,6 +57,7 @@ final class TodoManageViewModel: ObservableObject {
         onPatchedStartTime: @escaping (Int, String?) -> Void
     ) {
         self.repository = repository
+        self.repeatTodoUseCase = repeatTodoUseCase
         self.todoId = todoId
         self.titleBinding = title
         self.startTimeBinding = startTime
@@ -160,6 +163,18 @@ final class TodoManageViewModel: ObservableObject {
             print("✅ Todo \(newData.todoId) moved to \(newData.targetDate)")
         } catch {
             print("❌ Reschedule failed: \(error)")
+        }
+    }
+    
+    func repeatTodo(at targetDate: Date) async {
+        do {
+            let result = try await repeatTodoUseCase.execute(
+                todoId: todoId,
+                targetDate: targetDate
+            )
+            print("✅ Todo \(result.todoId) repeat to \(result.targetDate)")
+        } catch {
+            print("❌ Repeat failed: \(error)")
         }
     }
     
