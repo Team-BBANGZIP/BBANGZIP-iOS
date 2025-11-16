@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 
 final class API: Sendable {
+    static let shared = API()
     private let session: Session
     
     init(
