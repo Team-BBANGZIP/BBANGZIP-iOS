@@ -13,25 +13,27 @@ protocol UpdateCategoryUseCaseProtocol: Sendable {
         name: String,
         color: String,
         isStopped: Bool
-    ) async throws -> UpdateCategory
+    ) async throws -> Category
 }
 
-final class UpdateCategoryUseCase: UpdateCategoryUseCaseProtocol, @unchecked Sendable {
-    private let repository: UpdateCategoryRepositoryProtocol
-    init(repository: UpdateCategoryRepositoryProtocol = UpdateCategoryRepository()) {
+final class UpdateCategoryUseCase: UpdateCategoryUseCaseProtocol {
+    private let repository: CategoryUpdateRepository
+    
+    init(repository: CategoryUpdateRepository = CategoryUpdateRepositoryImpl()) {
         self.repository = repository
     }
+    
     func updateCategory(
         id: Int,
         name: String,
         color: String,
         isStopped: Bool
-    ) async throws -> UpdateCategory {
-        let req = CategoryUpdateRequestDTO(
+    ) async throws -> Category {
+        try await repository.updateCategory(
+            id: id,
             name: name,
             color: color,
             isStopped: isStopped
         )
-        return try await repository.updateCategory(id: id, request: req)
     }
 }
