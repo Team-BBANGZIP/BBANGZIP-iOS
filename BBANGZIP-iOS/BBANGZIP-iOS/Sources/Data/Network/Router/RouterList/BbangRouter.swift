@@ -20,6 +20,7 @@ enum BbangRouter {
         id: Int,
         dto: CategoryEditRequestDTO
     )
+    case deleteCategory(id: Int)
     
     // 송희
     case addTodo(dto: TodoAddRequestDTO)
@@ -56,7 +57,8 @@ extension BbangRouter: Router {
             return "/api/v1/auth/signup"
         case .fetchCategories:
             return "/api/v1/categories"
-        case .editCategory(let id, _):
+        case .editCategory(let id, _),
+                .deleteCategory(let id):
             return "/api/v1/categories/\(id)"
             
         case .addTodo:
@@ -86,7 +88,7 @@ extension BbangRouter: Router {
             return .get
         case .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory:
             return .patch
-        case .deleteTodo:
+        case .deleteTodo, .deleteCategory:
             return .delete
         }
     }
@@ -110,7 +112,8 @@ extension BbangRouter: Router {
                 .updateTodoStartTime,
                 .rescheduleTodo,
                 .fetchCategories,
-                .editCategory:
+                .editCategory,
+                .deleteCategory:
             return ["Content-Type": "application/json"]
         }
     }
@@ -127,6 +130,8 @@ extension BbangRouter: Router {
             return params.asDictionary()
         case .editCategory(_, let dto):
             return dto.asDictionary()
+        case .deleteCategory:
+            return [:]
             
         case .addTodo(let dto):
             return dto.asDictionary()
@@ -156,7 +161,7 @@ extension BbangRouter: Router {
             return JSONEncoding.default
         case .fetchTodos, .fetchCategories:
             return URLEncoding(destination: .queryString)
-        case .deleteTodo:
+        case .deleteTodo, .deleteCategory:
             return nil
         }
     }
