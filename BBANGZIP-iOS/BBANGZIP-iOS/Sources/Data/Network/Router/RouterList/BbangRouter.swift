@@ -16,6 +16,10 @@ enum BbangRouter {
     case refreshToken(refreshToken: String)
     case signUp(dto: SignUpRequestDTO)
     case fetchCategories(params: CategoryFetchRequestDTO)
+    case editCategory(
+        id: Int,
+        dto: CategoryEditRequestDTO
+    )
     
     // 송희
     case addTodo(dto: TodoAddRequestDTO)
@@ -52,6 +56,8 @@ extension BbangRouter: Router {
             return "/api/v1/auth/signup"
         case .fetchCategories:
             return "/api/v1/categories"
+        case .editCategory(let id, _):
+            return "/api/v1/categories/\(id)"
             
         case .addTodo:
             return "/api/v1/todos"
@@ -78,7 +84,7 @@ extension BbangRouter: Router {
             return .post
         case .fetchTodos, .fetchCategories:
             return .get
-        case .editTodo, .updateTodoStartTime, .rescheduleTodo:
+        case .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory:
             return .patch
         case .deleteTodo:
             return .delete
@@ -103,7 +109,8 @@ extension BbangRouter: Router {
                 .deleteTodo,
                 .updateTodoStartTime,
                 .rescheduleTodo,
-                .fetchCategories:
+                .fetchCategories,
+                .editCategory:
             return ["Content-Type": "application/json"]
         }
     }
@@ -118,6 +125,8 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .fetchCategories(let params):
             return params.asDictionary()
+        case .editCategory(_, let dto):
+            return dto.asDictionary()
             
         case .addTodo(let dto):
             return dto.asDictionary()
@@ -143,7 +152,7 @@ extension BbangRouter: Router {
         case .refreshToken:
             return nil
             
-        case .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo:
+        case .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory:
             return JSONEncoding.default
         case .fetchTodos, .fetchCategories:
             return URLEncoding(destination: .queryString)
