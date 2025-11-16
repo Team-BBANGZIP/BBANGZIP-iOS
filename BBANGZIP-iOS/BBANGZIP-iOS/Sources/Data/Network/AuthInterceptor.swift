@@ -25,7 +25,6 @@ extension AuthInterceptor {
         guard let urlString = request.url?.absoluteString,
               !urlString.contains("signin"),
               !urlString.contains("re-issue") else {
-            // 로그인 / 토큰 재발급 API에는 Authorization 헤더 안 붙임
             return completion(.success(request))
         }
         
