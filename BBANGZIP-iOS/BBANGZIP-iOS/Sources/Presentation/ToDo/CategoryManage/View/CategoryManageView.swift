@@ -83,30 +83,36 @@ struct CategoryManageView: View {
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
-        .onChange(of: viewModel.isCompleted) { isCompleted in
+        .onChange(of: viewModel.isCompleted) { _, isCompleted in
             if isCompleted {
                 let updated = viewModel.updateCategory()
                 onSaved(updated)
                 dismiss()
             }
         }
+        .onChange(of: viewModel.isDeleted) { _, isDeleted in
+            if isDeleted {
+                onDeleted(viewModel.categoryId)
+                dismiss()
+            }
+        }
         .sheet(isPresented: $isColorPickerPresented) {
-            PickColorView(selectedColor: $viewModel.selectedColor, isPresented: $isColorPickerPresented)
-                .presentationDetents([.height(273)])
-                .presentationCornerRadius(48)
-                .presentationDragIndicator(.visible)
+            PickColorView(
+                selectedColor: $viewModel.selectedColor,
+                isPresented: $isColorPickerPresented
+            )
+            .presentationDetents([.height(273)])
+            .presentationCornerRadius(48)
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isDeleteAlertPresented) {
             let sheet = CategoryDeleteAlertView(
                 isPresented: $isDeleteAlertPresented,
                 categoryName: viewModel.categoryName,
                 onDelete: {
-                    // TODO: 삭제 API 연결
-                    onDeleted(viewModel.categoryId)
-                    dismiss()
+                    viewModel.deleteCategory()
                 }
             )
-            
             sheet
                 .presentationDetents([.height(364)])
                 .presentationCornerRadius(48)
