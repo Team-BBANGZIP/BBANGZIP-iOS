@@ -17,7 +17,7 @@ protocol SignUpRepository: Sendable {
 final class SignUpRepositoryImpl: SignUpRepository {
     private let api: API
     
-    init(api: API = API()) {
+    init(api: API = .shared) {
         self.api = api
     }
     

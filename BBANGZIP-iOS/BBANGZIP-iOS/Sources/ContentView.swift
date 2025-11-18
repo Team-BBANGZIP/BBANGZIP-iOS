@@ -70,17 +70,13 @@ public struct ContentView: View {
     }
     
     private func checkAuthStatusAndNavigate() {
-        // ✅ 토큰이 있는지만 확인
         let hasToken = TokenManager.shared.hasValidTokens()
         
         self.isLaunch = false
         
         if hasToken {
-            // ✅ 토큰이 있으면 바로 메인 화면
-            // Interceptor가 API 호출 시 자동으로 토큰을 넣어줌
             self.isLoggedIn = true
         } else {
-            // ❌ 토큰이 없으면 로그인 화면
             self.isLoggedIn = false
         }
     }
