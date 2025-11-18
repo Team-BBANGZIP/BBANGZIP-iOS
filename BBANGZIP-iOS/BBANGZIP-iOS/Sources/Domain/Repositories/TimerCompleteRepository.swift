@@ -15,7 +15,7 @@ final class TimerCompleteRepository: TimerCompleteRepositoryProtocol {
     private let api: API
     
     init(
-        api: API = API()
+        api: API = .shared
     ) {
         self.api = api
     }
