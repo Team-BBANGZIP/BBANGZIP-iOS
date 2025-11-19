@@ -12,6 +12,7 @@ final class TodoManageViewModel: ObservableObject {
     private let repository: TodoRepository
     private let todoId: Int
     private let repeatTodoUseCase: RepeatTodoUseCase
+    private let copyTodoUseCase: CopyTodoUseCase
     
     private let titleBinding: Binding<String>
     private let startTimeBinding: Binding<String?>
@@ -47,6 +48,7 @@ final class TodoManageViewModel: ObservableObject {
         todoId: Int,
         repository: TodoRepository,
         repeatTodoUseCase: RepeatTodoUseCase,
+        copyTodoUseCase: CopyTodoUseCase,
         initialTargetDate: Date?,
         onDelete: @escaping () -> Void,
         onPostpone: @escaping () -> Void,
@@ -58,6 +60,7 @@ final class TodoManageViewModel: ObservableObject {
     ) {
         self.repository = repository
         self.repeatTodoUseCase = repeatTodoUseCase
+        self.copyTodoUseCase = copyTodoUseCase
         self.todoId = todoId
         self.titleBinding = title
         self.startTimeBinding = startTime
@@ -179,4 +182,15 @@ final class TodoManageViewModel: ObservableObject {
     }
     
     // TODO: 복제하기 기능 구현
+    func copyTodo() async {
+        do {
+            let result = try await
+            copyTodoUseCase.execute(todoId: todoId)
+            onDuplicate()
+            
+            print("✅ Todo \(result.id) is copied")
+        } catch {
+            print("❌ Copy failed: \(error)")
+        }
+    }
 }

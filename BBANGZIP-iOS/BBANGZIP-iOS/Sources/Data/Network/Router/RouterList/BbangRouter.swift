@@ -28,6 +28,7 @@ enum BbangRouter {
     case writeCommitmentMessage(dto: CommitmentMessageWriteRequestDTO)
     case completeTodo(id: Int, dto: TodoCompleteRequestDTO)
     case repeatTodo(id: Int, dto: TodoRepeatRequestDTO)
+    case copyTodo(id: Int)
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -69,12 +70,14 @@ extension BbangRouter: Router {
             return "/api/v1/todos/\(id)/completion"
         case .repeatTodo(let id, _):
             return "/api/v1/todos/\(id)/repeat"
+        case .copyTodo(let id):
+            return "/api/v1/todos/\(id)/copy"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .signIn, .refreshToken, .addTodo, .addCategory, .completeTimer, .writeCommitmentMessage, .repeatTodo:
+        case .signIn, .refreshToken, .addTodo, .addCategory, .completeTimer, .writeCommitmentMessage, .repeatTodo, .copyTodo:
             return .post
         case .fetchTodos, .getTodayBreadCount, .getBreads:
             return .get
@@ -110,7 +113,8 @@ extension BbangRouter: Router {
                 .completeTimer,
                 .writeCommitmentMessage,
                 .completeTodo,
-                .repeatTodo:
+                .repeatTodo,
+                .copyTodo:
             return ["Content-Type": "application/json"]
         }
     }
@@ -147,12 +151,14 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .repeatTodo(_, let dto):
             return dto.asDictionary()
+        case .copyTodo(_):
+            return [:]
         }
     }
     
     var encoding: ParameterEncoding? {
         switch self {
-        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTimer, .writeCommitmentMessage, .completeTodo, .repeatTodo:
+        case .signIn, .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTimer, .writeCommitmentMessage, .completeTodo, .repeatTodo, .copyTodo:
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)

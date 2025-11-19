@@ -212,7 +212,9 @@ private extension TodoManageView {
             icon: Image(.icCopy),
             title: "할 일 복제하기",
             onTap: {
-                // TODO: 할 일 복제 액션
+                Task { await
+                    viewModel.copyTodo()
+                }
             }
         )
     }

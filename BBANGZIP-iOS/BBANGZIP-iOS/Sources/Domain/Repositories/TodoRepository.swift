@@ -52,6 +52,10 @@ protocol TodoRepository: Sendable {
         id: Int,
         targetDate: Date
     ) async throws -> TodoRepeat
+    
+    func copyTodo(
+        id: Int
+    ) async throws -> TimerTodo
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -271,6 +275,24 @@ final class TodoRepositoryImpl: TodoRepository {
         } catch {
             LoggerFactory.create(category: .data)
                 .error("RepeatTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func copyTodo(id: Int) async throws -> TimerTodo {
+        let router = BbangRouter.copyTodo(id: id)
+        
+        do {
+            let response: TodoCopyResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("CopyTodo Error: Unexpected response code \(response.code)")
+            }
+            return response.data.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("CopyTodo Request Failed: \(error.localizedDescription)")
+            
             throw error
         }
     }

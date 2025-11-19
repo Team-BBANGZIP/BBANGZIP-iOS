@@ -189,11 +189,14 @@ struct ToDoView: View {
                             todoId: id,
                             repository: repository,
                             repeatTodoUseCase: DefaultRepeatTodoUseCase(repository: TodoRepositoryImpl()),
+                            copyTodoUseCase: DefaultCopyTodoUseCase(repository: TodoRepositoryImpl()),
                             initialTargetDate: initialTargetDate,
                             onDelete: {
                             },
                             onPostpone: {},
-                            onDuplicate: {},
+                            onDuplicate: { [weak viewModel] in
+                                viewModel?.fetchData()
+                            },
                             onChangeDate: {},
                             onPatchedTitle: { [weak viewModel] _ in
                                 viewModel?.fetchData()
