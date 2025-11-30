@@ -144,11 +144,13 @@ public struct ContentView: View {
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
         let writeCommitmentMessageUseCase = DefaultWriteCommitmentMessageUseCase(repository:  WriteCommitmentMessageRepository())
+        let reorderTodoUseCase = DefaultReorderTodoUseCase(repository: repo)
         return TodoViewModel(
             fetchUseCase: fetchUseCase,
             toggleUseCase: toggleUseCase,
             addUseCase: addUseCase,
-            writeCommitmentMessageUseCase: writeCommitmentMessageUseCase
+            writeCommitmentMessageUseCase: writeCommitmentMessageUseCase,
+            reorderTodoUseCase: reorderTodoUseCase
         )
     }
     

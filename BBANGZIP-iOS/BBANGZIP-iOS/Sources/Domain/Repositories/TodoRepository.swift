@@ -56,6 +56,10 @@ protocol TodoRepository: Sendable {
     func copyTodo(
         id: Int
     ) async throws -> TimerTodo
+    
+    func reorderTodo(
+        request: TodoReorderRequestDTO
+    ) async throws -> Bool
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -292,6 +296,34 @@ final class TodoRepositoryImpl: TodoRepository {
         } catch {
             LoggerFactory.create(category: .data)
                 .error("CopyTodo Request Failed: \(error.localizedDescription)")
+            
+            throw error
+        }
+    }
+    
+    func reorderTodo(
+        request: TodoReorderRequestDTO
+    ) async throws -> Bool {
+        let dto = TodoReorderRequestDTO(
+            todoId: request.todoId,
+            originCategoryId: request.originCategoryId,
+            targetCategoryId: request.targetCategoryId,
+            targetCategoryColor: request.targetCategoryColor,
+            todoList: request.todoList
+        )
+        
+        let router = BbangRouter.reorderTodo(dto: dto)
+        
+        do {
+            let response: BaseResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("ReorderTodo Error: Unexpected response code \(response.code)")
+            }
+            return true
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("Reorder Todo Request Failed: \(error.localizedDescription)")
             
             throw error
         }
