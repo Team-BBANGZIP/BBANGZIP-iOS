@@ -30,6 +30,7 @@ enum BbangRouter {
     case repeatTodo(id: Int, dto: TodoRepeatRequestDTO)
     case copyTodo(id: Int)
     case reorderTodo(dto: TodoReorderRequestDTO)
+    case getProfile
     
     // TODO: 추가 API들은 여기에 case로 추가
 }
@@ -75,6 +76,8 @@ extension BbangRouter: Router {
             return "/api/v1/todos/\(id)/copy"
         case .reorderTodo:
             return "/api/v1/todos/reorder"
+        case .getProfile:
+            return "/api/v1/users/profile"
         }
     }
     
@@ -82,7 +85,7 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .refreshToken, .addTodo, .addCategory, .completeTimer, .writeCommitmentMessage, .repeatTodo, .copyTodo:
             return .post
-        case .fetchTodos, .getTodayBreadCount, .getBreads:
+        case .fetchTodos, .getTodayBreadCount, .getBreads, .getProfile:
             return .get
         case .editTodo, .updateTodoStartTime, .rescheduleTodo, .completeTodo, .reorderTodo:
             return .patch
@@ -118,7 +121,8 @@ extension BbangRouter: Router {
                 .completeTodo,
                 .repeatTodo,
                 .copyTodo,
-                .reorderTodo:
+                .reorderTodo,
+                .getProfile:
             return ["Content-Type": "application/json"]
         }
     }
@@ -159,6 +163,8 @@ extension BbangRouter: Router {
             return [:]
         case .reorderTodo(let dto):
             return dto.asDictionary()
+        case .getProfile:
+            return [:]
         }
     }
     
@@ -168,7 +174,7 @@ extension BbangRouter: Router {
             return JSONEncoding.default
         case .fetchTodos:
             return URLEncoding(destination: .queryString)
-        case .refreshToken, .deleteTodo, .getTodayBreadCount, .getBreads:
+        case .refreshToken, .deleteTodo, .getTodayBreadCount, .getBreads, .getProfile:
             return nil
         }
     }

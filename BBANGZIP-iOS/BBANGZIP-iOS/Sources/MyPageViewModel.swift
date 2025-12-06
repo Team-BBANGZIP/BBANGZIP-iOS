@@ -1,18 +1,14 @@
 //
-//  ChangeProfileViewModel.swift
+//  MyPageViewModel.swift
 //  BBANGZIP
 //
-//  Created by 최유빈 on 10/27/25.
+//  Created by 최유빈 on 11/30/25.
 //
 
 import SwiftUI
 
 @MainActor
-final class ChangeProfileViewModel: ObservableObject {
-    @Published var isChangeProfileImageSheetPresented: Bool = false
-    @Published var isChangeNickNameSheetPresented: Bool = false
-    @Published var isMyPromiseSheetPresented: Bool = false
-    
+final class MyPageViewModel: ObservableObject {
     @Published var profileImageUrl: String = ""
     @Published var nickname: String = ""
     @Published var commitmentMessage: String = ""
@@ -36,25 +32,5 @@ final class ChangeProfileViewModel: ObservableObject {
         } catch {
             print("fetch Profile Error: \(error.localizedDescription)")
         }
-    }
-    
-    func showChangeProfileImageSheet() {
-        isChangeProfileImageSheetPresented = true
-    }
-    
-    func showChangeNickNameSheet() {
-        isChangeNickNameSheetPresented = true
-    }
-    
-    func showMyPromiseSheet() {
-        isMyPromiseSheetPresented = true
-    }
-    
-    func updateMyPromiseMessage(_ newValue: String) {
-        // TODO: 서버 연동
-    }
-    
-    func updateNickName(_ newValue: String) {
-        // TODO: 서버 연동
     }
 }
