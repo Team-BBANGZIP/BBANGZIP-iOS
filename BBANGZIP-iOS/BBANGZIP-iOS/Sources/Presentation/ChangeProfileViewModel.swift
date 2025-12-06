@@ -66,7 +66,6 @@ final class ChangeProfileViewModel: ObservableObject {
         isMyPromiseSheetPresented = true
     }
     
-    // TODO: 바텀시트 연결 후 수정 필요
     func updateMyProfileImage(_ imageName: String) {
         selectedProfileImage = imageName
         

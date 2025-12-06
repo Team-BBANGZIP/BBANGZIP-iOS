@@ -134,7 +134,7 @@ struct ChangeProfileView: View {
                     viewModel.updateNickName(newText)
                 }
             )
-            .presentationDetents([.height(230)])
+            .presentationDetents([.height(151)])
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }

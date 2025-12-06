@@ -21,6 +21,9 @@ struct MyNickNameView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            Spacer()
+                .frame(height: 25)
+            
             Text("이름 설정하기")
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelAlternative))
@@ -30,6 +33,8 @@ struct MyNickNameView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 31)
                 .padding(.bottom, 28)
+            
+            Spacer()
         }
         .onDisappear {
             let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
