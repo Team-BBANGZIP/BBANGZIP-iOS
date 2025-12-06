@@ -10,5 +10,5 @@ import Foundation
 struct Profile {
     let profileImageUrl: String?
     let nickname: String
-    let commitmentMessage: String
+    let commitmentMessage: String?
 }

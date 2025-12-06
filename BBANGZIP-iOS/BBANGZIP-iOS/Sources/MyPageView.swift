@@ -113,7 +113,7 @@ struct MyPageView: View {
                         }
                         
                         BbangText(
-                            viewModel.commitmentMessage.isEmpty ? "지금 이 순간 쌓는 한 줄의 지식이, 내일의 너를 강하게 만든다" : viewModel.commitmentMessage,
+                            viewModel.commitmentMessage.isEmpty ? "나만의 다짐을 적어보세요" : viewModel.commitmentMessage,
                             font: .subtitle1,
                             color: Color(.labelAlternative)
                         )

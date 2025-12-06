@@ -28,7 +28,7 @@ final class MyPageViewModel: ObservableObject {
             print("profile ", profile)
             self.profileImageUrl = profile.profileImageUrl ?? ""
             self.nickname = profile.nickname
-            self.commitmentMessage = profile.commitmentMessage
+            self.commitmentMessage = profile.commitmentMessage ?? "나만의 다짐을 적어보세요"
         } catch {
             print("fetch Profile Error: \(error.localizedDescription)")
         }

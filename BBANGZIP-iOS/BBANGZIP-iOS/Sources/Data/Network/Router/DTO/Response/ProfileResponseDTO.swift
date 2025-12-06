@@ -14,7 +14,7 @@ struct ProfileResponseDTO: Decodable {
     struct ProfileDTO: Decodable {
         let profileImageUrl: String?
         let nickname: String
-        let commitmentMessage: String
+        let commitmentMessage: String?
     }
 }
 

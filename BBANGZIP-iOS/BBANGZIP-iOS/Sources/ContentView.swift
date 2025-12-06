@@ -83,18 +83,16 @@ public struct ContentView: View {
     }
     
     private var mainContent: some View {
-        NavigationStack {
-            ZStack {
-                if showCheckedOffView {
-                    checkedOffView
-                        .transition(.move(edge: .trailing))
-                } else {
-                    mainTabView
-                        .transition(.opacity)
-                }
+        ZStack {
+            if showCheckedOffView {
+                checkedOffView
+                    .transition(.move(edge: .trailing))
+            } else {
+                mainTabView
+                    .transition(.opacity)
             }
-            .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
         }
+        .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(newPhase)
         }
