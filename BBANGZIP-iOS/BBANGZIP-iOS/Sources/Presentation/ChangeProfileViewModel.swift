@@ -16,9 +16,20 @@ final class ChangeProfileViewModel: ObservableObject {
     @Published var profileImageUrl: String = ""
     @Published var nickname: String = ""
     @Published var commitmentMessage: String = ""
+    @Published private(set) var selectedProfileImage: String? = nil
     
     private let getProfileUseCase: GetProfileUseCase
     private let updateProfileUseCase: UpdateProfileUseCase
+    
+    private let profileImageKeyMap: [String: Int] = [
+        "profile_basic": 0,
+        "Profile_1": 1,
+        "Profile_2": 2,
+        "Profile_3": 3,
+        "Profile_4": 4,
+        "Profile_5": 5,
+        "Profile_6": 6
+    ]
     
     init(
         getProfileUseCase: GetProfileUseCase,
@@ -56,12 +67,19 @@ final class ChangeProfileViewModel: ObservableObject {
     }
     
     // TODO: 바텀시트 연결 후 수정 필요
-    func updateMyProfileImage(_ newValue: Int) {
+    func updateMyProfileImage(_ imageName: String) {
+        selectedProfileImage = imageName
+        
+        guard let profileImage = selectedProfileImage,
+              let profileImageKey = profileImageKeyMap[profileImage] else {
+            
+            return
+        }
         
         Task {
             do {
                 _ = try await updateProfileUseCase.updateProfileImage(
-                    profileImageKey: newValue
+                    profileImageKey: profileImageKey
                 )
                 
                 print("프로필 이미지 변경 성공")

@@ -32,11 +32,14 @@ struct ChangeProfileView: View {
             
             
             Button {
-                print("사진 터치")
+                viewModel.showChangeProfileImageSheet()
             } label: {
                 ZStack(alignment: .bottomTrailing) {
                     Group {
-                        if let url = URL(string: viewModel.profileImageUrl) {
+                        if let selected = viewModel.selectedProfileImage {
+                            Image(selected)
+                                .resizable()
+                        } else if let url = URL(string: viewModel.profileImageUrl) {
                             KFImage(url)
                                 .resizable()
                         } else {
@@ -147,6 +150,20 @@ struct ChangeProfileView: View {
             .presentationDetents([.height(230)])
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.isChangeProfileImageSheetPresented) {
+            ProfileImagePickerView(
+                viewModel: ProfileImagePickerViewModel(
+                    currentImage: viewModel.selectedProfileImage,
+                    onSave: { imageName in
+                        viewModel.updateMyProfileImage(imageName)
+                    }
+                ),
+                isPresented: $viewModel.isChangeProfileImageSheetPresented
+            )
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(48)
+            .presentationDetents([.height(454)])
         }
     }
 }
