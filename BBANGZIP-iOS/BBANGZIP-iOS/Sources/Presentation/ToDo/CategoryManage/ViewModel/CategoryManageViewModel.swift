@@ -15,23 +15,28 @@ class CategoryManageViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isCompleted: Bool = false
     @Published var isStopped: Bool
+    @Published var isDeleted: Bool = false
     
-    private let useCase: UpdateCategoryUseCaseProtocol
+    private let updateUseCase: UpdateCategoryUseCaseProtocol
+    private let deleteUseCase: DeleteCategoryUseCaseProtocol
     private let original: Category
+    
     var categoryId: Int { original.id }
-        
+    
     var isCompleteButtonEnabled: Bool {
         !categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isLoading
     }
     
     init(
         category: Category,
-        useCase: UpdateCategoryUseCaseProtocol = UpdateCategoryUseCase()
+        updateUseCase: UpdateCategoryUseCaseProtocol = UpdateCategoryUseCase(),
+        deleteUseCase: DeleteCategoryUseCaseProtocol = DeleteCategoryUseCase()
     ) {
         self.categoryName = category.name
         self.selectedColor = category.colorType
         self.isStopped = category.isStopped
-        self.useCase = useCase
+        self.updateUseCase = updateUseCase
+        self.deleteUseCase = deleteUseCase
         self.original = category
     }
     
@@ -55,7 +60,7 @@ class CategoryManageViewModel: ObservableObject {
             
             do {
                 let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-                _ = try await useCase.updateCategory(
+                _ = try await updateUseCase.updateCategory(
                     id: original.id,
                     name: trimmedName,
                     color: selectedColor.apiValue,
@@ -68,7 +73,22 @@ class CategoryManageViewModel: ObservableObject {
         }
     }
     
-    func selectColor( color: CategoryColor) {
+    func deleteCategory() {
+        Task {
+            isLoading = true
+            errorMessage = nil
+            defer { isLoading = false }
+            
+            do {
+                try await deleteUseCase.deleteCategory(id: original.id)
+                isDeleted = true
+            } catch {
+                errorMessage = "카테고리 삭제에 실패했습니다."
+            }
+        }
+    }
+    
+    func selectColor(color: CategoryColor) {
         selectedColor = color
     }
     

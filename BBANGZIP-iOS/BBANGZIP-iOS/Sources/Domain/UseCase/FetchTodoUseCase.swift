@@ -13,19 +13,12 @@ protocol FetchTodosUseCase: Sendable {
 
 final class DefaultFetchTodosUseCase: FetchTodosUseCase {
     private let repository: TodoRepository
-    private let tokenManager: TokenManager
 
-    init(repository: TodoRepository, tokenManager: TokenManager = .shared) {
+    init(repository: TodoRepository) {
         self.repository = repository
-        self.tokenManager = tokenManager
     }
 
     func execute(date: Date) async throws -> TodoData {
-        guard let accessToken = tokenManager.getAccessToken() else {
-            LoggerFactory.create(category: .data)
-                .error("FetchTodos Error: AccessToken is nil")
-            throw AuthError.invalidToken
-        }
-        return try await repository.fetchTodos(date: date, accessToken: accessToken)
+        return try await repository.fetchTodos(date: date)
     }
 }

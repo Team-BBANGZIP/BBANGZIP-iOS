@@ -9,16 +9,13 @@ import SwiftUI
 
 struct ToDoView: View {
     private let repository = TodoRepositoryImpl()
-
+    
     @StateObject private var viewModel: TodoViewModel
-    @StateObject private var categoryListViewModel = CategoryListViewModel(
-        repository: TodoRepositoryImpl()
-    )
+    @StateObject private var categoryListViewModel: CategoryListViewModel
     @State private var addTodoViewModel: TodoAddViewModel? = nil
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
     @State private var navigationPath = NavigationPath()
-        
     init(
         viewModel: TodoViewModel,
         selectedDate: Date? = nil,
@@ -27,6 +24,16 @@ struct ToDoView: View {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.selectedDate = selectedDate
         self.isShowMenu = isShowMenu
+        
+        let categoryFetchRepository = CategoryFetchRepositoryImpl()
+        let fetchCategoriesUseCase = FetchCategoriesUseCaseImpl(
+            repository: categoryFetchRepository
+        )
+        _categoryListViewModel = StateObject(
+            wrappedValue: CategoryListViewModel(
+                fetchCategoriesUseCase: fetchCategoriesUseCase
+            )
+        )
     }
     
     var body: some View {
@@ -161,14 +168,14 @@ struct ToDoView: View {
                 }
                 .sheet(isPresented: $viewModel.isMeatballSheetPresented) {
                     let id = viewModel.sheetTodoId
-
+                    
                     let titleBinding = Binding<String>(
                         get: { viewModel.todoDataTitle(for: id) ?? viewModel.sheetTodoTitle },
                         set: { new in
                             viewModel.updateTodoTitle(id: id, newTitle: new)
                         }
                     )
-
+                    
                     let startTimeBinding = Binding<String?>(
                         get: { viewModel.todoDataStartTime(for: id) ?? viewModel.sheetStartTime },
                         set: { new in
@@ -177,7 +184,7 @@ struct ToDoView: View {
                     )
                     
                     let initialTargetDate = viewModel.todoDataTargetDate(for: id)
-                            ?? viewModel.currentTargetDate
+                    ?? viewModel.currentTargetDate
                     
                     TodoManageView(
                         viewModel: TodoManageViewModel(
@@ -305,7 +312,7 @@ struct ToDoView: View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
             ForEach(Array(viewModel.daysOfWeek.enumerated()), id: \.offset) { index, day in
                 if let date = viewModel.calculateDateForDay(day) {
-
+                    
                     let selectedDateBinding = Binding<Date?>(
                         get: { selectedDate },
                         set: { new in
@@ -313,7 +320,7 @@ struct ToDoView: View {
                             viewModel.setSelectedDate(new ?? viewModel.currentDate)
                         }
                     )
-
+                    
                     CalendarCellView(
                         day: day,
                         date: date,

@@ -21,7 +21,7 @@ final class AuthRepositoryImpl: AuthRepository {
     private let api: API
     private let tokenManager = TokenManager.shared
     
-    init(api: API = API()) {
+    init(api: API = .shared) {
         self.api = api
     }
     

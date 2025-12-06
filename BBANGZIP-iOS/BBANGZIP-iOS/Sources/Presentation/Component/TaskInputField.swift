@@ -9,13 +9,16 @@ import SwiftUI
 
 public struct TaskInputField: View {
     @Binding public var text: String
+    public let placeholder: String
     public let onSubmit: (() -> Void)?
     
     public init(
         text: Binding<String>,
+        placeholder: String = "할 일을 입력해주세요",
         onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
+        self.placeholder = placeholder
         self.onSubmit = onSubmit
     }
     
@@ -23,7 +26,7 @@ public struct TaskInputField: View {
         TextField(
             "",
             text: $text,
-            prompt: Text("할 일을 입력해주세요")
+            prompt: Text(placeholder)
         )
         .tint(Color(.labelAssistive))
         .bbangFont(.body1)

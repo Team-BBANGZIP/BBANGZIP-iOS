@@ -14,3 +14,13 @@ struct Category: Identifiable, Equatable, Hashable {
     var todos: [TimerTodo]
     var isStopped: Bool
 }
+
+extension Category {
+    init(dto: CategoryItemDTO) {
+        self.id = dto.categoryId
+        self.name = dto.name
+        self.colorType = CategoryColor.fromAPI(dto.color)
+        self.todos = []
+        self.isStopped = dto.isStopped
+    }
+}

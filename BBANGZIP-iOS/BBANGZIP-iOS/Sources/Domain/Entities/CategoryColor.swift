@@ -27,9 +27,11 @@ extension CategoryColor {
         case .Todopurple2: return "purple2"
         }
     }
-
+    
     static func fromAPI(_ api: String) -> CategoryColor {
-        switch api {
+        let key = api.uppercased()
+        
+        switch key {
         case "RED1": return .Todored1
         case "YELLOW1": return .Todoyellow1
         case "GREEN1": return .Todogreen1
@@ -40,10 +42,11 @@ extension CategoryColor {
         case "GREEN2": return .Todogreen2
         case "BLUE2": return .Todoblue2
         case "PURPLE2": return .Todopurple2
-        default: return .Todored1
+        default:
+            return .Todored1
         }
     }
-
+    
     var displayColor: Color {
         Color(rawValue)
     }
