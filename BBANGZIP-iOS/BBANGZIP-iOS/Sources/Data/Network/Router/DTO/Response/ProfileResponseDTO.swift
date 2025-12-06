@@ -1,5 +1,5 @@
 //
-//  ProfileGetReponseDTO.swift
+//  ProfileResponseDTO.swift
 //  BBANGZIP
 //
 //  Created by 최유빈 on 11/30/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ProfileGetReponseDTO: Decodable {
+struct ProfileResponseDTO: Decodable {
     let code: Int
     let data: ProfileDTO
     
@@ -18,7 +18,7 @@ struct ProfileGetReponseDTO: Decodable {
     }
 }
 
-extension ProfileGetReponseDTO.ProfileDTO {
+extension ProfileResponseDTO.ProfileDTO {
     func toEntity() -> Profile {
         return Profile(
             profileImageUrl: profileImageUrl,

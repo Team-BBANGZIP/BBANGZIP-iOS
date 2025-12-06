@@ -18,9 +18,14 @@ final class ChangeProfileViewModel: ObservableObject {
     @Published var commitmentMessage: String = ""
     
     private let getProfileUseCase: GetProfileUseCase
+    private let updateProfileUseCase: UpdateProfileUseCase
     
-    init(getProfileUseCase: GetProfileUseCase) {
+    init(
+        getProfileUseCase: GetProfileUseCase,
+        updateProfileUseCase: UpdateProfileUseCase
+    ) {
         self.getProfileUseCase = getProfileUseCase
+        self.updateProfileUseCase = updateProfileUseCase
         Task {
             await fetchProfile()
         }
@@ -50,11 +55,54 @@ final class ChangeProfileViewModel: ObservableObject {
         isMyPromiseSheetPresented = true
     }
     
+    // TODO: 바텀시트 연결 후 수정 필요
+    func updateMyProfileImage(_ newValue: Int) {
+        
+        Task {
+            do {
+                _ = try await updateProfileUseCase.updateProfileImage(
+                    profileImageKey: newValue
+                )
+                
+                print("프로필 이미지 변경 성공")
+            }
+            catch {
+                print("프로필 이미지 변경 실패 : ", error)
+            }
+        }
+    }
+    
     func updateMyPromiseMessage(_ newValue: String) {
-        // TODO: 서버 연동
+        self.commitmentMessage = newValue
+        
+        Task {
+            do {
+                _ = try await updateProfileUseCase.updateCommitmentMessage(
+                    commitmentMessage: newValue
+                )
+                
+                print("상태메시지 변경 성공")
+            }
+            catch {
+                print("상태메시지 변경 실패 : ", error)
+            }
+        }
     }
     
     func updateNickName(_ newValue: String) {
-        // TODO: 서버 연동
+        self.nickname = newValue
+        
+        Task {
+            do {
+                _ = try await updateProfileUseCase.updateNickname(
+                    nickname: newValue
+                )
+                
+                print("닉네임 변경 성공")
+            }
+            catch {
+                print("닉네임 변경 실패 : ", error)
+            }
+        }
     }
 }

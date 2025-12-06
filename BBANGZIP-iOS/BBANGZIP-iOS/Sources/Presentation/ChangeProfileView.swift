@@ -12,11 +12,12 @@ struct ChangeProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: ChangeProfileViewModel
     
-    init() {
-        _viewModel = StateObject(wrappedValue: ChangeProfileViewModel(getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository())))
-    }
-    
     var onDismiss: (() -> Void)?
+    
+    init(onDismiss: (() -> Void)? = nil) {
+        self.onDismiss = onDismiss
+        _viewModel = StateObject(wrappedValue: ChangeProfileViewModel(getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository()), updateProfileUseCase: DefaultUpdateProfileUseCase(repository: ProfileRepository())))
+    }
     
     var body: some View {
         VStack (spacing: 32) {
@@ -121,7 +122,9 @@ struct ChangeProfileView: View {
             
             Spacer()
         }
-        .sheet(isPresented: $viewModel.isChangeNickNameSheetPresented) {
+        .sheet(
+            isPresented: $viewModel.isChangeNickNameSheetPresented
+        ) {
             MyNickNameView(
                 initialText: viewModel.nickname,
                 onSave: { newText in
@@ -132,7 +135,9 @@ struct ChangeProfileView: View {
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+        .sheet(
+            isPresented: $viewModel.isMyPromiseSheetPresented
+        ) {
             MyPromiseView(
                 initialText: viewModel.commitmentMessage,
                 onSave: { newText in

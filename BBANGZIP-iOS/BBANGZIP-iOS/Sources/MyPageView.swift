@@ -51,7 +51,13 @@ struct MyPageView: View {
                     SettingScreenView()
                 }
                 if destination == "ChangeProfile" {
-                    ChangeProfileView()
+                    ChangeProfileView(
+                        onDismiss: {
+                            Task {
+                                await viewModel.fetchProfile()
+                            }
+                        }
+                    )
                 }
             }
         }
