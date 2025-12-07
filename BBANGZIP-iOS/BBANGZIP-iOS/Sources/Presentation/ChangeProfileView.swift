@@ -116,8 +116,17 @@ struct ChangeProfileView: View {
                     }
                     .frame(height: 32)
                     
-                    PromiseInputField(text: $viewModel.commitmentMessage)
-                        .disabled(true)
+                    BbangText(
+                        "\(viewModel.commitmentMessage)",
+                        font: .body1,
+                        color: Color(.labelNormal)
+                    )
+                    .multilineTextAlignment(.leading)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.componentStrong))
+                    .cornerRadius(8)
+
                 }
             }
             .padding(.horizontal, 20)
