@@ -348,9 +348,6 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateMyPromiseMessage(_ newValue: String) {
-//        guard var data = todoData else { return }
-//        data.myPromiseMessage = newValue
-//        todoData = data
         Task {
             do {
                 _ = try await writeCommitmentMessageUseCase.execute(commitmentMessage: newValue)
