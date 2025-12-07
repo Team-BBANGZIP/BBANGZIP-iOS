@@ -12,14 +12,30 @@ protocol BreadCountRepository: Sendable {
 }
 
 final class BreadCountRepositoryImpl: BreadCountRepository {
+    private let api: API
+
+    init(
+        api: API = .shared
+    ) {
+        self.api = api
+    }
     
     func getTodayBreadCount() async throws -> BreadCount {
-        // TODO: API 연결 전까지 임시 더미 데이터 사용
-        let dummyResponse = BreadCountResponseDTO(
-            code: "success",
-            data: BreadCountDataDTO(todayBakedCount: 6)
-        )
+        let router = BbangRouter.getTodayBreadCount
         
-        return BreadCount(from: dummyResponse)
+        do {
+            let response: BreadCountResponseDTO = try await api.request(api: router)
+            
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("getTodayBreadCount: Unexpected response code \(response.code)")
+            }
+            return response.data.toDomain()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("getTodayBreadCount: \(error.localizedDescription)")
+            
+            throw error
+        }
     }
 }

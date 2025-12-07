@@ -40,6 +40,19 @@ enum BbangRouter {
         id: Int,
         dto: TodoRescheduleRequestDTO
     )
+
+    //유빈
+    case getTodayBreadCount
+    case getBreads
+    case completeTimer(dto: TimerCompleteRequestDTO)
+    case writeCommitmentMessage(dto: CommitmentMessageWriteRequestDTO)
+    case completeTodo(id: Int, dto: TodoCompleteRequestDTO)
+    case repeatTodo(id: Int, dto: TodoRepeatRequestDTO)
+    case copyTodo(id: Int)
+    case reorderTodo(dto: TodoReorderRequestDTO)
+    case getProfile
+    case updateProfile(dto: ProfileUpdateRequestDTO)
+    
     // TODO: 추가 API들은 여기에 case로 추가
 }
 
@@ -63,7 +76,6 @@ extension BbangRouter: Router {
             return "/api/v1/categories/\(id)"
         case .updateCategoryOrder:
             return "/api/v1/categories/order"
-            
         case .addTodo:
             return "/api/v1/todos"
         case .fetchTodos:
@@ -78,6 +90,26 @@ extension BbangRouter: Router {
             return "/api/v1/todos/\(id)/start-time"
         case .rescheduleTodo(let id, _):
             return "/api/v1/todos/\(id)/reschedule"
+        case .getTodayBreadCount:
+            return "/api/v1/timers/today-count"
+        case .getBreads:
+            return "/api/v1/timers/breads"
+        case .completeTimer:
+            return "/api/v1/timers"
+        case .writeCommitmentMessage:
+            return "/api/v1/users/commitments"
+        case .completeTodo(let id, _):
+            return "/api/v1/todos/\(id)/completion"
+        case .repeatTodo(let id, _):
+            return "/api/v1/todos/\(id)/repeat"
+        case .copyTodo(let id):
+            return "/api/v1/todos/\(id)/copy"
+        case .reorderTodo:
+            return "/api/v1/todos/reorder"
+        case .getProfile:
+            return "/api/v1/users/profile"
+        case .updateProfile:
+            return "/api/v1/users/profile"
         }
     }
     
@@ -85,11 +117,11 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .refreshToken, .signUp:
             return .post
-        case .addTodo, .addCategory:
+        case .addTodo, .addCategory, .completeTimer, .writeCommitmentMessage, .repeatTodo, .copyTodo:
             return .post
-        case .fetchTodos, .fetchCategories:
+        case .fetchTodos, .fetchCategories, .getTodayBreadCount, .getBreads, .getProfile:
             return .get
-        case .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory, .updateCategoryOrder:
+        case .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory, .updateCategoryOrder, .completeTodo, .reorderTodo, .updateProfile:
             return .patch
         case .deleteTodo, .deleteCategory:
             return .delete
@@ -117,7 +149,17 @@ extension BbangRouter: Router {
                 .fetchCategories,
                 .editCategory,
                 .deleteCategory,
-                .updateCategoryOrder:
+                .updateCategoryOrder,
+                .getTodayBreadCount,
+                .getBreads,
+                .completeTimer,
+                .writeCommitmentMessage,
+                .completeTodo,
+                .repeatTodo,
+                .copyTodo,
+                .reorderTodo,
+                .getProfile,
+                .updateProfile:
             return ["Content-Type": "application/json"]
         }
     }
@@ -153,6 +195,26 @@ extension BbangRouter: Router {
             return dto.asDictionary()
         case .rescheduleTodo(_, let dto):
             return dto.asDictionary()
+        case .getTodayBreadCount:
+            return [:]
+        case .getBreads:
+            return [:]
+        case .completeTimer(let dto):
+            return dto.asDictionary()
+        case .writeCommitmentMessage(let dto):
+            return dto.asDictionary()
+        case .completeTodo(_, let dto):
+            return dto.asDictionary()
+        case .repeatTodo(_, let dto):
+            return dto.asDictionary()
+        case .copyTodo(_):
+            return [:]
+        case .reorderTodo(let dto):
+            return dto.asDictionary()
+        case .getProfile:
+            return [:]
+        case .updateProfile(let dto):
+            return dto.asDictionary()
         }
     }
     
@@ -162,12 +224,11 @@ extension BbangRouter: Router {
             return JSONEncoding.default
         case .refreshToken:
             return nil
-            
-        case .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory, .updateCategoryOrder:
+        case .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory, .updateCategoryOrder, .completeTimer, .writeCommitmentMessage, .completeTodo, .repeatTodo, .copyTodo, .reorderTodo, .updateProfile:
             return JSONEncoding.default
         case .fetchTodos, .fetchCategories:
             return URLEncoding(destination: .queryString)
-        case .deleteTodo, .deleteCategory:
+        case .deleteTodo, .deleteCategory, .getTodayBreadCount, .getBreads, .getProfile:
             return nil
         }
     }

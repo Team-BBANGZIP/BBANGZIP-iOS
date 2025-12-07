@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct BreadSelectView: View {
+    @StateObject var viewModel: BreadSelectViewModel
+    
     let breadList: [BreadItemModel] = [
         .init(breadName: "소금빵", isUnlocked: true, isSelected: true),
         .init(breadName: "???", isUnlocked: false, isSelected: false),
@@ -28,7 +30,8 @@ struct BreadSelectView: View {
                 .bbangFont(.title1)
                 .foregroundColor(Color(.primaryNormal))
             
-            // TODO: 서버에서 총 빵의 개수 받아오도록 API 연결
+            // TODO: 추후 빵 해금 로직 생성 시 주석 해제
+//            Text("오늘까지 총 \(viewModel.breadList.totalCount)개의 빵을 모았어요!")
             Text("오늘까지 총 1개의 빵을 모았어요!")
                 .bbangFont(.subtitle1)
                 .foregroundColor(Color(.labelAlternative))
@@ -46,6 +49,16 @@ struct BreadSelectView: View {
                 ),
                 spacing: 32
             ) {
+                // TODO: 추후 빵 해금 로직 생성 시 주석 해제
+//                ForEach(viewModel.breadList.breadList, id: \.breadId) { bread in
+//                    BreadItem(
+//                        breadId: bread.breadId,
+//                        breadName: bread.breadName,
+//                        isUnlocked: bread.isUnlocked,
+//                        requiredCount: bread.requiredCount,
+//                        imageUrl: bread.imageUrl
+//                    )
+//                }
                 ForEach(breadList) { bread in
                     BreadItem(
                         breadName: bread.breadName,
@@ -57,8 +70,4 @@ struct BreadSelectView: View {
             .padding(.horizontal, 31)
         }
     }
-}
-
-#Preview {
-    TestTimerView()
 }

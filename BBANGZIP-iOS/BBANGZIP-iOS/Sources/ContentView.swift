@@ -5,7 +5,8 @@ import KakaoSDKAuth
 public struct ContentView: View {
     @StateObject private var timerViewModel = TimerViewModel(
         timerUseCase: TimerUseCaseImpl(),
-        breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl())
+        breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()),
+        timerCompleteUseCase: DefaultTimerCompleteUseCase(repository: TimerCompleteRepository())
     )
     
     @Environment(\.scenePhase) private var scenePhase
@@ -82,18 +83,16 @@ public struct ContentView: View {
     }
     
     private var mainContent: some View {
-        NavigationStack {
-            ZStack {
-                if showCheckedOffView {
-                    checkedOffView
-                        .transition(.move(edge: .trailing))
-                } else {
-                    mainTabView
-                        .transition(.opacity)
-                }
+        ZStack {
+            if showCheckedOffView {
+                checkedOffView
+                    .transition(.move(edge: .trailing))
+            } else {
+                mainTabView
+                    .transition(.opacity)
             }
-            .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
         }
+        .animation(.easeInOut(duration: 0.3), value: showCheckedOffView)
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(newPhase)
         }
@@ -175,10 +174,14 @@ public struct ContentView: View {
         let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
+        let writeCommitmentMessageUseCase = DefaultWriteCommitmentMessageUseCase(repository:  WriteCommitmentMessageRepository())
+        let reorderTodoUseCase = DefaultReorderTodoUseCase(repository: repo)
         return TodoViewModel(
             fetchUseCase: fetchUseCase,
             toggleUseCase: toggleUseCase,
-            addUseCase: addUseCase
+            addUseCase: addUseCase,
+            writeCommitmentMessageUseCase: writeCommitmentMessageUseCase,
+            reorderTodoUseCase: reorderTodoUseCase
         )
     }
     

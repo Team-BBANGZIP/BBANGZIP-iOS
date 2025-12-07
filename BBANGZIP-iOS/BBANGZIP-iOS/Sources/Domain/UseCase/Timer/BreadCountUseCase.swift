@@ -19,7 +19,7 @@ final class BreadCountUseCaseImpl: BreadCountUseCase {
     }
     
     func getTodayBreadCount() async throws -> Int {
-        let entity = try await repository.getTodayBreadCount()
-        return entity.todayBakedCount
+        
+        return try await repository.getTodayBreadCount().todayBakedCount
     }
 }

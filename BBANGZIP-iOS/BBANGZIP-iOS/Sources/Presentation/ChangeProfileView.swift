@@ -6,26 +6,23 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ChangeProfileView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = ChangeProfileViewModel()
-    @State private var profileImage: UIImage? = nil
-    @State private var draft: String
-    
-    init(
-        initialText: String = ""
-    ) {
-        _draft = State(initialValue: initialText)
-    }
+    @StateObject private var viewModel: ChangeProfileViewModel
     
     var onDismiss: (() -> Void)?
+    
+    init(onDismiss: (() -> Void)? = nil) {
+        self.onDismiss = onDismiss
+        _viewModel = StateObject(wrappedValue: ChangeProfileViewModel(getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository()), updateProfileUseCase: DefaultUpdateProfileUseCase(repository: ProfileRepository())))
+    }
     
     var body: some View {
         VStack (spacing: 32) {
             HeaderBarView(
                 title: "프로필 변경",
-                leftIcon: .icChevronLeft,
                 onTapLeft: {
                     onDismiss?()
                     dismiss()
@@ -35,12 +32,15 @@ struct ChangeProfileView: View {
             
             
             Button {
-                print("사진 터치")
+                viewModel.showChangeProfileImageSheet()
             } label: {
                 ZStack(alignment: .bottomTrailing) {
                     Group {
-                        if let uiImage = profileImage {
-                            Image(uiImage: uiImage)
+                        if let selected = viewModel.selectedProfileImage {
+                            Image(selected)
+                                .resizable()
+                        } else if let url = URL(string: viewModel.profileImageUrl) {
+                            KFImage(url)
                                 .resizable()
                         } else {
                             Image(.icProfile)
@@ -79,7 +79,7 @@ struct ChangeProfileView: View {
                 } label: {
                     HStack(spacing: 8) {
                         BbangText(
-                            "유나짱",
+                            viewModel.nickname,
                             font: .title2,
                             color: Color(.labelStrong)
                         )
@@ -116,8 +116,17 @@ struct ChangeProfileView: View {
                     }
                     .frame(height: 32)
                     
-                    PromiseInputField(text: $draft)
-                        .disabled(true)
+                    BbangText(
+                        "\(viewModel.commitmentMessage)",
+                        font: .body1,
+                        color: Color(.labelNormal)
+                    )
+                    .multilineTextAlignment(.leading)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.componentStrong))
+                    .cornerRadius(8)
+
                 }
             }
             .padding(.horizontal, 20)
@@ -125,20 +134,24 @@ struct ChangeProfileView: View {
             
             Spacer()
         }
-        .sheet(isPresented: $viewModel.isChangeNickNameSheetPresented) {
+        .sheet(
+            isPresented: $viewModel.isChangeNickNameSheetPresented
+        ) {
             MyNickNameView(
-                initialText: "초기 텍스트입니다",
+                initialText: viewModel.nickname,
                 onSave: { newText in
                     viewModel.updateNickName(newText)
                 }
             )
-            .presentationDetents([.height(230)])
+            .presentationDetents([.height(151)])
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: $viewModel.isMyPromiseSheetPresented) {
+        .sheet(
+            isPresented: $viewModel.isMyPromiseSheetPresented
+        ) {
             MyPromiseView(
-                initialText: "초기 텍스트입니다",
+                initialText: viewModel.commitmentMessage,
                 onSave: { newText in
                     viewModel.updateMyPromiseMessage(newText)
                 }
@@ -147,18 +160,31 @@ struct ChangeProfileView: View {
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $viewModel.isChangeProfileImageSheetPresented) {
+            ProfileImagePickerView(
+                viewModel: ProfileImagePickerViewModel(
+                    currentImage: viewModel.selectedProfileImage,
+                    onSave: { imageName in
+                        viewModel.updateMyProfileImage(imageName)
+                    }
+                ),
+                isPresented: $viewModel.isChangeProfileImageSheetPresented
+            )
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(48)
+            .presentationDetents([.height(454)])
+        }
     }
 }
 
 private struct HeaderBarView: View {
     let title: String
-    let leftIcon: ImageResource
     let onTapLeft: () -> Void
     
     var body: some View {
         HStack {
             Button(action: onTapLeft) {
-                Image(leftIcon)
+                Image(.icChevronLeft)
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 28, height: 28)
@@ -177,8 +203,4 @@ private struct HeaderBarView: View {
                 .allowsHitTesting(false)
         }
     }
-}
-
-#Preview {
-    ChangeProfileView()
 }

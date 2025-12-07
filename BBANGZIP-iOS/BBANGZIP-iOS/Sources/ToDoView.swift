@@ -195,11 +195,15 @@ struct ToDoView: View {
                             isCompleted: viewModel.sheetIsCompleted,
                             todoId: id,
                             repository: repository,
+                            repeatTodoUseCase: DefaultRepeatTodoUseCase(repository: TodoRepositoryImpl()),
+                            copyTodoUseCase: DefaultCopyTodoUseCase(repository: TodoRepositoryImpl()),
                             initialTargetDate: initialTargetDate,
                             onDelete: {
                             },
                             onPostpone: {},
-                            onDuplicate: {},
+                            onDuplicate: { [weak viewModel] in
+                                viewModel?.fetchData()
+                            },
                             onChangeDate: {},
                             onPatchedTitle: { [weak viewModel] _ in
                                 viewModel?.fetchData()
@@ -412,21 +416,5 @@ struct ToDoView: View {
                 viewModel.moveTodoItems(from: fromOffsets, to: toOffset)
             }
         }
-    }
-}
-
-struct TodoView_Previews: PreviewProvider {
-    static var previews: some View {
-        let mockRepo = MockTodoRepository()
-        let fetchUseCase = DefaultFetchTodosUseCase(repository: mockRepo)
-        let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: mockRepo)
-        
-        let previewViewModel = TodoViewModel(
-            fetchUseCase: fetchUseCase,
-            toggleUseCase: toggleUseCase,
-            addUseCase: DefaultAddTodoUseCase(repository: mockRepo)
-        )
-        
-        return ToDoView(viewModel: previewViewModel)
     }
 }

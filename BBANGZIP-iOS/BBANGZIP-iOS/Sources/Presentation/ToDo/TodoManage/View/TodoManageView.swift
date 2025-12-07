@@ -88,8 +88,10 @@ struct TodoManageView: View {
                 selectedDate: $viewModel.repeatDate,
                 mode: .repeatAnotherDay
             ) { newDate in
-                viewModel.repeatDate = newDate
-                viewModel.isRepeatSheetPresented = false
+                Task {
+                    await viewModel.repeatTodo(at: newDate)
+                    viewModel.isRepeatSheetPresented = false
+                }
             }
             .presentationDetents([.height(522)])
             .presentationCornerRadius(48)
@@ -210,7 +212,9 @@ private extension TodoManageView {
             icon: Image(.icCopy),
             title: "할 일 복제하기",
             onTap: {
-                // TODO: 할 일 복제 액션
+                Task { await
+                    viewModel.copyTodo()
+                }
             }
         )
     }

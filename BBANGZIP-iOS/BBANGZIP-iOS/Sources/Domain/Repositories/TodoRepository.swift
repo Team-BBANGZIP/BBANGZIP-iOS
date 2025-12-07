@@ -9,10 +9,10 @@ import Foundation
 
 protocol TodoRepository: Sendable {
     func fetchTodos(date: Date) async throws -> TodoData
-    func updateTodoCompletion(
+    func completeTodo(
         todoId: Int,
         isCompleted: Bool
-    ) async throws
+    ) async throws -> TodoComplete
     func addTodo(
         categoryId: Int,
         content: String,
@@ -37,6 +37,19 @@ protocol TodoRepository: Sendable {
         id: Int,
         targetDate: Date?
     ) async throws -> TodoRescheduleDataDTO
+    
+    func repeatTodo(
+        id: Int,
+        targetDate: Date
+    ) async throws -> TodoRepeat
+    
+    func copyTodo(
+        id: Int
+    ) async throws -> TimerTodo
+    
+    func reorderTodo(
+        request: TodoReorderRequestDTO
+    ) async throws -> Bool
 }
 
 final class TodoRepositoryImpl: TodoRepository {
@@ -69,8 +82,22 @@ final class TodoRepositoryImpl: TodoRepository {
         }
     }
     
-    func updateTodoCompletion(todoId: Int, isCompleted: Bool) async throws {
-        // TODO: 구현
+    func completeTodo(todoId: Int, isCompleted: Bool) async throws -> TodoComplete {
+        let dto = TodoCompleteRequestDTO(isCompleted: isCompleted)
+        let router = BbangRouter.completeTodo(id: todoId, dto: dto)
+        
+        do {
+            let response: TodoCompleteResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("CompleteTodo Error: Unexpected response code \(response.code)")
+            }
+            return response.data.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("CompleteTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     func addTodo(
@@ -178,6 +205,70 @@ final class TodoRepositoryImpl: TodoRepository {
         } catch {
             LoggerFactory.create(category: .data)
                 .error("RescheduleTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func repeatTodo(id: Int, targetDate: Date) async throws -> TodoRepeat {
+        let dto = TodoRepeatRequestDTO(targetDate: DateFormatter.inputDateYMDFormatter.string(from: targetDate))
+        let router = BbangRouter.repeatTodo(id: id, dto: dto)
+        
+        do {
+            let response: TodoRepeatResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("RepeatTodo Error: Unexpected response code \(response.code)")
+            }
+            return response.data.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("RepeatTodo Request Failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func copyTodo(id: Int) async throws -> TimerTodo {
+        let router = BbangRouter.copyTodo(id: id)
+        
+        do {
+            let response: TodoCopyResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("CopyTodo Error: Unexpected response code \(response.code)")
+            }
+            return response.data.toEntity()
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("CopyTodo Request Failed: \(error.localizedDescription)")
+            
+            throw error
+        }
+    }
+    
+    func reorderTodo(
+        request: TodoReorderRequestDTO
+    ) async throws -> Bool {
+        let dto = TodoReorderRequestDTO(
+            todoId: request.todoId,
+            originCategoryId: request.originCategoryId,
+            targetCategoryId: request.targetCategoryId,
+            targetCategoryColor: request.targetCategoryColor,
+            todoList: request.todoList
+        )
+        
+        let router = BbangRouter.reorderTodo(dto: dto)
+        
+        do {
+            let response: BaseResponseDTO = try await api.request(api: router)
+            if response.code != 20000 {
+                LoggerFactory.create(category: .data)
+                    .error("ReorderTodo Error: Unexpected response code \(response.code)")
+            }
+            return true
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("Reorder Todo Request Failed: \(error.localizedDescription)")
+            
             throw error
         }
     }

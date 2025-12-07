@@ -41,7 +41,7 @@ extension AuthInterceptor {
         _ request: Request,
         for session: Session,
         dueTo error: Error,
-        completion: @escaping (RetryResult) -> Void
+        completion: @escaping @Sendable (RetryResult) -> Void
     ) {
         if request.retryCount >= 1 {
             return completion(.doNotRetry)

@@ -11,7 +11,7 @@ protocol ToggleTodoCompletionUseCase: Sendable {
     func execute(
         todoId: Int,
         isCompleted: Bool
-    ) async throws
+    ) async throws -> TodoComplete
 }
 
 final class TimerToggleTodoCompletionUseCase: ToggleTodoCompletionUseCase {
@@ -24,8 +24,8 @@ final class TimerToggleTodoCompletionUseCase: ToggleTodoCompletionUseCase {
     func execute(
         todoId: Int,
         isCompleted: Bool
-    ) async throws {
-        try await todoRepository.updateTodoCompletion(
+    ) async throws -> TodoComplete {
+        try await todoRepository.completeTodo(
             todoId: todoId,
             isCompleted: isCompleted
         )

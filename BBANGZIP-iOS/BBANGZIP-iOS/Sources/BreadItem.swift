@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct BreadItem: View {
+    // TODO: 추후 빵 해금 로직 생성 시 주석 해제
+//    let breadId: Int
     let breadName: String
     let isUnlocked: Bool
+//    let requiredCount: Int
+//    let imageUrl: String
     let isSelected: Bool
     
     var body: some View {
@@ -64,21 +68,5 @@ struct BreadItem: View {
         default:
             return Image(.itemLocked)
         }
-    }
-}
-
-#Preview {
-    HStack(spacing: 24) {
-        BreadItem(
-            breadName: "소금빵",
-            isUnlocked: true,
-            isSelected: true
-        )
-        
-        BreadItem(
-            breadName: "???",
-            isUnlocked: false,
-            isSelected: false
-        )
     }
 }

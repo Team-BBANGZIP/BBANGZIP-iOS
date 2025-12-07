@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MyPageView: View {
+    @StateObject private var viewModel: MyPageViewModel
     @State private var navigationPath = NavigationPath()
     @State private var isActive = false
+    
+    init() {
+        _viewModel = StateObject(wrappedValue: MyPageViewModel(getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository())))
+    }
     
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -45,7 +51,13 @@ struct MyPageView: View {
                     SettingScreenView()
                 }
                 if destination == "ChangeProfile" {
-                    ChangeProfileView()
+                    ChangeProfileView(
+                        onDismiss: {
+                            Task {
+                                await viewModel.fetchProfile()
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -68,15 +80,23 @@ struct MyPageView: View {
                 }
                 
                 HStack(spacing: 12) {
-                    Image(.icProfile)
-                        .resizable()
-                        .frame(width: 60, height: 60)
-                        .clipShape(.circle)
+                    if let url = URL(string: viewModel.profileImageUrl) {
+                        KFImage(url)
+                            .resizable()
+                            .placeholder { Image(.icProfile).resizable() }
+                            .frame(width: 60, height: 60)
+                            .clipShape(Circle())
+                    } else {
+                        Image(.icProfile)
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .clipShape(Circle())
+                    }
                     
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 0) {
                             BbangText(
-                                "유나쨩",
+                                viewModel.nickname.isEmpty ? "유나쨩" : viewModel.nickname,
                                 font: .title4,
                                 color: Color(.labelStrong)
                             )
@@ -93,12 +113,14 @@ struct MyPageView: View {
                         }
                         
                         BbangText(
-                            "지금 이 순간 쌓는 한 줄의 지식이, 내일의 너를 강하게 만든다",
+                            viewModel.commitmentMessage.isEmpty ? "나만의 다짐을 적어보세요" : viewModel.commitmentMessage,
                             font: .subtitle1,
                             color: Color(.labelAlternative)
                         )
                         .lineLimit(1)
                     }
+                    
+                    Spacer()
                 }
                 .padding(.horizontal, 20)
             }
@@ -239,6 +261,3 @@ struct MyPageView: View {
     }
 }
 
-#Preview {
-    MyPageView()
-}

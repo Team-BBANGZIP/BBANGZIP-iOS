@@ -52,6 +52,8 @@ final class TodoViewModel: ObservableObject {
     private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
     private let addUseCase: AddTodoUseCase
+    private let writeCommitmentMessageUseCase: WriteCommitmentMessageUseCase
+    private let reorderTodoUseCase: ReorderTodoUseCase
     
     var selectedCategoryId: Int? {
         guard let index = selectedCategoryIndex,
@@ -65,11 +67,15 @@ final class TodoViewModel: ObservableObject {
     init(
         fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
-        addUseCase: AddTodoUseCase
+        addUseCase: AddTodoUseCase,
+        writeCommitmentMessageUseCase: WriteCommitmentMessageUseCase,
+        reorderTodoUseCase: ReorderTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
         self.addUseCase = addUseCase
+        self.writeCommitmentMessageUseCase = writeCommitmentMessageUseCase
+        self.reorderTodoUseCase = reorderTodoUseCase
         self.currentDate = calendar.appToday()
         
         updateDates()
@@ -116,7 +122,7 @@ final class TodoViewModel: ObservableObject {
     }
 
     func moveTodoItems(from source: IndexSet, to destination: Int) {
-        guard todoData?.categories != nil else { return }
+        guard (todoData?.categories) != nil else { return }
 
         var items = todoItems
 
@@ -124,116 +130,125 @@ final class TodoViewModel: ObservableObject {
             if case .todo(let t) = items[idx] { return t }
             return nil
         }
-        
-        if movingTodos.isEmpty { return }
+        guard let movedTodo = movingTodos.first else { return }
+
+        func findCategoryId(of todoId: Int, in items: [TodoItem]) -> Int? {
+            guard let idx = items.firstIndex(where: {
+                if case .todo(let t) = $0 { return t.id == todoId }
+                return false
+            }) else { return nil }
+
+            for i in stride(from: idx - 1, through: 0, by: -1) {
+                if case .category(let cat, _) = items[i] {
+                    return cat.id
+                }
+            }
+            return nil
+        }
+
+        guard let originCategoryId = findCategoryId(of: movedTodo.id, in: items) else { return }
 
         items.remove(atOffsets: source)
 
         let adjusted = max(
             0,
-            min(
-                destination - source.filter { $0 < destination
-                }.count,
-                items.count)
+            min(destination - source.filter { $0 < destination }.count, items.count)
         )
 
-        func indexOfCategoryHeader(_ ci: Int) -> Int? {
+        var insertIndex = adjusted
+        func indexAfterHeader(_ ci: Int) -> Int? {
             items.firstIndex {
                 if case .category(_, let idx) = $0 { return idx == ci }
-                
                 return false
-            }
+            } .map { min($0 + 1, items.count) }
         }
-        
-        func indexAfterHeader(_ ci: Int) -> Int? {
-            guard let header = indexOfCategoryHeader(ci) else { return nil }
-            
-            return min(header + 1, items.count)
-        }
-        
-        func indexOfTailDropZone(_ ci: Int) -> Int? {
-            items.firstIndex {
-                if case .tailDropZone(let idx) = $0 { return idx == ci }
-                
-                return false
-            }
-        }
-
-        var insertIndex = adjusted
-        
         if adjusted < items.count {
             switch items[adjusted] {
             case .headDropZone(let ci):
                 if let head = indexAfterHeader(ci) { insertIndex = head }
             case .tailDropZone(let ci):
-                if let tail = indexOfTailDropZone(ci) { insertIndex = tail }
+                if let tail = items.firstIndex(where: {
+                    if case .tailDropZone(let idx) = $0 { return idx == ci }
+                    return false
+                }) { insertIndex = tail }
             case .globalTail:
                 insertIndex = items.count
             case .category, .todo:
                 break
             }
-        } else {
-            insertIndex = items.count
         }
 
-        func targetCategoryInfo(for insertIndex: Int, in items: [TodoItem]) -> (categoryIndex: Int, color: CategoryColor)? {
-            let start = min(max(insertIndex - 1, 0), max(items.count - 1, 0))
-            
-            if items.indices.contains(start) {
-                for i in stride(from: start, through: 0, by: -1) {
-                    if case .category(let cat, let ci) = items[i] {
-                        
-                        return (ci, cat.colorType)
-                    }
-                }
-            }
-            
+        func targetCategoryInfo(for insertIndex: Int, in items: [TodoItem]) -> (id: Int, color: CategoryColor)? {
             if items.indices.contains(insertIndex) {
-                for i in insertIndex..<items.count {
-                    if case .category(let cat, let ci) = items[i] {
-                        
-                        return (ci, cat.colorType)
+                for i in stride(from: insertIndex, through: 0, by: -1) {
+                    if case .category(let cat, _) = items[i] {
+                        return (cat.id, cat.colorType)
                     }
                 }
             }
-            
+            for i in insertIndex..<items.count {
+                if case .category(let cat, _) = items[i] {
+                    return (cat.id, cat.colorType)
+                }
+            }
             return nil
         }
 
-        let targetInfo = targetCategoryInfo(for: insertIndex, in: items)
+        guard let target = targetCategoryInfo(for: insertIndex, in: items) else { return }
 
-        for (offset, todo) in movingTodos.enumerated() {
-            let updated: TodoItem
-            
-            if let info = targetInfo {
-                let colored = todo.withUpdatedColorType(info.color)
-                updated = .todo(colored)
-            } else {
-                updated = .todo(todo)
-            }
-            
-            items.insert(updated, at: insertIndex + offset)
+        for (offset, t) in movingTodos.enumerated() {
+            let updated = t.withUpdatedColorType(target.color)
+            items.insert(.todo(updated), at: insertIndex + offset)
         }
 
         var newCategories: [Category] = []
         var currentCat: Category?
-        
         for item in items {
             switch item {
             case .category(let cat, _):
-                if let existing = currentCat { newCategories.append(existing) }
-                currentCat = Category(id: cat.id, name: cat.name, colorType: cat.colorType, todos: [], isStopped: false)
-            case .todo(let todo):
-                currentCat?.todos.append(todo)
+                if let exist = currentCat { newCategories.append(exist) }
+                currentCat = Category(
+                    id: cat.id,
+                    name: cat.name,
+                    colorType: cat.colorType,
+                    todos: [],
+                    isStopped: false
+                )
+            case .todo(let t):
+                currentCat?.todos.append(t)
             case .headDropZone, .tailDropZone, .globalTail:
                 break
             }
         }
-        
         if let last = currentCat { newCategories.append(last) }
 
         todoData?.categories = newCategories
         objectWillChange.send()
+
+        let targetCategoryTodos = newCategories.first { $0.id == target.id }?.todos.map { $0.id } ?? []
+
+        let dto = TodoReorderRequestDTO(
+            todoId: movedTodo.id,
+            originCategoryId: originCategoryId,
+            targetCategoryId: target.id,
+            targetCategoryColor: target.color.apiValue,
+            todoList: targetCategoryTodos
+        )
+
+        Task {
+            do {
+                _ = try await reorderTodoUseCase.execute(
+                    id: dto.todoId,
+                    originCategoryId: dto.originCategoryId,
+                    targetCategoryId: dto.targetCategoryId,
+                    targetCategoryColor: dto.targetCategoryColor,
+                    todoList: dto.todoList
+                )
+                print("✅ Reorder Success:", dto)
+            } catch {
+                print("❌ Reorder Failed:", dto)
+            }
+        }
     }
     
     func makeTodoViewModel(todo: TimerTodo) -> TimerTodoViewModel {
@@ -333,9 +348,15 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateMyPromiseMessage(_ newValue: String) {
-        guard var data = todoData else { return }
-        data.myPromiseMessage = newValue
-        todoData = data
+        Task {
+            do {
+                _ = try await writeCommitmentMessageUseCase.execute(commitmentMessage: newValue)
+                
+                fetchData()
+            } catch {
+                print("❌ 서버 저장 실패: \(error)")
+            }
+        }
     }
     
     func presentMeatball(for todo: TimerTodo) {
