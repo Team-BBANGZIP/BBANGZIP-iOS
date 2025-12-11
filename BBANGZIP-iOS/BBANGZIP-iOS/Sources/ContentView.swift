@@ -68,6 +68,9 @@ public struct ContentView: View {
                 mainContent
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AuthenticationFailed"))) { _ in
+            handleAuthenticationFailure()
+        }
     }
     
     private func checkAuthStatusAndNavigate() {
@@ -79,6 +82,21 @@ public struct ContentView: View {
             self.isLoggedIn = true
         } else {
             self.isLoggedIn = false
+        }
+    }
+    
+    private func handleAuthenticationFailure() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            if timerViewModel.state == .running {
+                timerViewModel.pauseForLock()
+            }
+            timerViewModel.resetToInitial()
+            
+            showCheckedOffView = false
+            wasPausedByLock = false
+            UIApplication.shared.isIdleTimerDisabled = false
+            
+            isLoggedIn = false
         }
     }
     
