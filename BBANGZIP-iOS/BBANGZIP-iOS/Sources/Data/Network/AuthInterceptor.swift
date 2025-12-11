@@ -60,6 +60,7 @@ extension AuthInterceptor {
         }
         
         guard let refreshToken = tokenManager.getRefreshToken() else {
+            handleAuthenticationFailure()
             return completion(.doNotRetry)
         }
         
@@ -80,9 +81,23 @@ extension AuthInterceptor {
                     
                     completion(.retry)
                     
-                case .failure:
+                case .failure(let error):
+                    print("❌ Token refresh failed: \(error)")
+                    self.handleAuthenticationFailure()
                     completion(.doNotRetry)
                 }
             }
+    }
+    
+    
+    private func handleAuthenticationFailure() {
+        tokenManager.clearTokens()
+        
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: NSNotification.Name("AuthenticationFailed"),
+                object: nil
+            )
+        }
     }
 }
