@@ -22,6 +22,8 @@ enum BbangRouter {
     )
     case deleteCategory(id: Int)
     case updateCategoryOrder(dto: CategoryOrderUpdateRequestDTO)
+    case signOut
+    case withdraw
     
     // 송희
     case addTodo(dto: TodoAddRequestDTO)
@@ -40,7 +42,7 @@ enum BbangRouter {
         id: Int,
         dto: TodoRescheduleRequestDTO
     )
-
+    
     //유빈
     case getTodayBreadCount
     case getBreads
@@ -69,6 +71,10 @@ extension BbangRouter: Router {
             return "/api/v1/auth/re-issue"
         case .signUp:
             return "/api/v1/auth/signup"
+        case .signOut:
+            return "/api/v1/auth/signout"
+        case .withdraw:
+            return "/api/v1/auth/withdraw"
         case .fetchCategories:
             return "/api/v1/categories"
         case .editCategory(let id, _),
@@ -123,7 +129,7 @@ extension BbangRouter: Router {
             return .get
         case .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory, .updateCategoryOrder, .completeTodo, .reorderTodo, .updateProfile:
             return .patch
-        case .deleteTodo, .deleteCategory:
+        case .deleteTodo, .deleteCategory, .signOut, .withdraw:
             return .delete
         }
     }
@@ -136,7 +142,7 @@ extension BbangRouter: Router {
         case .refreshToken(let refreshToken):
             return ["Authorization": "Bearer \(refreshToken)"]
             
-        case .signUp:
+        case .signUp, .signOut, .withdraw:
             return ["Content-Type": "application/json"]
             
         case .addTodo,
@@ -172,6 +178,10 @@ extension BbangRouter: Router {
             return [:]
         case .signUp(let dto):
             return dto.asDictionary()
+        case .signOut:
+            return [:]
+        case .withdraw:
+            return [:]
         case .fetchCategories(let params):
             return params.asDictionary()
         case .editCategory(_, let dto):
@@ -222,7 +232,7 @@ extension BbangRouter: Router {
         switch self {
         case .signIn, .signUp:
             return JSONEncoding.default
-        case .refreshToken:
+        case .refreshToken, .signOut, .withdraw:
             return nil
         case .addTodo, .addCategory, .editTodo, .updateTodoStartTime, .rescheduleTodo, .editCategory, .updateCategoryOrder, .completeTimer, .writeCommitmentMessage, .completeTodo, .repeatTodo, .copyTodo, .reorderTodo, .updateProfile:
             return JSONEncoding.default

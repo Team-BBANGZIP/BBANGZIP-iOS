@@ -15,6 +15,8 @@ protocol AuthRepository: Sendable {
     ) async throws -> SignInResult
     
     func refreshToken() async throws -> AuthToken
+    func signOut() async throws -> Bool
+    func withdraw() async throws -> Bool
 }
 
 final class AuthRepositoryImpl: AuthRepository {
@@ -88,6 +90,42 @@ final class AuthRepositoryImpl: AuthRepository {
             throw error
         }
     }
+    
+    func signOut() async throws -> Bool {
+        let router = BbangRouter.signOut
+        
+        do {
+            let response: SignOutResponseDTO = try await api.request(api: router)
+            
+            LoggerFactory.create(category: .data)
+                .info("SignOut Success")
+            
+            return response.code == 20000
+            
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("SignOut Error: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func withdraw() async throws -> Bool {
+        let router = BbangRouter.withdraw
+        
+        do {
+            let response: WithdrawResponseDTO = try await api.request(api: router)
+            
+            LoggerFactory.create(category: .data)
+                .info("Withdraw Success")
+            
+            return response.code == 20000
+            
+        } catch {
+            LoggerFactory.create(category: .data)
+                .error("Withdraw Error: \(error.localizedDescription)")
+            throw error
+        }
+    }
 }
 
 enum AuthError: LocalizedError {
@@ -105,8 +143,4 @@ enum AuthError: LocalizedError {
             return "유효하지 않은 토큰입니다."
         }
     }
-}
-
-struct EmptyResponseDTO: Decodable, Sendable {
-    let code: Int
 }

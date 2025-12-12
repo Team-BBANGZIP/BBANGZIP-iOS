@@ -14,7 +14,14 @@ struct MyPageView: View {
     @State private var isActive = false
     
     init() {
-        _viewModel = StateObject(wrappedValue: MyPageViewModel(getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository())))
+        let repository = AuthRepositoryImpl()
+        _viewModel = StateObject(
+            wrappedValue: MyPageViewModel(
+                getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository()),
+                signOutUseCase: SignOutUseCaseImpl(repository: repository),
+                withdrawUseCase: WithdrawUseCaseImpl(repository: repository)
+            )
+        )
     }
     
     var appVersion: String {
@@ -27,7 +34,7 @@ struct MyPageView: View {
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color(.secondaryLight), location: 0.0),
-                        .init(color: Color(.secondaryLight), location: 0.5), 
+                        .init(color: Color(.secondaryLight), location: 0.5),
                         .init(color: Color(.backgroundNomal), location: 0.5),
                         .init(color: Color(.backgroundNomal), location: 1.0)
                     ]),
@@ -45,6 +52,15 @@ struct MyPageView: View {
                             .padding(.top, 32)
                     }
                 }
+                
+                if viewModel.isLoading {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                }
             }
             .navigationDestination(for: String.self) { destination in
                 if destination == "SettingScreen" {
@@ -60,13 +76,41 @@ struct MyPageView: View {
                     )
                 }
             }
+            .sheet(isPresented: $viewModel.showSignOutAlert) {
+                SignOutBottomSheet(
+                    isPresented: $viewModel.showSignOutAlert,
+                    categoryName: "",
+                    onDelete: {
+                        Task {
+                            await viewModel.signOut()
+                        }
+                    }
+                )
+                .presentationDetents([.height(350)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $viewModel.showWithdrawAlert) {
+                WithdrawBottomSheet(
+                    isPresented: $viewModel.showWithdrawAlert,
+                    categoryName: "",
+                    onDelete: {
+                        Task {
+                            await viewModel.withdraw()
+                        }
+                    }
+                )
+                .presentationDetents([.height(350)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+            }
         }
     }
     
     private var ProfileSection: some View {
         Button {
             navigationPath.append("ChangeProfile")
-        } label : {
+        } label: {
             VStack(spacing: 20) {
                 HStack {
                     BbangText(
@@ -222,7 +266,9 @@ struct MyPageView: View {
                 HStack(spacing: 12) {
                     Spacer()
                     
-                    Button(action: { print("로그아웃") }) {
+                    Button(action: {
+                        viewModel.showSignOutAlert = true
+                    }) {
                         BbangText(
                             "로그아웃",
                             font: .body4,
@@ -234,7 +280,9 @@ struct MyPageView: View {
                         .frame(width: 1, height: 16)
                         .foregroundStyle(Color(.labelAssistive))
                     
-                    Button(action: { print("회원 탈퇴") }) {
+                    Button(action: {
+                        viewModel.showWithdrawAlert = true
+                    }) {
                         BbangText(
                             "회원 탈퇴",
                             font: .body4,
@@ -260,4 +308,3 @@ struct MyPageView: View {
             .foregroundStyle(Color(.secondaryNormal))
     }
 }
-
