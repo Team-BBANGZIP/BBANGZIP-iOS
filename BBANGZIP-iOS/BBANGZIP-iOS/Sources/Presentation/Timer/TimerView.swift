@@ -61,7 +61,7 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-        let opacity: Double = viewModel.breadCount == 0 ? 0 : 1
+        let opacity: Double = 1
         
         return HStack(spacing: 1) {
             Image(.icBread)
@@ -240,7 +240,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.prize) // TODO: 이미지 빵으로 변경
+            Image(.prize)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: .infinity)
