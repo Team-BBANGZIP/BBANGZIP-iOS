@@ -108,21 +108,21 @@ struct MyPageView: View {
     }
     
     private var ProfileSection: some View {
-        Button {
-            navigationPath.append("ChangeProfile")
-        } label: {
-            VStack(spacing: 20) {
-                HStack {
-                    BbangText(
-                        "프로필",
-                        font: .title1,
-                        color: Color(.labelStrong)
-                    )
-                    .padding(.leading, 20)
-                    
-                    Spacer()
-                }
+        VStack(spacing: 20) {
+            HStack {
+                BbangText(
+                    "프로필",
+                    font: .title1,
+                    color: Color(.labelStrong)
+                )
+                .padding(.leading, 20)
                 
+                Spacer()
+            }
+            
+            Button {
+                navigationPath.append("ChangeProfile")
+            } label: {
                 HStack(spacing: 12) {
                     if let url = URL(string: viewModel.profileImageUrl) {
                         KFImage(url)
@@ -145,15 +145,11 @@ struct MyPageView: View {
                                 color: Color(.labelStrong)
                             )
                             
-                            Button(action: {
-                                
-                            }) {
-                                Image(.icPencil)
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                                    .foregroundStyle(Color(.labelAssistive))
-                            }
+                            Image(.icPencil)
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundStyle(Color(.labelAssistive))
                         }
                         
                         BbangText(
@@ -167,7 +163,9 @@ struct MyPageView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 20)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
