@@ -45,8 +45,8 @@ final class TodoViewModel: ObservableObject {
         cal.firstWeekday = UserDefaults.standard.bool(forKey: "startWeekOnSunday") ? 1 : 2
         return cal
     }()
-
-
+    
+    
     private(set) var selectedTodoForMenu: TimerTodo? = nil
     
     private let fetchUseCase: FetchTodosUseCase
@@ -105,7 +105,7 @@ final class TodoViewModel: ObservableObject {
         cal.firstWeekday = startWeekOnSunday ? 1 : 2
         self.calendar = cal
     }
-
+    
     func fetchData() {
         Task {
             do {
@@ -120,24 +120,41 @@ final class TodoViewModel: ObservableObject {
         selectedDate = date
         fetchData()
     }
-
+    
+    func resetToToday() {
+        let today = adjustedToday()
+        currentDate = today
+        selectedDate = nil
+        updateDates()
+        fetchData()
+    }
+    
+    private func adjustedToday() -> Date {
+        let now = Date()
+        let hour = calendar.component(.hour, from: now)
+        if hour < 5 {
+            return calendar.date(byAdding: .day, value: -1, to: now) ?? now
+        }
+        return now
+    }
+    
     func moveTodoItems(from source: IndexSet, to destination: Int) {
         guard (todoData?.categories) != nil else { return }
-
+        
         var items = todoItems
-
+        
         let movingTodos: [TimerTodo] = source.compactMap { idx in
             if case .todo(let t) = items[idx] { return t }
             return nil
         }
         guard let movedTodo = movingTodos.first else { return }
-
+        
         func findCategoryId(of todoId: Int, in items: [TodoItem]) -> Int? {
             guard let idx = items.firstIndex(where: {
                 if case .todo(let t) = $0 { return t.id == todoId }
                 return false
             }) else { return nil }
-
+            
             for i in stride(from: idx - 1, through: 0, by: -1) {
                 if case .category(let cat, _) = items[i] {
                     return cat.id
@@ -145,16 +162,16 @@ final class TodoViewModel: ObservableObject {
             }
             return nil
         }
-
+        
         guard let originCategoryId = findCategoryId(of: movedTodo.id, in: items) else { return }
-
+        
         items.remove(atOffsets: source)
-
+        
         let adjusted = max(
             0,
             min(destination - source.filter { $0 < destination }.count, items.count)
         )
-
+        
         var insertIndex = adjusted
         func indexAfterHeader(_ ci: Int) -> Int? {
             items.firstIndex {
@@ -177,7 +194,7 @@ final class TodoViewModel: ObservableObject {
                 break
             }
         }
-
+        
         func targetCategoryInfo(for insertIndex: Int, in items: [TodoItem]) -> (id: Int, color: CategoryColor)? {
             if items.indices.contains(insertIndex) {
                 for i in stride(from: insertIndex, through: 0, by: -1) {
@@ -193,14 +210,14 @@ final class TodoViewModel: ObservableObject {
             }
             return nil
         }
-
+        
         guard let target = targetCategoryInfo(for: insertIndex, in: items) else { return }
-
+        
         for (offset, t) in movingTodos.enumerated() {
             let updated = t.withUpdatedColorType(target.color)
             items.insert(.todo(updated), at: insertIndex + offset)
         }
-
+        
         var newCategories: [Category] = []
         var currentCat: Category?
         for item in items {
@@ -221,12 +238,10 @@ final class TodoViewModel: ObservableObject {
             }
         }
         if let last = currentCat { newCategories.append(last) }
-
         todoData?.categories = newCategories
         objectWillChange.send()
-
         let targetCategoryTodos = newCategories.first { $0.id == target.id }?.todos.map { $0.id } ?? []
-
+        
         let dto = TodoReorderRequestDTO(
             todoId: movedTodo.id,
             originCategoryId: originCategoryId,
@@ -234,7 +249,7 @@ final class TodoViewModel: ObservableObject {
             targetCategoryColor: target.color.apiValue,
             todoList: targetCategoryTodos
         )
-
+        
         Task {
             do {
                 _ = try await reorderTodoUseCase.execute(
@@ -275,10 +290,10 @@ final class TodoViewModel: ObservableObject {
             print("❌ 카테고리 ID를 찾을 수 없습니다.")
             return
         }
-
+        
         let localAddUseCase = addUseCase
         let targetDate = currentTargetDate
-
+        
         Task {
             do {
                 _ = try await localAddUseCase.execute(
@@ -330,7 +345,7 @@ final class TodoViewModel: ObservableObject {
         
         return dates[dayIndex]
     }
-
+    
     func moveWeek(by value: Int) {
         if let newDate = calendar.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
@@ -341,9 +356,31 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateTodoCompletion(_ updatedTodo: TimerTodo) {
-        if let cIndex = todoData?.categories.firstIndex(where: { $0.todos.contains(where: { $0.id == updatedTodo.id }) }),
-           let tIndex = todoData?.categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
-            todoData?.categories[cIndex].todos[tIndex] = updatedTodo
+        guard var data = todoData else { return }
+        
+        if let cIndex = data.categories.firstIndex(where: { $0.todos.contains(where: { $0.id == updatedTodo.id }) }),
+           let tIndex = data.categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
+            
+            let oldTodo = data.categories[cIndex].todos[tIndex]
+            data.categories[cIndex].todos[tIndex] = updatedTodo
+            
+            if oldTodo.isCompleted != updatedTodo.isCompleted {
+                let newCompletedCount = updatedTodo.isCompleted
+                    ? data.summary.completedCount + 1
+                    : data.summary.completedCount - 1
+                
+                data = TodoData(
+                    myPromiseMessage: data.myPromiseMessage,
+                    summary: TodoSummary(
+                        date: data.summary.date,
+                        totalCount: data.summary.totalCount,
+                        completedCount: newCompletedCount
+                    ),
+                    categories: data.categories
+                )
+            }
+            
+            todoData = data
         }
     }
     
@@ -383,14 +420,14 @@ final class TodoViewModel: ObservableObject {
     
     func removeTodo(id: Int, newCompleted: Int, newTotal: Int) {
         guard var data = todoData else { return }
-
+        
         for i in data.categories.indices {
             if let idx = data.categories[i].todos.firstIndex(where: { $0.id == id }) {
                 data.categories[i].todos.remove(at: idx)
                 break
             }
         }
-
+        
         data = TodoData(
             myPromiseMessage: data.myPromiseMessage,
             summary: TodoSummary(
@@ -400,7 +437,7 @@ final class TodoViewModel: ObservableObject {
             ),
             categories: data.categories
         )
-
+        
         todoData = data
     }
     
@@ -456,7 +493,7 @@ extension TodoViewModel {
         }
         return nil
     }
-
+    
     func todoDataStartTime(for id: Int) -> String? {
         guard let categories = todoData?.categories else { return nil }
         for cat in categories {
@@ -466,7 +503,7 @@ extension TodoViewModel {
         }
         return nil
     }
-
+    
     func updateTodoTitle(id: Int, newTitle: String) {
         guard var data = todoData else { return }
         for ci in data.categories.indices {
@@ -477,7 +514,7 @@ extension TodoViewModel {
             }
         }
     }
-
+    
     func updateTodoStartTime(id: Int, newTime: String?) {
         guard var data = todoData else { return }
         for ci in data.categories.indices {

@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct TodoContentEditView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject var viewModel: TodoContentEditViewModel
     @Binding var isPresented: Bool
+    @FocusState private var isTextFieldFocused: Bool
     
     init(
         originalTodo: String,
@@ -32,16 +34,24 @@ struct TodoContentEditView: View {
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 25)
             
-            TaskInputField(text: $viewModel.newTodo) {
-                Task {
-                    await viewModel.editTodoTitle()
-                    isPresented = false
+            TaskInputField(
+                text: $viewModel.newTodo,
+                onSubmit: {
+                    Task {
+                        await viewModel.editTodoTitle()
+                        isPresented = false
+                    }
                 }
-            }
+            )
+            .focused($isTextFieldFocused)
             .padding(.top, 31)
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 20)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                isTextFieldFocused = true
+            }
+        }
     }
 }
-

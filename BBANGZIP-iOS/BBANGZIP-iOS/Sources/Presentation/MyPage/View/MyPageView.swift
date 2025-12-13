@@ -227,14 +227,14 @@ struct MyPageView: View {
                 MenuBox(
                     menu: "고객센터",
                     onMenuTapped: {
-                        print("고객센터")
+                        openURL("https://southern-comet-4a3.notion.site/2ac01508929380518f17feaa3aa64870")
                     }
                 )
                 
                 MenuBox(
                     menu: "제 과제 빵점 사용법",
                     onMenuTapped: {
-                        print("제 과제 빵점 사용법")
+                        openURL("https://www.instagram.com/bbangzip.official/")
                     }
                 )
                 
@@ -306,5 +306,13 @@ struct MyPageView: View {
         Rectangle()
             .frame(height: 1)
             .foregroundStyle(Color(.secondaryNormal))
+    }
+    
+    private func openURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL: \(urlString)")
+            return
+        }
+        UIApplication.shared.open(url)
     }
 }

@@ -11,9 +11,14 @@ public struct PromiseInputField: View {
     @Binding public var text: String
     @FocusState private var isFocused: Bool
     private let maxLength: Int = 50
+    var onSubmit: (() -> Void)?
     
-    public init(text: Binding<String>) {
+    public init(
+        text: Binding<String>,
+        onSubmit: (() -> Void)? = nil
+    ) {
         self._text = text
+        self.onSubmit = onSubmit
     }
     
     public var body: some View {
@@ -48,16 +53,19 @@ public struct PromiseInputField: View {
             .keyboardType(.default)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled(true)
-            .onChange(of: text) { newValue in
-                let filtered = newValue.replacingOccurrences(of: "\n", with: "")
-                if filtered.count > maxLength {
-                    text = String(filtered.prefix(maxLength))
-                } else {
+            .onChange(of: text) { oldValue, newValue in
+                if newValue.contains("\n") {
+                    let filtered = newValue.replacingOccurrences(of: "\n", with: "")
                     text = filtered
+                    onSubmit?()
+                    return
+                }
+                
+                if newValue.count > maxLength {
+                    text = String(newValue.prefix(maxLength))
                 }
             }
     }
-    
     var placeholder: some View {
         Text("나만의 다짐을 적어보세요")
             .foregroundStyle(Color(.labelAssistive))

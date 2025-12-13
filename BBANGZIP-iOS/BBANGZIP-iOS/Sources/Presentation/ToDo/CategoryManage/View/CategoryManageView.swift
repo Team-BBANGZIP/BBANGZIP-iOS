@@ -119,6 +119,7 @@ struct CategoryManageView: View {
                 .presentationDragIndicator(.visible)
         }
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 

@@ -61,7 +61,7 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-        let opacity: Double = viewModel.breadCount == 0 ? 0 : 1
+        let opacity: Double = 1
         
         return HStack(spacing: 1) {
             Image(.icBread)
@@ -101,6 +101,12 @@ struct TimerView: View {
             
             ZStack {
                 Circle()
+                    .stroke(lineWidth: 10)
+                    .foregroundStyle(Color(.staticwhite))
+                    .padding(5)
+                    .zIndex(1)
+                
+                Circle()
                     .stroke(lineWidth: lineWidth)
                     .foregroundStyle(
                         Color(.secondaryNormal)
@@ -113,6 +119,7 @@ struct TimerView: View {
                                 )
                             )
                     )
+                    .zIndex(1)
                 
                 Circle()
                     .trim(
@@ -136,6 +143,7 @@ struct TimerView: View {
                         )
                     )
                     .rotationEffect(.degrees(-90))
+                    .zIndex(1)
                 
                 VStack(spacing: 0) {
                     Spacer().frame(height: 100)
@@ -154,37 +162,38 @@ struct TimerView: View {
                         breadImage
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 115,height: 84)
+                            .frame(width: 115, height: 84)
                             .animation(
                                 .easeInOut(duration: 0.5),
                                 value: viewModel.currentBreadLevel
                             )
                     }
                     .disabled(viewModel.state != .initial)
-                    
-                    Spacer().frame(height: 20)
                 }
+                .zIndex(0)
             }
-            .frame(width: 311,height: 311
-            )
+            .frame(width: 311, height: 311)
         }
-        .aspectRatio(1,contentMode: .fit)
-        .padding(.horizontal,38)
-        .padding(.vertical,6)
+        .aspectRatio(1, contentMode: .fit)
+        .padding(.horizontal, 38)
+        .padding(.vertical, 6)
     }
     
     private var breadImage: Image {
-        switch viewModel.currentBreadLevel {
+        let level = viewModel.currentBreadLevel
+        let isPaused = viewModel.state == .paused
+        
+        switch level {
         case 1:
             return Image(.itemSaltBread)
         case 2:
-            return Image(.breadLevel1)
+            return isPaused ? Image(.level1) : Image(.breadLevel1)
         case 3:
-            return Image(.breadLevel2)
+            return isPaused ? Image(.level2) : Image(.breadLevel2)
         case 4:
-            return Image(.breadLevel3)
+            return isPaused ? Image(.level3) : Image(.breadLevel3)
         case 5:
-            return Image(.breadLevel4)
+            return isPaused ? Image(.level4) : Image(.breadLevel4)
         default:
             return Image(.itemSaltBread)
         }
@@ -240,7 +249,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.prize) // TODO: 이미지 빵으로 변경
+            Image(.prize)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: .infinity)

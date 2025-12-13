@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct MyPromiseView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var draft: String
+    @FocusState private var isTextFieldFocused: Bool
     private let onSave: (String) -> Void
     
     init(
@@ -26,14 +28,29 @@ struct MyPromiseView: View {
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 50)
             
-            PromiseInputField(text: $draft)
-                .padding(.horizontal, 20)
-                .padding(.top, 31)
-                .padding(.bottom, 28)
+            PromiseInputField(
+                text: $draft,
+                onSubmit: {
+                    let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+                    onSave(trimmed)
+                    dismiss()
+                }
+            )
+            .focused($isTextFieldFocused)
+            .padding(.horizontal, 20)
+            .padding(.top, 31)
+            .padding(.bottom, 28)
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                isTextFieldFocused = true
+            }
         }
         .onDisappear {
-            let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-            onSave(trimmed)
+            if !isTextFieldFocused {
+                let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+                onSave(trimmed)
+            }
         }
     }
 }

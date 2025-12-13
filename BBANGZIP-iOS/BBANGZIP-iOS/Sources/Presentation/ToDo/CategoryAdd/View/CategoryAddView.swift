@@ -64,6 +64,7 @@ struct CategoryAddView: View {
             .padding(.horizontal, 20)
             .padding(.top, 32)
         }
+        .toolbar(.hidden, for: .tabBar)
         .contentShape(Rectangle())
         .onTapGesture {
             isTextFieldFocused = false
@@ -73,8 +74,8 @@ struct CategoryAddView: View {
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
-        .onChange(of: viewModel.isCompleted) { isCompleted in
-            if isCompleted {
+        .onChange(of: viewModel.isCompleted) { oldValue, newValue in
+            if newValue {
                 isTextFieldFocused = false
                 onDismiss?()
                 dismiss()
@@ -196,9 +197,4 @@ private struct ColorPickerRow: View {
             }
         }
     }
-}
-
-// MARK: - Preview
-#Preview {
-    CategoryAddView()
 }
