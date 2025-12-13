@@ -101,6 +101,12 @@ struct TimerView: View {
             
             ZStack {
                 Circle()
+                    .stroke(lineWidth: 10)
+                    .foregroundStyle(Color(.staticwhite))
+                    .padding(5)
+                    .zIndex(1)
+                
+                Circle()
                     .stroke(lineWidth: lineWidth)
                     .foregroundStyle(
                         Color(.secondaryNormal)
@@ -113,6 +119,7 @@ struct TimerView: View {
                                 )
                             )
                     )
+                    .zIndex(1)
                 
                 Circle()
                     .trim(
@@ -136,6 +143,7 @@ struct TimerView: View {
                         )
                     )
                     .rotationEffect(.degrees(-90))
+                    .zIndex(1)
                 
                 VStack(spacing: 0) {
                     Spacer().frame(height: 100)
@@ -154,23 +162,21 @@ struct TimerView: View {
                         breadImage
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 115,height: 84)
+                            .frame(width: 115, height: 84)
                             .animation(
                                 .easeInOut(duration: 0.5),
                                 value: viewModel.currentBreadLevel
                             )
                     }
                     .disabled(viewModel.state != .initial)
-                    
-                    Spacer().frame(height: 20)
                 }
+                .zIndex(0)
             }
-            .frame(width: 311,height: 311
-            )
+            .frame(width: 311, height: 311)
         }
-        .aspectRatio(1,contentMode: .fit)
-        .padding(.horizontal,38)
-        .padding(.vertical,6)
+        .aspectRatio(1, contentMode: .fit)
+        .padding(.horizontal, 38)
+        .padding(.vertical, 6)
     }
     
     private var breadImage: Image {
