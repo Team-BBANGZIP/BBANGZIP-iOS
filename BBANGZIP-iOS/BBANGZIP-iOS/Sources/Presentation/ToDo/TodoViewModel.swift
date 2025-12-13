@@ -356,9 +356,31 @@ final class TodoViewModel: ObservableObject {
     }
     
     func updateTodoCompletion(_ updatedTodo: TimerTodo) {
-        if let cIndex = todoData?.categories.firstIndex(where: { $0.todos.contains(where: { $0.id == updatedTodo.id }) }),
-           let tIndex = todoData?.categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
-            todoData?.categories[cIndex].todos[tIndex] = updatedTodo
+        guard var data = todoData else { return }
+        
+        if let cIndex = data.categories.firstIndex(where: { $0.todos.contains(where: { $0.id == updatedTodo.id }) }),
+           let tIndex = data.categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
+            
+            let oldTodo = data.categories[cIndex].todos[tIndex]
+            data.categories[cIndex].todos[tIndex] = updatedTodo
+            
+            if oldTodo.isCompleted != updatedTodo.isCompleted {
+                let newCompletedCount = updatedTodo.isCompleted
+                    ? data.summary.completedCount + 1
+                    : data.summary.completedCount - 1
+                
+                data = TodoData(
+                    myPromiseMessage: data.myPromiseMessage,
+                    summary: TodoSummary(
+                        date: data.summary.date,
+                        totalCount: data.summary.totalCount,
+                        completedCount: newCompletedCount
+                    ),
+                    categories: data.categories
+                )
+            }
+            
+            todoData = data
         }
     }
     
