@@ -180,17 +180,20 @@ struct TimerView: View {
     }
     
     private var breadImage: Image {
-        switch viewModel.currentBreadLevel {
+        let level = viewModel.currentBreadLevel
+        let isPaused = viewModel.state == .paused
+        
+        switch level {
         case 1:
             return Image(.itemSaltBread)
         case 2:
-            return Image(.breadLevel1)
+            return isPaused ? Image(.level1) : Image(.breadLevel1)
         case 3:
-            return Image(.breadLevel2)
+            return isPaused ? Image(.level2) : Image(.breadLevel2)
         case 4:
-            return Image(.breadLevel3)
+            return isPaused ? Image(.level3) : Image(.breadLevel3)
         case 5:
-            return Image(.breadLevel4)
+            return isPaused ? Image(.level4) : Image(.breadLevel4)
         default:
             return Image(.itemSaltBread)
         }
