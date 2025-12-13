@@ -131,6 +131,7 @@ struct CategoryListView: View {
             }
         }
         .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
         .onAppear {
             Task {
                 await viewModel.fetchCategories()
