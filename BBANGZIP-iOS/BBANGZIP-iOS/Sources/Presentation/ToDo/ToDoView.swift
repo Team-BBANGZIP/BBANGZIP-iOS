@@ -70,7 +70,8 @@ struct ToDoView: View {
                     .scrollIndicators(.hidden)
                     .environment(\.defaultMinListRowHeight, 0)
                     .onAppear {
-                        viewModel.fetchData()
+                        selectedDate = nil
+                        viewModel.resetToToday()
                     }
                     
                     if isShowMenu {
@@ -267,6 +268,7 @@ struct ToDoView: View {
                 font: .subtitle1,
                 color: Color(.labelNeutral)
             )
+            .frame(width: 77, alignment: .leading)
             .padding(.leading, 20)
             .padding(.vertical, 6)
             
@@ -329,6 +331,7 @@ struct ToDoView: View {
                 }
             }
         }
+        .frame(height: 70)
         .gesture(
             DragGesture(minimumDistance: 30, coordinateSpace: .local)
                 .onEnded { value in
