@@ -30,7 +30,6 @@ struct ChangeProfileView: View {
             )
             .navigationBarHidden(true)
             
-            
             Button {
                 viewModel.showChangeProfileImageSheet()
             } label: {
@@ -54,7 +53,6 @@ struct ChangeProfileView: View {
                         Circle()
                             .fill(Color(.labelDisable))
                             .frame(width: 24, height: 24)
-                            .padding(2)
                             .overlay(Circle().stroke(Color(.backgroundNomal), lineWidth: 2))
                         
                         Image(.icPlusThick)
