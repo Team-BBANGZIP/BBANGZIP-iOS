@@ -23,9 +23,9 @@
 # 🥯 Demonstration
 | 온보딩 | 타이머 | 마이페이지 | 
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/87aced47-b68b-44ee-8aa2-cdcf4e564fba" width="300"> | <img src="https://github.com/user-attachments/assets/f44e2168-0ba9-4638-966c-a0c29fcc5016" width="300"> | <img src="https://github.com/user-attachments/assets/2bca19af-02d5-481d-b29c-fec329a46c0e" width="300"> | 
+| <img src="https://github.com/user-attachments/assets/87aced47-b68b-44ee-8aa2-cdcf4e564fba" width="250"> | <img src="https://github.com/user-attachments/assets/f44e2168-0ba9-4638-966c-a0c29fcc5016" width="250"> | <img src="https://github.com/user-attachments/assets/2bca19af-02d5-481d-b29c-fec329a46c0e" width="250"> | 
 | 투두 생성 | 투두 관리 | 카테고리 관리 | 
-| <img src="https://github.com/user-attachments/assets/74c85a14-1b07-4ee9-bd37-12afee2d8227" width="300"> | <img src="https://github.com/user-attachments/assets/12fca138-d780-4eb5-8b7e-b98ab3bfe0d1" width="300"> | <img src="https://github.com/user-attachments/assets/13c0506d-fd1b-4a1f-84dc-ce95b613f920" width="300"> | 
+| <img src="https://github.com/user-attachments/assets/74c85a14-1b07-4ee9-bd37-12afee2d8227" width="250"> | <img src="https://github.com/user-attachments/assets/12fca138-d780-4eb5-8b7e-b98ab3bfe0d1" width="250"> | <img src="https://github.com/user-attachments/assets/13c0506d-fd1b-4a1f-84dc-ce95b613f920" width="250"> | 
 <br>
 
 
