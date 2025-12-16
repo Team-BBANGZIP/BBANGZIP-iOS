@@ -42,3 +42,48 @@
 </div>
 </br>
 
+# 🥨 Architecture
+BBANGZIP은 Clean Architecture 기반의 MVVM 패턴을 사용하여
+
+각 레이어의 책임을 명확히 분리하고, 테스트와 유지보수가 용이한 구조를 지향합니다.
+```
+Presentation (View / ViewModel)
+        ↓
+      Domain (UseCase / Entity)
+        ↓
+       Data (Repository / Network)
+```
+
+# 🍞 Foldering Strategy
+```
+├── 🥐 Project
+|   ├── 🥯 BBANGZIP
+│   │   ├── 🥨 Resources
+│   │   │   ├── 🥖 Config
+│   │   │   ├── 🥖 Font
+│   │   │   ├── 🥖 Preview Content
+│   │   │   ├── 🥖 Assets
+│   │   ├── 🥨 Sources
+│   │   │   ├── 🥖 Data
+│   │   │   │   ├── 🍞 Network
+│   │   │   │   │   ├── 🧁 Environment
+│   │   │   │   │   ├── 🧁 Router
+│   │   │   │   │   ├── 🧁 Service
+│   │   │   ├── 🥖 Domain
+│   │   │   │   ├── 🍞 Entities
+│   │   │   │   ├── 🍞 Enum
+│   │   │   │   ├── 🍞 Repositories
+│   │   │   │   ├── 🍞 UseCases
+│   │   │   ├── 🥖 Extension
+│   │   │   ├── 🥖 Font
+│   │   │   ├── 🥖 Presentation
+│   │   │   │   └── 🍞 Component
+│   │   │   │   └── 🍞 Feature
+│   │   │   │       ├── 🧁 View
+│   │   │   │       └── 🧁 ViewModel
+│   │   │   ├── 🥖 Utilities
+│   │       
+└── 🥐 Derived
+    ├── 🥯 InfoPlists
+    └── 🥯 Sources
+```
