@@ -109,13 +109,6 @@ struct MyPageView: View {
                     await viewModel.fetchProfile()
                 }
             }
-            .onChange(of: navigationPath) { oldValue, newValue in
-                if newValue.count == 0 && oldValue.count > 0 {
-                    Task {
-                        await viewModel.fetchProfile()
-                    }
-                }
-            }
         }
     }
     
@@ -252,6 +245,15 @@ struct MyPageView: View {
                     menu: "피드백 남기기",
                     onMenuTapped: {
                         print("피드백 남기기")
+                    }
+                )
+                
+                MenuBox(
+                    menu: "앱 리뷰 남기기",
+                    onMenuTapped: {
+                        // TODO: 출시 후 실제 앱스토어 링크로 변경
+                        // openURL("https://apps.apple.com/app/idXXXXXXXXXX")
+                        openURL("https://www.apple.com/kr/app-store/")
                     }
                 )
                 
