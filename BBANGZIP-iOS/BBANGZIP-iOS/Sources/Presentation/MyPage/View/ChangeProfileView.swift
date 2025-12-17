@@ -16,7 +16,10 @@ struct ChangeProfileView: View {
     
     init(onDismiss: (() -> Void)? = nil) {
         self.onDismiss = onDismiss
-        _viewModel = StateObject(wrappedValue: ChangeProfileViewModel(getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository()), updateProfileUseCase: DefaultUpdateProfileUseCase(repository: ProfileRepository())))
+        _viewModel = StateObject(wrappedValue: ChangeProfileViewModel(
+            getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository()),
+            updateProfileUseCase: DefaultUpdateProfileUseCase(repository: ProfileRepository())
+        ))
     }
     
     var body: some View {
@@ -30,6 +33,7 @@ struct ChangeProfileView: View {
             )
             .navigationBarHidden(true)
             
+            
             Button {
                 viewModel.showChangeProfileImageSheet()
             } label: {
@@ -38,9 +42,13 @@ struct ChangeProfileView: View {
                         if let selected = viewModel.selectedProfileImage {
                             Image(selected)
                                 .resizable()
-                        } else if let url = URL(string: viewModel.profileImageUrl) {
+                        } else if !viewModel.profileImageUrl.isEmpty,
+                                  let url = URL(string: viewModel.profileImageUrl) {
                             KFImage(url)
                                 .resizable()
+                                .placeholder { Image(.icProfile).resizable() }
+                                .cacheOriginalImage()
+                                .id(viewModel.profileImageUrl)
                         } else {
                             Image(.icProfile)
                                 .resizable()
@@ -53,6 +61,7 @@ struct ChangeProfileView: View {
                         Circle()
                             .fill(Color(.labelDisable))
                             .frame(width: 24, height: 24)
+                            .padding(2)
                             .overlay(Circle().stroke(Color(.backgroundNomal), lineWidth: 2))
                         
                         Image(.icPlusThick)
@@ -124,7 +133,6 @@ struct ChangeProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(.componentStrong))
                     .cornerRadius(8)
-
                 }
             }
             .padding(.horizontal, 20)
@@ -132,6 +140,7 @@ struct ChangeProfileView: View {
             
             Spacer()
         }
+        .toolbar(.hidden, for: .tabBar)
         .sheet(
             isPresented: $viewModel.isChangeNickNameSheetPresented
         ) {

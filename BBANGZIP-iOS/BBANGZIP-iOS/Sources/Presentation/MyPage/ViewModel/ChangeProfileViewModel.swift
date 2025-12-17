@@ -71,15 +71,20 @@ final class ChangeProfileViewModel: ObservableObject {
         
         guard let profileImage = selectedProfileImage,
               let profileImageKey = profileImageKeyMap[profileImage] else {
-            
             return
         }
         
         Task {
             do {
-                _ = try await updateProfileUseCase.updateProfileImage(
+                let response = try await updateProfileUseCase.updateProfileImage(
                     profileImageKey: profileImageKey
                 )
+                
+                await MainActor.run {
+                    if let newImageUrl = response.profileImageUrl {
+                        self.profileImageUrl = newImageUrl
+                    }
+                }
                 
                 print("프로필 이미지 변경 성공")
             }
