@@ -104,6 +104,18 @@ struct MyPageView: View {
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
             }
+            .onAppear {
+                Task {
+                    await viewModel.fetchProfile()
+                }
+            }
+            .onChange(of: navigationPath) { oldValue, newValue in
+                if newValue.count == 0 && oldValue.count > 0 {
+                    Task {
+                        await viewModel.fetchProfile()
+                    }
+                }
+            }
         }
     }
     
