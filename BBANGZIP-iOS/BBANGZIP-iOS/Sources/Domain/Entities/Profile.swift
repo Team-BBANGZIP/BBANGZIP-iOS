@@ -9,6 +9,7 @@ import Foundation
 
 struct Profile {
     let profileImageUrl: String?
+    let profileImageKey: Int?
     let nickname: String
     let commitmentMessage: String?
 }
