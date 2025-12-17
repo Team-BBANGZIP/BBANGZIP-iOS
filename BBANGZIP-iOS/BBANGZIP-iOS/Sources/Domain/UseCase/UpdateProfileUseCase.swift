@@ -13,10 +13,13 @@ protocol UpdateProfileUseCase: Sendable {
     ) async throws -> Profile
     
     func updateNickname(
-        nickname: String
+        nickname: String,
+        currentProfileImageKey: Int
     ) async throws -> Profile
+    
     func updateCommitmentMessage(
-        commitmentMessage: String
+        commitmentMessage: String,
+        currentProfileImageKey: Int
     ) async throws -> Profile
 }
 
@@ -31,26 +34,34 @@ final class DefaultUpdateProfileUseCase: UpdateProfileUseCase {
         profileImageKey: Int
     ) async throws -> Profile {
         let request = ProfileUpdateRequestDTO(
-            profileImageKey: profileImageKey
+            profileImageKey: profileImageKey,
+            nickname: nil,
+            commitmentMessage: nil
         )
         
         return try await repository.updateProfile(request: request)
     }
     
     func updateNickname(
-        nickname: String
+        nickname: String,
+        currentProfileImageKey: Int
     ) async throws -> Profile {
         let request = ProfileUpdateRequestDTO(
-            nickname: nickname
+            profileImageKey: currentProfileImageKey,
+            nickname: nickname,
+            commitmentMessage: nil
         )
         
         return try await repository.updateProfile(request: request)
     }
     
     func updateCommitmentMessage(
-        commitmentMessage: String
+        commitmentMessage: String,
+        currentProfileImageKey: Int
     ) async throws -> Profile {
         let request = ProfileUpdateRequestDTO(
+            profileImageKey: currentProfileImageKey,
+            nickname: nil,
             commitmentMessage: commitmentMessage
         )
         

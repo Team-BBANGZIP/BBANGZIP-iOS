@@ -10,6 +10,7 @@ import SwiftUI
 @MainActor
 final class MyPageViewModel: ObservableObject {
     @Published var profileImageUrl: String = ""
+    @Published var profileImageKey: Int = 1
     @Published var nickname: String = ""
     @Published var commitmentMessage: String = ""
     @Published var showSignOutAlert: Bool = false
@@ -37,10 +38,14 @@ final class MyPageViewModel: ObservableObject {
     func fetchProfile() async {
         do {
             let profile = try await getProfileUseCase.getProfile()
-            print("profile ", profile)
-            self.profileImageUrl = profile.profileImageUrl ?? ""
-            self.nickname = profile.nickname
-            self.commitmentMessage = profile.commitmentMessage ?? "나만의 다짐을 적어보세요"
+            print("Fetched profile: ", profile)
+            
+            await MainActor.run {
+                self.profileImageUrl = profile.profileImageUrl ?? ""
+                self.profileImageKey = profile.profileImageKey ?? 1
+                self.nickname = profile.nickname
+                self.commitmentMessage = profile.commitmentMessage ?? "나만의 다짐을 적어보세요"
+            }
         } catch {
             print("fetch Profile Error: \(error.localizedDescription)")
         }
@@ -61,7 +66,7 @@ final class MyPageViewModel: ObservableObject {
                 )
             }
         } catch {
-            print("❌ Sign out failed: \(error.localizedDescription)")
+            print("Sign out failed: \(error.localizedDescription)")
             TokenManager.shared.clearTokens()
             NotificationCenter.default.post(
                 name: NSNotification.Name("AuthenticationFailed"),
@@ -85,7 +90,7 @@ final class MyPageViewModel: ObservableObject {
                 )
             }
         } catch {
-            print("❌ Withdraw failed: \(error.localizedDescription)")
+            print("Withdraw failed: \(error.localizedDescription)")
             TokenManager.shared.clearTokens()
             NotificationCenter.default.post(
                 name: NSNotification.Name("AuthenticationFailed"),

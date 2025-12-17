@@ -104,25 +104,30 @@ struct MyPageView: View {
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
             }
+            .onAppear {
+                Task {
+                    await viewModel.fetchProfile()
+                }
+            }
         }
     }
     
     private var ProfileSection: some View {
-        Button {
-            navigationPath.append("ChangeProfile")
-        } label: {
-            VStack(spacing: 20) {
-                HStack {
-                    BbangText(
-                        "프로필",
-                        font: .title1,
-                        color: Color(.labelStrong)
-                    )
-                    .padding(.leading, 20)
-                    
-                    Spacer()
-                }
+        VStack(spacing: 20) {
+            HStack {
+                BbangText(
+                    "프로필",
+                    font: .title1,
+                    color: Color(.labelStrong)
+                )
+                .padding(.leading, 20)
                 
+                Spacer()
+            }
+            
+            Button {
+                navigationPath.append("ChangeProfile")
+            } label: {
                 HStack(spacing: 12) {
                     if let url = URL(string: viewModel.profileImageUrl) {
                         KFImage(url)
@@ -145,15 +150,11 @@ struct MyPageView: View {
                                 color: Color(.labelStrong)
                             )
                             
-                            Button(action: {
-                                
-                            }) {
-                                Image(.icPencil)
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                                    .foregroundStyle(Color(.labelAssistive))
-                            }
+                            Image(.icPencil)
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundStyle(Color(.labelAssistive))
                         }
                         
                         BbangText(
@@ -167,7 +168,9 @@ struct MyPageView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 20)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -242,6 +245,15 @@ struct MyPageView: View {
                     menu: "피드백 남기기",
                     onMenuTapped: {
                         print("피드백 남기기")
+                    }
+                )
+                
+                MenuBox(
+                    menu: "앱 리뷰 남기기",
+                    onMenuTapped: {
+                        // TODO: 출시 후 실제 앱스토어 링크로 변경
+                        // openURL("https://apps.apple.com/app/idXXXXXXXXXX")
+                        openURL("https://www.apple.com/kr/app-store/")
                     }
                 )
                 

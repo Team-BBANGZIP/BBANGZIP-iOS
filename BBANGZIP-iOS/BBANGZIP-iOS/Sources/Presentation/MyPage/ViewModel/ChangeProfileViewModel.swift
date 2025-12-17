@@ -14,6 +14,7 @@ final class ChangeProfileViewModel: ObservableObject {
     @Published var isMyPromiseSheetPresented: Bool = false
     
     @Published var profileImageUrl: String = ""
+    @Published var profileImageKey: Int = 1
     @Published var nickname: String = ""
     @Published var commitmentMessage: String = ""
     @Published private(set) var selectedProfileImage: String? = nil
@@ -45,13 +46,36 @@ final class ChangeProfileViewModel: ObservableObject {
     func fetchProfile() async {
         do {
             let profile = try await getProfileUseCase.getProfile()
-            print("profile ", profile)
+            print("✅ profile: ", profile)
+            
             self.profileImageUrl = profile.profileImageUrl ?? ""
             self.nickname = profile.nickname
             self.commitmentMessage = profile.commitmentMessage ?? "나만의 다짐을 적어보세요"
+            
+            if let url = profile.profileImageUrl {
+                self.profileImageKey = extractProfileImageKey(from: url)
+            }
+            
+            print("Current profileImageKey: \(self.profileImageKey)")
         } catch {
             print("fetch Profile Error: \(error.localizedDescription)")
         }
+    }
+    
+    private func extractProfileImageKey(from url: String) -> Int {
+        if let keyString = url.components(separatedBy: "Profile_").last?.components(separatedBy: ".").first,
+           let key = Int(keyString) {
+            return key
+        }
+        
+        let urlComponents = url.components(separatedBy: "/")
+        if let lastComponent = urlComponents.last,
+           let keyString = lastComponent.components(separatedBy: ".").first,
+           let key = Int(keyString) {
+            return key
+        }
+        
+        return 1
     }
     
     func showChangeProfileImageSheet() {
@@ -70,55 +94,68 @@ final class ChangeProfileViewModel: ObservableObject {
         selectedProfileImage = imageName
         
         guard let profileImage = selectedProfileImage,
-              let profileImageKey = profileImageKeyMap[profileImage] else {
-            
+              let newProfileImageKey = profileImageKeyMap[profileImage] else {
+            print("❌ Invalid profile image key")
             return
         }
         
         Task {
             do {
-                _ = try await updateProfileUseCase.updateProfileImage(
-                    profileImageKey: profileImageKey
+                let response = try await updateProfileUseCase.updateProfileImage(
+                    profileImageKey: newProfileImageKey
                 )
                 
-                print("프로필 이미지 변경 성공")
+                await MainActor.run {
+                    if let newImageUrl = response.profileImageUrl {
+                        self.profileImageUrl = newImageUrl
+                        self.profileImageKey = newProfileImageKey
+                    }
+                }
+                
+                print("- new key: \(newProfileImageKey)")
             }
             catch {
-                print("프로필 이미지 변경 실패 : ", error)
+                print("프로필 이미지 변경 실패: ", error)
             }
         }
     }
     
     func updateMyPromiseMessage(_ newValue: String) {
-        self.commitmentMessage = newValue
-        
         Task {
             do {
                 _ = try await updateProfileUseCase.updateCommitmentMessage(
-                    commitmentMessage: newValue
+                    commitmentMessage: newValue,
+                    currentProfileImageKey: profileImageKey
                 )
+                
+                await MainActor.run {
+                    self.commitmentMessage = newValue
+                }
                 
                 print("상태메시지 변경 성공")
             }
             catch {
-                print("상태메시지 변경 실패 : ", error)
+                print("상태메시지 변경 실패: ", error)
             }
         }
     }
     
     func updateNickName(_ newValue: String) {
-        self.nickname = newValue
-        
         Task {
             do {
                 _ = try await updateProfileUseCase.updateNickname(
-                    nickname: newValue
+                    nickname: newValue,
+                    currentProfileImageKey: profileImageKey
                 )
+                
+                await MainActor.run {
+                    self.nickname = newValue
+                }
                 
                 print("닉네임 변경 성공")
             }
             catch {
-                print("닉네임 변경 실패 : ", error)
+                print("닉네임 변경 실패: ", error)
             }
         }
     }
