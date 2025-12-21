@@ -8,16 +8,13 @@
 밈을 활용해 고통스러운 시험기간을 재치있게 승화시키는 모습에서 영감을 얻은,
 미룬이 대학생을 위한 스터디 플래너 ‘제 과제 빵점'입니다.
 ```
-</br>
 
-| 프로젝트 설명 | IT 벤처 창업 동아리 SOPT 35기 제과제빵점 |
-| :---: | :---: |
-| 프로젝트 기간 | 2024.12. ~ 2025.12. |
-<br>
-
-# 🧑‍🍳 iOS Developer
-| <img src="https://github.com/user-attachments/assets/4f259728-3f7d-44f6-b7bb-316459a65a23" width ="250"><br><br>**🥖 송여경** <br>[@0gonge](https://github.com/0gonge) | <img src="https://github.com/user-attachments/assets/5f24f426-1c69-4a23-897d-de90ea482cca" width ="250"><br><br>**🥖 조성민** <br>[@SungMinCho-Kor](https://github.com/SungMinCho-Kor) | <img src="https://github.com/user-attachments/assets/4a323edc-fdaa-4dd8-b108-38a8f56c7e9b" width ="250"><br><br>**🥖 최유빈** <br>[@choiyoubin](https://github.com/choiyoubin) | <img src="https://github.com/user-attachments/assets/82c439dd-1fd8-4bd3-af96-0eaec6a3cb70" width ="250"><br><br>**🥖 김송희** <br>[@hongseekim](https://github.com/hongseekim) |
+## 🧑‍🍳 iOS Developers
+| <img src="https://github.com/user-attachments/assets/4f259728-3f7d-44f6-b7bb-316459a65a23" width="200"> | <img src="https://github.com/user-attachments/assets/5f24f426-1c69-4a23-897d-de90ea482cca" width="200"> | <img src="https://github.com/user-attachments/assets/4a323edc-fdaa-4dd8-b108-38a8f56c7e9b" width="200"> | <img src="https://github.com/user-attachments/assets/82c439dd-1fd8-4bd3-af96-0eaec6a3cb70" width="200"> |
 | :---: | :---: | :---: | :---: |
+| **🥖 송여경** | **🥖 조성민** | **🥖 최유빈** | **🥖 김송희** |
+| [@0gonge](https://github.com/0gonge) | [@SungMinCho-Kor](https://github.com/SungMinCho-Kor) | [@choiyoubin](https://github.com/choiyoubin) | [@hongseekim](https://github.com/hongseekim) |
+
 
 
 # 🥯 Demonstration
@@ -47,43 +44,109 @@ BBANGZIP은 Clean Architecture 기반의 MVVM 패턴을 사용하여
 
 각 레이어의 책임을 명확히 분리하고, 테스트와 유지보수가 용이한 구조를 지향합니다.
 ```
-Presentation (View / ViewModel)
-        ↓
-      Domain (UseCase / Entity)
-        ↓
-       Data (Repository / Network)
+< Runtime Flow >
+Presentation → Domain → Data
+
+< Dependency Rule >
+Presentation → Domain ← Data
 ```
 
 # 🍞 Foldering Strategy
 ```
 ├── 🥐 Project
-|   ├── 🥯 BBANGZIP
+│   ├── 🥯 Tuist
+│   │   ├── 🥖 Project.swift
+│   │   ├── 🥖 Tuist.swift
+│   │   └── 🥖 Tuist/
+│   │       ├── 🧁 Package.swift
+│   │       ├── 🧁 Package.resolved
+│   │       └── 🧁 ProjectDescriptionHelpers/
+│   │           └── Project+Templates.swift
+│   │
+│   ├── 🥯 App Source (BBANGZIP-iOS/)
 │   │   ├── 🥨 Resources
-│   │   │   ├── 🥖 Config
+│   │   │   ├── 🥖 Assets.xcassets
 │   │   │   ├── 🥖 Font
 │   │   │   ├── 🥖 Preview Content
-│   │   │   ├── 🥖 Assets
+│   │   │   └── 🥖 Config
+│   │   │       └── Secrets.xcconfig
+│   │   │
 │   │   ├── 🥨 Sources
+│   │   │   ├── 🥖 App
+│   │   │   │   ├── BBANGZIPIOSApp.swift
+│   │   │   │   └── ContentView.swift
+│   │   │   │
 │   │   │   ├── 🥖 Data
-│   │   │   │   ├── 🍞 Network
-│   │   │   │   │   ├── 🧁 Environment
-│   │   │   │   │   ├── 🧁 Router
-│   │   │   │   │   ├── 🧁 Service
+│   │   │   │   └── 🍞 Network
+│   │   │   │       ├── 🧁 Environment
+│   │   │   │       ├── 🧁 Router
+│   │   │   │       └── 🧁 Service
+│   │   │   │
 │   │   │   ├── 🥖 Domain
 │   │   │   │   ├── 🍞 Entities
 │   │   │   │   ├── 🍞 Enum
 │   │   │   │   ├── 🍞 Repositories
-│   │   │   │   ├── 🍞 UseCases
-│   │   │   ├── 🥖 Extension
-│   │   │   ├── 🥖 Font
+│   │   │   │   └── 🍞 UseCase
+│   │   │   │
 │   │   │   ├── 🥖 Presentation
-│   │   │   │   └── 🍞 Component
-│   │   │   │   └── 🍞 Feature
-│   │   │   │       ├── 🧁 View
-│   │   │   │       └── 🧁 ViewModel
+│   │   │   │   ├── 🍞 Component
+│   │   │   │   ├── 🍞 Login
+│   │   │   │   ├── 🍞 Onboarding
+│   │   │   │   ├── 🍞 MyPage
+│   │   │   │   ├── 🍞 Timer
+│   │   │   │   └── 🍞 ToDo
+│   │   │   │
+│   │   │   ├── 🥖 Extension
 │   │   │   ├── 🥖 Utilities
-│   │       
-└── 🥐 Derived
-    ├── 🥯 InfoPlists
-    └── 🥯 Sources
+│   │   │   └── 🥖 Design (Font / Color)
+│   │   │       └── CustomFont.swift / CutomColor.swift
+│   │   │
+│   │   └── 🥨 Tests
+│   │       └── BBANGZIPIOSTests.swift
+│
+└── 🥐 Generated (Git Ignore)
+    └── 🥯 Derived/
 ```
+
+</br>
+
+# 🍞 Git Flow
+[우아한형제들 Git-flow](https://techblog.woowahan.com/2553/)를 기반으로 합니다.</br>
+이슈명은 [Unit] 작업 내용 형식으로 작성합니다. (예시: [Feature] 컴포넌트 제작)
+1. Project board에서 issue를 생성합니다.
+2. develop 브랜치에서 새로운 브랜치로 checkout 합니다.
+3. 해당 브랜치에서 작업을 진행하고, 작업을 나누어 commit합니다.
+4. 작업 완료 후 빌드가 되는지 확인 후 push합니다.
+5. PR을 작성합니다.
+6. 모든 팀원들의 approve를 받은 후 merge합니다.
+</br>
+
+# 🥯 Branch Strategy
+브랜치명은 해당하는 브랜치에 이슈번호를 붙여서 작성합니다. (예시: feature/#1)
+|branch|description|
+|:---:|:---:|
+|**main**|완성된 버전의 코드를 저장하는 브랜치|
+|**develop**|개발이 진행되는 동안 완성된 코드를 저장하는 브랜치|
+|**feature**|작은 단위의 작업이 진행되는 브랜치|
+|**hotfix**|긴급한 오류를 해결하는 브랜치|
+|**release**|QA, Test, 앱 심사를 진행하는 브랜치|
+</br>
+
+# 🍞 Coding Convention
+[스타일쉐어 Swift 가이드](https://github.com/StyleShare/swift-style-guide)를 기반으로 합니다.</br>
+</br>
+
+# 🥪 Commit Message
+아래의 예시와 같이 작성합니다.
+```
+feat: 기능 구현 (#이슈번호)
+fix: 기능 수정 (#이슈번호)
+refactor: 리팩토링 (#이슈번호)
+docs: 문서 수정 (문서 추가, 수정, 삭제, README) (#이슈번호)
+test: 테스트 (테스트 코드 추가, 수정, 삭제: 비즈니스 로직에 변경 없음) (#이슈번호)
+chore: 기타 변경사항 (빌드 스크립트 수정, assets, 패키지 매니저 등) (#이슈번호)
+remove: 파일을 삭제하는 작업만 수행한 경우, 키워드 삭제 등등! (#이슈번호)
+init: 초기 생성 (#이슈번호)
+```
+</br>
+
