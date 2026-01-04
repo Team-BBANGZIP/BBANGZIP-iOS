@@ -23,7 +23,9 @@ struct TodoAddView: View {
                 .padding(.top, 25)
 
             TaskInputField(text: $viewModel.newTodoTitle) {
-                isPresented = false
+                viewModel.addTodo {
+                    isPresented = false
+                }
             }
             .focused($isTextFieldFocused)
             .padding(.top, 31)
