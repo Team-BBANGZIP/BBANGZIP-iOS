@@ -38,7 +38,7 @@ struct TodoContentEditView: View {
                 text: $viewModel.newTodo,
                 onSubmit: {
                     Task {
-                        await viewModel.editTodoTitle()
+                        await viewModel.saveIfNeeded()
                         isPresented = false
                     }
                 }
@@ -51,6 +51,11 @@ struct TodoContentEditView: View {
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 isTextFieldFocused = true
+            }
+        }
+        .onDisappear {
+            Task {
+                await viewModel.saveIfNeeded()
             }
         }
     }

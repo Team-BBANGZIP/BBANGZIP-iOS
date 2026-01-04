@@ -5,12 +5,56 @@
 //  Created by 송여경 on 5/23/25.
 //
 
+import Combine
 import SwiftUI
+
+extension Publishers {
+    static var keyboardHeight: AnyPublisher<CGFloat, Never> {
+        let willShow: AnyPublisher<CGFloat, Never> =
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
+            .map { $0.height }
+            .eraseToAnyPublisher()
+        
+        let willHide: AnyPublisher<CGFloat, Never> =
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+            .eraseToAnyPublisher()
+        
+        return willShow
+            .merge(with: willHide)
+            .eraseToAnyPublisher()
+    }
+}
 
 struct CheckedOffView: View {
     @StateObject private var viewModel: TimerCheckedOffViewModel
     let onBackToTimer: () -> Void
     let onStartAdditionalTimer: () -> Void
+    
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var addTodoViewModel: TodoAddViewModel? = nil
+    @State private var lastPresentedSheet: SheetType? = nil
+    
+    enum SheetType: Identifiable, Equatable {
+        case addTodo(Category)
+        case editTodo(TimerTodo)
+        
+        var id: String {
+            switch self {
+            case .addTodo(let category):
+                return "add_\(category.id)"
+            case .editTodo(let todo):
+                return "edit_\(todo.id)"
+            }
+        }
+        
+        static func == (lhs: SheetType, rhs: SheetType) -> Bool {
+            lhs.id == rhs.id
+        }
+    }
+    
+    @State private var activeSheet: SheetType? = nil
     
     init(
         viewModel: TimerCheckedOffViewModel,
@@ -29,37 +73,109 @@ struct CheckedOffView: View {
             scrollContent
             bottomButtons
         }
-        .sheet(isPresented: $viewModel.isSheetPresented) {
-            if let selectedCategory = viewModel.selectedCategory {
-                let addViewModel = TodoAddViewModel(
-                    addTodoUseCase: viewModel.addUseCase,
-                    categoryId: selectedCategory.id,
-                    targetDate: viewModel.currentTargetDate
-                )
-
-                TodoAddView(
-                    viewModel: addViewModel,
-                    isPresented: $viewModel.isSheetPresented
-                )
-                .presentationDetents([.height(190)])
-                .presentationCornerRadius(48)
-                .presentationDragIndicator(.visible)
+        .sheet(
+            item: $activeSheet,
+            onDismiss: {
+                handleSheetDismiss()
+            },
+            content: { sheetType in
+                switch sheetType {
+                    
+                case .addTodo(let category):
+                    let addDetentHeight: CGFloat = keyboardHeight > 0 ? 170 : 190
+                    
+                    let vm = addTodoViewModel ?? TodoAddViewModel(
+                        addTodoUseCase: viewModel.addUseCase,
+                        categoryId: category.id,
+                        targetDate: viewModel.currentTargetDate
+                    )
+                    
+                    TodoAddView(
+                        viewModel: vm,
+                        isPresented: Binding(
+                            get: { activeSheet != nil },
+                            set: { presented in
+                                if !presented { activeSheet = nil }
+                            }
+                        )
+                    )
+                    .ignoresSafeArea(.keyboard)
+                    .presentationDetents([.height(addDetentHeight)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+                    
+                case .editTodo(let todo):
+                    let detentHeight: CGFloat = keyboardHeight > 0 ? 145 : 151
+                    
+                    TodoContentEditView(
+                        originalTodo: todo.content,
+                        isPresented: Binding(
+                            get: { activeSheet != nil },
+                            set: { presented in
+                                if !presented { activeSheet = nil }
+                            }
+                        ),
+                        onSave: { newContent in
+                            try await viewModel.updateTodoContent(
+                                todoId: todo.id,
+                                newContent: newContent
+                            )
+                        }
+                    )
+                    .ignoresSafeArea(.keyboard)
+                    .presentationDetents([.height(detentHeight)])
+                    .presentationCornerRadius(48)
+                    .presentationDragIndicator(.visible)
+                }
             }
-        }
+        )
         .navigationBarHidden(true)
         .onAppear {
             viewModel.fetchData()
+        }
+        .onReceive(Publishers.keyboardHeight) { h in
+            withAnimation(.easeOut(duration: 0.2)) {
+                keyboardHeight = h
+            }
+        }
+        .onChange(of: activeSheet) { _, newValue in
+            if let newValue {
+                lastPresentedSheet = newValue
+                
+                if case .addTodo(let category) = newValue {
+                    addTodoViewModel = TodoAddViewModel(
+                        addTodoUseCase: viewModel.addUseCase,
+                        categoryId: category.id,
+                        targetDate: viewModel.currentTargetDate
+                    )
+                }
+            }
         }
     }
 }
 
 private extension CheckedOffView {
     
+    func handleSheetDismiss() {
+        guard let last = lastPresentedSheet else { return }
+        
+        switch last {
+        case .addTodo:
+            addTodoViewModel?.addTodo { [weak viewModel] in
+                viewModel?.fetchData()
+            }
+            addTodoViewModel = nil
+            
+        case .editTodo:
+            break
+        }
+        
+        lastPresentedSheet = nil
+    }
+    
     var navBar: some View {
         HStack {
-            Button(action: {
-                onBackToTimer()
-            }) {
+            Button(action: { onBackToTimer() }) {
                 Image(.icChevronLeft)
                     .foregroundColor(Color(.labelAlternative))
                     .padding(.leading, 16)
@@ -82,93 +198,65 @@ private extension CheckedOffView {
     var scrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                ForEach(
-                    Array(viewModel.categories.enumerated()),
-                    id: \.element.id
-                ) { index, category in
-                    categorySection(
-                        for: category,
-                        at: index
-                    )
+                ForEach(Array(viewModel.categories.enumerated()), id: \.element.id) { index, category in
+                    categorySection(for: category, at: index)
                 }
                 Spacer(minLength: 50)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollIndicators(.hidden)
     }
     
     var bottomButtons: some View {
         HStack(spacing: 8) {
-            Button("30분 더") {
-                print("30분 뒤 버튼 눌림!")
-                onStartAdditionalTimer()
-            }
-            .buttonStyle(
-                BbangButtonStyle(
-                    style: .secondary,
-                    rightIcon: Image(.icPlusThick)
+            Button("30분 더") { onStartAdditionalTimer() }
+                .buttonStyle(
+                    BbangButtonStyle(
+                        style: .secondary,
+                        rightIcon: Image(.icPlusThick)
+                    )
                 )
-            )
-            .frame(width: 140)
+                .frame(width: 140)
             
-            Button("종료하기") {
-                print("종료하기 버튼 눌림!!")
-                onBackToTimer()
-            }
-            .buttonStyle(
-                BbangButtonStyle(
-                    style: .primary,
-                    rightIcon: Image(.icQuit)
+            Button("종료하기") { onBackToTimer() }
+                .buttonStyle(
+                    BbangButtonStyle(
+                        style: .primary,
+                        rightIcon: Image(.icQuit)
+                    )
                 )
-            )
         }
         .padding(.horizontal, 20)
     }
     
-    func categorySection(
-        for category: Category,
-        at index: Int
-    ) -> some View {
+    func categorySection(for category: Category, at index: Int) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             CategoryButton(
                 color: .constant(category.colorType.color),
                 labelText: .constant(category.name)
             )
             .onTapGesture {
-                viewModel.selectedCategoryIndex = index
-                viewModel.isSheetPresented = true
+                activeSheet = .addTodo(category)
             }
             .padding(.leading, 20)
             
             ForEach(category.todos) { todo in
                 let isLast = todo.id == category.todos.last?.id
-                todoRow(
-                    for: todo,
-                    showSeperator: !isLast
-                )
+                todoRow(for: todo, showSeperator: !isLast)
             }
         }
     }
     
-    func todoRow(
-        for todo: TimerTodo,
-        showSeperator: Bool
-    ) -> some View {
+    func todoRow(for todo: TimerTodo, showSeperator: Bool) -> some View {
         let todoViewModel = viewModel.makeTodoViewModel(todo: todo)
         
         return TaskBox(
             viewModel: todoViewModel,
-            meatballTapped: {
-                handleMeatballTapped(for: todo)
-            },
+            meatballTapped: { activeSheet = .editTodo(todo) },
             showSeperator: showSeperator
         )
         .padding(.horizontal, 20)
-    }
-    
-    func handleMeatballTapped(for todo: TimerTodo) {
-        print("미트볼 버튼 눌림! - \(todo.content)")
-        // TODO: 메뉴 또는 편집 기능 구현
     }
 }
 

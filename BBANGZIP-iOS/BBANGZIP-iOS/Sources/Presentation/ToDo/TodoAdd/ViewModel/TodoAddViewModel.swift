@@ -17,7 +17,7 @@ final class TodoAddViewModel: ObservableObject {
     private let addTodoUseCase: AddTodoUseCase
     private let categoryId: Int
     private let targetDate: Date
-
+    
     init(
         addTodoUseCase: AddTodoUseCase,
         categoryId: Int,
@@ -27,13 +27,15 @@ final class TodoAddViewModel: ObservableObject {
         self.categoryId = categoryId
         self.targetDate = targetDate
     }
-
+    
     func addTodo(onSuccess: (() -> Void)? = nil) {
         let trimmed = newTodoTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-
+        guard !isLoading else { return }
+        
         isLoading = true
-
+        errorMessage = nil
+        
         Task {
             do {
                 _ = try await addTodoUseCase.execute(
@@ -42,10 +44,13 @@ final class TodoAddViewModel: ObservableObject {
                     targetDate: targetDate,
                     startTime: startTime
                 )
-                isLoading = false
-                onSuccess?()
+                
                 newTodoTitle = ""
                 startTime = nil
+                isLoading = false
+                
+                onSuccess?()
+                
             } catch {
                 LoggerFactory.create(category: .data)
                     .error("AddTodo Failed: \(error.localizedDescription)")
