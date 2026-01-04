@@ -70,6 +70,7 @@ struct CheckedOffView: View {
         .sheet(item: $activeSheet) { sheetType in
             switch sheetType {
             case .addTodo(let category):
+                let addDetentHeight: CGFloat = keyboardHeight > 0 ? 170 : 190
                 let addViewModel = TodoAddViewModel(
                     addTodoUseCase: viewModel.addUseCase,
                     categoryId: category.id,
@@ -83,7 +84,7 @@ struct CheckedOffView: View {
                         set: { if !$0 { activeSheet = nil } }
                     )
                 )
-                .presentationDetents([.height(190)])
+                .presentationDetents([.height(addDetentHeight)])
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
                 
