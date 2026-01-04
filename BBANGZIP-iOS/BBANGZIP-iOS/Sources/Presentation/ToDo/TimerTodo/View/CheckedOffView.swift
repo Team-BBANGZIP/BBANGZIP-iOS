@@ -93,6 +93,7 @@ private extension CheckedOffView {
                 }
                 Spacer(minLength: 50)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollIndicators(.hidden)
     }
