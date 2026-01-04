@@ -167,11 +167,13 @@ public struct ContentView: View {
         let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
+        let editUseCase = DefaultEditTodoUseCase(repository: repo)
         
         let checkedOffViewModel = TimerCheckedOffViewModel(
             fetchUseCase: fetchUseCase,
             toggleUseCase: toggleUseCase,
-            addUseCase: addUseCase
+            addUseCase: addUseCase,
+            editUseCase: editUseCase
         )
         
         return CheckedOffView(

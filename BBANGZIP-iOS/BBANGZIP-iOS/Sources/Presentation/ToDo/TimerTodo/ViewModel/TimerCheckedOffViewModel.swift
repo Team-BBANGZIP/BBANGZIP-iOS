@@ -16,13 +16,14 @@ final class TimerCheckedOffViewModel: ObservableObject {
     let addUseCase: AddTodoUseCase
     private let fetchUseCase: FetchTodosUseCase
     private let toggleUseCase: ToggleTodoCompletionUseCase
+    private let editUseCase: EditTodoUseCase
     
     var selectedCategory: Category? {
         guard let index = selectedCategoryIndex,
               index < categories.count else { return nil }
         return categories[index]
     }
-
+    
     var currentTargetDate: Date {
         return Date()
     }
@@ -30,11 +31,13 @@ final class TimerCheckedOffViewModel: ObservableObject {
     init(
         fetchUseCase: FetchTodosUseCase,
         toggleUseCase: ToggleTodoCompletionUseCase,
-        addUseCase: AddTodoUseCase
+        addUseCase: AddTodoUseCase,
+        editUseCase: EditTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.toggleUseCase = toggleUseCase
         self.addUseCase = addUseCase
+        self.editUseCase = editUseCase
     }
     
     func fetchData() {
@@ -85,5 +88,10 @@ final class TimerCheckedOffViewModel: ObservableObject {
            let tIndex = categories[cIndex].todos.firstIndex(where: { $0.id == updatedTodo.id }) {
             categories[cIndex].todos[tIndex] = updatedTodo
         }
+    }
+    
+    func updateTodoContent(todoId: Int, newContent: String) async throws {
+        try await editUseCase.execute(id: todoId, content: newContent)
+        fetchData()
     }
 }

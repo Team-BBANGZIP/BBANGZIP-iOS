@@ -169,7 +169,6 @@ private extension CheckedOffView {
     var bottomButtons: some View {
         HStack(spacing: 8) {
             Button("30분 더") {
-                print("30분 뒤 버튼 눌림!")
                 onStartAdditionalTimer()
             }
             .buttonStyle(
@@ -181,7 +180,6 @@ private extension CheckedOffView {
             .frame(width: 140)
             
             Button("종료하기") {
-                print("종료하기 버튼 눌림!!")
                 onBackToTimer()
             }
             .buttonStyle(
