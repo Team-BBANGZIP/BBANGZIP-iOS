@@ -5,12 +5,50 @@
 //  Created by 송여경 on 5/23/25.
 //
 
+import Combine
 import SwiftUI
+
+extension Publishers {
+    static var keyboardHeight: AnyPublisher<CGFloat, Never> {
+        let willShow: AnyPublisher<CGFloat, Never> =
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
+            .map { $0.height }
+            .eraseToAnyPublisher()
+        
+        let willHide: AnyPublisher<CGFloat, Never> =
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+            .eraseToAnyPublisher()
+        
+        return willShow
+            .merge(with: willHide)
+            .eraseToAnyPublisher()
+    }
+}
 
 struct CheckedOffView: View {
     @StateObject private var viewModel: TimerCheckedOffViewModel
     let onBackToTimer: () -> Void
     let onStartAdditionalTimer: () -> Void
+    
+    @State private var keyboardHeight: CGFloat = 0
+    
+    enum SheetType: Identifiable {
+        case addTodo(Category)
+        case editTodo(TimerTodo)
+        
+        var id: String {
+            switch self {
+            case .addTodo(let category):
+                return "add_\(category.id)"
+            case .editTodo(let todo):
+                return "edit_\(todo.id)"
+            }
+        }
+    }
+    
+    @State private var activeSheet: SheetType? = nil
     
     init(
         viewModel: TimerCheckedOffViewModel,
@@ -29,19 +67,44 @@ struct CheckedOffView: View {
             scrollContent
             bottomButtons
         }
-        .sheet(isPresented: $viewModel.isSheetPresented) {
-            if let selectedCategory = viewModel.selectedCategory {
+        .sheet(item: $activeSheet) { sheetType in
+            switch sheetType {
+            case .addTodo(let category):
                 let addViewModel = TodoAddViewModel(
                     addTodoUseCase: viewModel.addUseCase,
-                    categoryId: selectedCategory.id,
+                    categoryId: category.id,
                     targetDate: viewModel.currentTargetDate
                 )
-
+                
                 TodoAddView(
                     viewModel: addViewModel,
-                    isPresented: $viewModel.isSheetPresented
+                    isPresented: Binding(
+                        get: { activeSheet != nil },
+                        set: { if !$0 { activeSheet = nil } }
+                    )
                 )
                 .presentationDetents([.height(190)])
+                .presentationCornerRadius(48)
+                .presentationDragIndicator(.visible)
+                
+            case .editTodo(let todo):
+                let detentHeight: CGFloat = keyboardHeight > 0 ? 145 : 151
+                
+                TodoContentEditView(
+                    originalTodo: todo.content,
+                    isPresented: Binding(
+                        get: { activeSheet != nil },
+                        set: { if !$0 { activeSheet = nil } }
+                    ),
+                    onSave: { newContent in
+                        try await viewModel.updateTodoContent(
+                            todoId: todo.id,
+                            newContent: newContent
+                        )
+                    }
+                )
+                .ignoresSafeArea(.keyboard)
+                .presentationDetents([.height(detentHeight)])
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
             }
@@ -49,6 +112,11 @@ struct CheckedOffView: View {
         .navigationBarHidden(true)
         .onAppear {
             viewModel.fetchData()
+        }
+        .onReceive(Publishers.keyboardHeight) { h in
+            withAnimation(.easeOut(duration: 0.2)) {
+                keyboardHeight = h
+            }
         }
     }
 }
@@ -136,8 +204,7 @@ private extension CheckedOffView {
                 labelText: .constant(category.name)
             )
             .onTapGesture {
-                viewModel.selectedCategoryIndex = index
-                viewModel.isSheetPresented = true
+                activeSheet = .addTodo(category)
             }
             .padding(.leading, 20)
             
@@ -160,16 +227,11 @@ private extension CheckedOffView {
         return TaskBox(
             viewModel: todoViewModel,
             meatballTapped: {
-                handleMeatballTapped(for: todo)
+                activeSheet = .editTodo(todo)
             },
             showSeperator: showSeperator
         )
         .padding(.horizontal, 20)
-    }
-    
-    func handleMeatballTapped(for todo: TimerTodo) {
-        print("미트볼 버튼 눌림! - \(todo.content)")
-        // TODO: 메뉴 또는 편집 기능 구현
     }
 }
 
