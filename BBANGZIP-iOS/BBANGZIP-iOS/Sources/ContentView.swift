@@ -20,6 +20,7 @@ public struct ContentView: View {
     
     public init() {
         KakaoSDK.initSDK(appKey: ConfigManager.kakaoAppKey)
+//TODO: 기존 기본 탭바 사용 시 주석 해제
 //        let appearance = UITabBarAppearance()
 //        appearance.backgroundColor = UIColor(Color(.componentAlternative))
 //        appearance.shadowColor = UIColor(Color(.labelDisable))

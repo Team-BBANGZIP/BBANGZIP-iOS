@@ -61,7 +61,7 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-        let opacity: Double = 1
+        let opacity: Double = viewModel.breadCount > 0 ? 1 : 0
         
         return HStack(spacing: 1) {
             Image(.icBread)
