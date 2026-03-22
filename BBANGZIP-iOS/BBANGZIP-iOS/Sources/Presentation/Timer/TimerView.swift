@@ -95,86 +95,83 @@ struct TimerView: View {
     }
     
     var leftTimeView: some View {
-        GeometryReader { geometry in
-            let lineWidth = min(geometry.size.width, geometry.size.height) * 0.035
-            let textColor: BbangzipColor = viewModel.state == .running ? .primaryNormal : viewModel.state == .done ? .primaryStrong : .primaryLight
+        let lineWidth: CGFloat = 311 * 0.035
+        let textColor: BbangzipColor = viewModel.state == .running ? .primaryNormal : viewModel.state == .done ? .primaryStrong : .primaryLight
+        
+        return ZStack {
+            Circle()
+                .stroke(lineWidth: 10)
+                .foregroundStyle(Color(.staticwhite))
+                .padding(5)
+                .zIndex(1)
             
-            ZStack {
-                Circle()
-                    .stroke(lineWidth: 10)
-                    .foregroundStyle(Color(.staticwhite))
-                    .padding(5)
-                    .zIndex(1)
-                
-                Circle()
-                    .stroke(lineWidth: lineWidth)
-                    .foregroundStyle(
-                        Color(.secondaryNormal)
-                            .shadow(
-                                .inner(
-                                    color: Color(.timerShadow),
-                                    radius: 2,
-                                    x: 0,
-                                    y: 1
-                                )
+            Circle()
+                .stroke(lineWidth: lineWidth)
+                .foregroundStyle(
+                    Color(.secondaryNormal)
+                        .shadow(
+                            .inner(
+                                color: Color(.timerShadow),
+                                radius: 2,
+                                x: 0,
+                                y: 1
                             )
-                    )
-                    .zIndex(1)
-                
-                Circle()
-                    .trim(
-                        from: 0,
-                        to: viewModel.progressPercentage
-                    )
-                    .stroke(
-                        Color(.primaryLight)
-                            .shadow(
-                                .inner(
-                                    color: Color(.timerProgressShadow),
-                                    radius: 4,
-                                    x: 0,
-                                    y: 2
-                                )
-                            ),
-                        style: StrokeStyle(
-                            lineWidth: lineWidth,
-                            lineCap: .round,
-                            lineJoin: .round
                         )
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .zIndex(1)
-                
-                VStack(spacing: 0) {
-                    Spacer().frame(height: 100)
-                    
-                    Text(viewModel.leftTimeText)
-                        .bbangFont(.timer)
-                        .bbangColor(textColor)
-                    
-                    ArrowView()
-                        .padding(.bottom, 8)
-                        .opacity(viewModel.state == .initial ? 1 : 0)
-                    
-                    Button(action: {
-                        viewModel.breadImageTapped()
-                    }) {
-                        breadImage
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 115, height: 84)
-                            .animation(
-                                .easeInOut(duration: 0.5),
-                                value: viewModel.currentBreadLevel
+                )
+                .zIndex(1)
+            
+            Circle()
+                .trim(
+                    from: 0,
+                    to: viewModel.progressPercentage
+                )
+                .stroke(
+                    Color(.primaryLight)
+                        .shadow(
+                            .inner(
+                                color: Color(.timerProgressShadow),
+                                radius: 4,
+                                x: 0,
+                                y: 2
                             )
-                    }
-                    .disabled(viewModel.state != .initial)
+                        ),
+                    style: StrokeStyle(
+                        lineWidth: lineWidth,
+                        lineCap: .round,
+                        lineJoin: .round
+                    )
+                )
+                .rotationEffect(.degrees(-90))
+                .zIndex(1)
+            
+            VStack(spacing: 0) {
+                Spacer().frame(height: 100)
+                
+                Text(viewModel.leftTimeText)
+                    .bbangFont(.timer)
+                    .bbangColor(textColor)
+                
+                ArrowView()
+                    .padding(.bottom, 8)
+                    .opacity(viewModel.state == .initial ? 1 : 0)
+                
+                Button(action: {
+                    viewModel.breadImageTapped()
+                }) {
+                    breadImage
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 115, height: 84)
+                        .animation(
+                            .easeInOut(duration: 0.5),
+                            value: viewModel.currentBreadLevel
+                        )
                 }
-                .zIndex(0)
+                .disabled(viewModel.state != .initial)
             }
-            .frame(width: 311, height: 311)
+            .zIndex(0)
         }
-        .aspectRatio(1, contentMode: .fit)
+        .frame(width: 311, height: 311)
         .padding(.horizontal, 38)
         .padding(.vertical, 6)
     }
