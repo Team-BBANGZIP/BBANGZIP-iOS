@@ -16,14 +16,16 @@ public struct ContentView: View {
     @State private var isLoggedIn: Bool = false
     @State private var showOnboarding: Bool = false
     
+    @State private var selectedTab: Int = 0
+    
     public init() {
         KakaoSDK.initSDK(appKey: ConfigManager.kakaoAppKey)
-        let appearance = UITabBarAppearance()
-        appearance.backgroundColor = UIColor(Color(.componentAlternative))
-        appearance.shadowColor = UIColor(Color(.labelDisable))
-        UITabBar.appearance().unselectedItemTintColor = UIColor(Color(.labelAssistive))
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
+//        let appearance = UITabBarAppearance()
+//        appearance.backgroundColor = UIColor(Color(.componentAlternative))
+//        appearance.shadowColor = UIColor(Color(.labelDisable))
+//        UITabBar.appearance().unselectedItemTintColor = UIColor(Color(.labelAssistive))
+//        UITabBar.appearance().standardAppearance = appearance
+//        UITabBar.appearance().scrollEdgeAppearance = appearance
         
         UIApplication.shared.isIdleTimerDisabled = false
     }
@@ -47,23 +49,24 @@ public struct ContentView: View {
                             self.isLoggedIn = true
                         }
                     }
-            } else if !isLoggedIn {
-                LoginView()
-                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            self.isLoggedIn = true
-                        }
-                    }
-                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowOnboarding"))) { _ in
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            self.showOnboarding = true
-                        }
-                    }
-                    .onOpenURL { url in
-                        if AuthApi.isKakaoTalkLoginUrl(url) {
-                            _ = AuthController.handleOpenUrl(url: url)
-                        }
-                    }
+//TODO: 로그인 반영 후 수정
+//            } else if !isLoggedIn {
+//                LoginView()
+//                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
+//                        withAnimation(.easeInOut(duration: 0.3)) {
+//                            self.isLoggedIn = true
+//                        }
+//                    }
+//                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowOnboarding"))) { _ in
+//                        withAnimation(.easeInOut(duration: 0.3)) {
+//                            self.showOnboarding = true
+//                        }
+//                    }
+//                    .onOpenURL { url in
+//                        if AuthApi.isKakaoTalkLoginUrl(url) {
+//                            _ = AuthController.handleOpenUrl(url: url)
+//                        }
+//                    }
             } else {
                 mainContent
             }
@@ -124,42 +127,94 @@ public struct ContentView: View {
             }
         }
     }
+
+// TODO: 기존 기본 탭바 사용 시 주석 해제
+//    private var mainTabView: some View {
+//        TabView {
+//            TimerView(viewModel: timerViewModel)
+//                .tabItem {
+//                    Image(.icTimer)
+//                        .renderingMode(.template)
+//                    Text("빵굽기")
+//                }
+//            
+//            ToDoView(viewModel: makeTodoViewModel())
+//                .tabItem {
+//                    Image(.icBook)
+//                        .renderingMode(.template)
+//                    Text("할 일")
+//                }
+//// TODO: 2차 스프린트 이후 수정
+////            Text("이웃")
+////                .tabItem {
+////                    Image(.icChat)
+////                        .renderingMode(.template)
+////                    Text("이웃")
+////                }
+//            
+//            MyPageView()
+//                .tabItem {
+//                    Image(.icPerson)
+//                        .renderingMode(.template)
+//                    Text("마이")
+//                }
+//        }
+//        .tint(Color(.staticblack))
+//        .toolbarBackground(
+//            Color(.componentAlternative),
+//            for: .tabBar
+//        )
+//    }
     
     private var mainTabView: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             TimerView(viewModel: timerViewModel)
-                .tabItem {
-                    Image(.icTimer)
-                        .renderingMode(.template)
-                    Text("빵굽기")
-                }
+                .tabItem { EmptyView() }
+                .tag(0)
             
             ToDoView(viewModel: makeTodoViewModel())
-                .tabItem {
-                    Image(.icBook)
-                        .renderingMode(.template)
-                    Text("할 일")
-                }
-            
-            Text("이웃")
-                .tabItem {
-                    Image(.icChat)
-                        .renderingMode(.template)
-                    Text("이웃")
-                }
+                .tabItem { EmptyView() }
+                .tag(1)
             
             MyPageView()
-                .tabItem {
-                    Image(.icPerson)
-                        .renderingMode(.template)
-                    Text("마이")
-                }
+                .tabItem { EmptyView() }
+                .tag(2)
         }
-        .accentColor(Color(.staticblack))
-        .toolbarBackground(
-            Color(.componentAlternative),
-            for: .tabBar
-        )
+        .overlay(alignment: .bottom) {
+            customTabBar
+        }
+    }
+
+    private var customTabBar: some View {
+        HStack {
+            tabBarItem(icon: Image(.icTimer), title: "빵굽기", tag: 0)
+            tabBarItem(icon: Image(.icBook), title: "할 일", tag: 1)
+            tabBarItem(icon: Image(.icPerson), title: "마이", tag: 2)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 49)
+        .background(Color(.componentAlternative))
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color(.labelDisable))
+                .frame(height: 0.5)
+        }
+    }
+
+    private func tabBarItem(icon: Image, title: String, tag: Int) -> some View {
+        Button {
+            selectedTab = tag
+        } label: {
+            VStack(spacing: 4) {
+                icon
+                    .renderingMode(.template)
+                    .foregroundColor(selectedTab == tag ? Color(.staticblack) : Color(.labelAssistive))
+                Text(title)
+                    .font(.system(size: 10))
+                    .foregroundColor(selectedTab == tag ? Color(.staticblack) : Color(.labelAssistive))
+            }
+            .frame(maxWidth: .infinity)
+        }
     }
     
     private var checkedOffView: some View {
