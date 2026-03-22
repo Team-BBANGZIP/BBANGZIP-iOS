@@ -108,11 +108,44 @@ final class TodoViewModel: ObservableObject {
     
     func fetchData() {
         Task {
-            do {
-                self.todoData = try await fetchUseCase.execute(date: currentTargetDate)
-            } catch {
-                print("❌ 데이터 가져오기 실패: \(error)")
-            }
+            // 목데이터로 대체
+            self.todoData = TodoData(
+                myPromiseMessage: "오늘도 화이팅!",
+                summary: TodoSummary(
+                    date: "2026-03-24",
+                    totalCount: 4,
+                    completedCount: 1
+                ),
+                categories: [
+                    Category(
+                        id: 1,
+                        name: "수학",
+                        colorType: .Todoblue1,
+                        todos: [
+                            TimerTodo(id: 1, content: "미적분 3단원 풀기", isCompleted: true, startTime: "09:00", colorType: .Todoblue1, targetDate: "2025-09-01"),
+                            TimerTodo(id: 2, content: "확통 문제집 p.30", isCompleted: false, startTime: nil, colorType: .Todoblue1, targetDate: "2025-09-01")
+                        ],
+                        isStopped: false
+                    ),
+                    Category(
+                        id: 2,
+                        name: "영어",
+                        colorType: .Todogreen1,
+                        todos: [
+                            TimerTodo(id: 3, content: "단어 암기 50개", isCompleted: false, startTime: "14:00", colorType: .Todogreen1, targetDate: "2025-09-01"),
+                            TimerTodo(id: 4, content: "독해 지문 2개", isCompleted: false, startTime: nil, colorType: .Todogreen1, targetDate: "2025-09-01")
+                        ],
+                        isStopped: false
+                    )
+                ]
+            )
+            
+            //TODO: 서버 연동 후 주석해제
+            // do {
+            //     self.todoData = try await fetchUseCase.execute(date: currentTargetDate)
+            // } catch {
+            //     print("❌ 데이터 가져오기 실패: \(error)")
+            // }
         }
     }
     

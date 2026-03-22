@@ -61,7 +61,9 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-        let opacity: Double = viewModel.breadCount > 0 ? 1 : 0
+//TODO: 서버 연동 후 opacity 분기처리
+//        let opacity: Double = viewModel.breadCount > 0 ? 1 : 0
+        let opacity: Double = 1
         
         return HStack(spacing: 1) {
             Image(.icBread)
