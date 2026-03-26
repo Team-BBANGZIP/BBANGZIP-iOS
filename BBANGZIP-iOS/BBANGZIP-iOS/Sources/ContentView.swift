@@ -209,10 +209,10 @@ public struct ContentView: View {
             VStack(spacing: 4) {
                 icon
                     .renderingMode(.template)
-                    .foregroundColor(selectedTab == tag ? Color(.staticblack) : Color(.labelAssistive))
+                    .foregroundColor(selectedTab == tag ? Color(.labelStrong) : Color(.labelAssistive))
                 Text(title)
                     .font(.system(size: 10))
-                    .foregroundColor(selectedTab == tag ? Color(.staticblack) : Color(.labelAssistive))
+                    .foregroundColor(selectedTab == tag ? Color(.labelStrong) : Color(.labelAssistive))
             }
             .frame(maxWidth: .infinity)
         }
