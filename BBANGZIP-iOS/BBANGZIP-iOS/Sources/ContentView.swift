@@ -200,6 +200,7 @@ public struct ContentView: View {
                 .fill(Color(.labelDisable))
                 .frame(height: 0.5)
         }
+        .opacity(timerViewModel.state == .running || timerViewModel.state == .paused ? 0 : 1)
     }
 
     private func tabBarItem(icon: Image, title: String, tag: Int) -> some View {
