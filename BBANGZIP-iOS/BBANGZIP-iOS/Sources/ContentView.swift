@@ -3,6 +3,8 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 
 public struct ContentView: View {
+    @State private var isTodoNavigating: Bool = false
+    
     @StateObject private var timerViewModel = TimerViewModel(
         timerUseCase: TimerUseCaseImpl(),
         breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()),
@@ -173,7 +175,9 @@ public struct ContentView: View {
                 .tabItem { EmptyView() }
                 .tag(0)
             
-            ToDoView(viewModel: makeTodoViewModel())
+            ToDoView(viewModel: makeTodoViewModel(), onNavigationDepthChanged: { isDeep in
+                isTodoNavigating = isDeep
+            })
                 .tabItem { EmptyView() }
                 .tag(1)
             
@@ -200,7 +204,7 @@ public struct ContentView: View {
                 .fill(Color(.labelDisable))
                 .frame(height: 0.5)
         }
-        .opacity(timerViewModel.state == .running || timerViewModel.state == .paused ? 0 : 1)
+        .opacity((timerViewModel.state == .running || timerViewModel.state == .paused) || isTodoNavigating ? 0 : 1)
     }
 
     private func tabBarItem(icon: Image, title: String, tag: Int) -> some View {

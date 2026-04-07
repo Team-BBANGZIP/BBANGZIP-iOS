@@ -9,17 +9,23 @@ import SwiftUI
 
 struct ToDoView: View {
     private let repository = TodoRepositoryImpl()
+    var onNavigationDepthChanged: ((Bool) -> Void)? = nil
     
     @StateObject private var viewModel: TodoViewModel
     @StateObject private var categoryListViewModel: CategoryListViewModel
     @State private var addTodoViewModel: TodoAddViewModel? = nil
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
-    @State private var navigationPath = NavigationPath()
+    @State private var navigationPath = NavigationPath() {
+        didSet {
+            onNavigationDepthChanged?(!navigationPath.isEmpty)
+        }
+    }
     init(
         viewModel: TodoViewModel,
         selectedDate: Date? = nil,
-        isShowMenu: Bool = false
+        isShowMenu: Bool = false,
+        onNavigationDepthChanged: ((Bool) -> Void)? = nil
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.selectedDate = selectedDate
@@ -34,6 +40,7 @@ struct ToDoView: View {
                 fetchCategoriesUseCase: fetchCategoriesUseCase
             )
         )
+        self.onNavigationDepthChanged = onNavigationDepthChanged
     }
     
     var body: some View {
@@ -233,6 +240,9 @@ struct ToDoView: View {
             
             Spacer()
                 .frame(height: 28)
+        }
+        .onChange(of: navigationPath.count) { _, count in
+            onNavigationDepthChanged?(count > 0)
         }
     }
     
