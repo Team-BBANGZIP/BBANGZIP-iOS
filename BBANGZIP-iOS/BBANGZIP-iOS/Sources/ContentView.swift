@@ -312,8 +312,23 @@ public struct ContentView: View {
         .overlay(
             alignment: .bottom
         ) {
-            customTabBar
+            if !(
+                selectedTab == 0 && timerViewModel.state != .initial
+            ) {
+                customTabBar
+                    .transition(
+                        .move(
+                            edge: .bottom
+                        )
+                    )
+            }
         }
+        .animation(
+            .easeInOut(
+                duration: 0.25
+            ),
+            value: timerViewModel.state
+        )
     }
     
     private var customTabBar: some View {
