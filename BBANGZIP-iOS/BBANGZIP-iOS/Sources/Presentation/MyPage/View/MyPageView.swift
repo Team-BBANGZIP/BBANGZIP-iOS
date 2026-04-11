@@ -12,8 +12,10 @@ struct MyPageView: View {
     @StateObject private var viewModel: MyPageViewModel
     @State private var navigationPath = NavigationPath()
     @State private var isActive = false
+    @Binding var isInSubView: Bool
     
-    init() {
+    init(isInSubView: Binding<Bool> = .constant(false)) {
+        self._isInSubView = isInSubView
         let repository = AuthRepositoryImpl()
         _viewModel = StateObject(
             wrappedValue: MyPageViewModel(
@@ -103,6 +105,9 @@ struct MyPageView: View {
                 .presentationDetents([.height(350)])
                 .presentationCornerRadius(48)
                 .presentationDragIndicator(.visible)
+            }
+            .onChange(of: navigationPath) { _, _ in
+                isInSubView = !navigationPath.isEmpty
             }
             .onAppear {
                 Task {
@@ -195,25 +200,25 @@ struct MyPageView: View {
                         navigationPath.append("SettingScreen")
                     }
                 )
-                
-                settingDivider
-                    .padding(.vertical, 12)
-                
-                HStack {
-                    Image(.icNotification)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .padding(.leading, 4)
-                    
-                    Spacer()
-                }
-                
-                MenuBox(
-                    menu: "알림 설정",
-                    onMenuTapped: {
-                        print("알림 설정")
-                    }
-                )
+// TODO : 알림설정 기능 구현 후 반영
+//                settingDivider
+//                    .padding(.vertical, 12)
+//                
+//                HStack {
+//                    Image(.icNotification)
+//                        .resizable()
+//                        .frame(width: 20, height: 20)
+//                        .padding(.leading, 4)
+//                    
+//                    Spacer()
+//                }
+//                
+//                MenuBox(
+//                    menu: "알림 설정",
+//                    onMenuTapped: {
+//                        print("알림 설정")
+//                    }
+//                )
                 
                 settingDivider
                     .padding(.vertical, 12)

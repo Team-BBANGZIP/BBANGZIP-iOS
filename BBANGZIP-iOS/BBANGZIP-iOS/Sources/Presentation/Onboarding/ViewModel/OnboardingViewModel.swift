@@ -9,10 +9,10 @@ import SwiftUI
 
 @MainActor
 final class OnboardingViewModel: ObservableObject {
-    @Published private(set) var userName: String = ""
+    @Published var userName: String = ""
+    let maxNameLength: Int = 20
     @Published private(set) var selectedProfileImage: String? = nil
     @Published var showImagePicker: Bool = false
-    @Published var showNameInput: Bool = false
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -44,16 +44,57 @@ final class OnboardingViewModel: ObservableObject {
         showImagePicker = true
     }
     
-    func openNameInput() {
-        showNameInput = true
-    }
-    
     func setProfileImage(_ imageName: String) {
         selectedProfileImage = imageName
     }
     
-    func setUserName(_ name: String) {
-        userName = name
+    func validateNameInput(_ newValue: String) {
+        if newValue.count > maxNameLength {
+            userName = String(newValue.prefix(maxNameLength))
+            return
+        }
+        if containsEmoji(newValue) {
+            userName = removeEmojis(from: newValue)
+        }
+    }
+
+    private func containsEmoji(_ text: String) -> Bool {
+        for scalar in text.unicodeScalars {
+            switch scalar.value {
+            case 0x1F600...0x1F64F,
+                0x1F300...0x1F5FF,
+                0x1F680...0x1F6FF,
+                0x2600...0x26FF,
+                0x2700...0x27BF,
+                0x1F900...0x1F9FF,
+                0x1FA70...0x1FAFF,
+                0x1F1E6...0x1F1FF:
+                return true
+            default:
+                continue
+            }
+        }
+        return false
+    }
+
+    private func removeEmojis(from text: String) -> String {
+        text.unicodeScalars.filter {
+            switch $0.value {
+            case 0x1F600...0x1F64F,
+                0x1F300...0x1F5FF,
+                0x1F680...0x1F6FF,
+                0x2600...0x26FF,
+                0x2700...0x27BF,
+                0x1F900...0x1F9FF,
+                0x1FA70...0x1FAFF,
+                0x1F1E6...0x1F1FF:
+                return false
+            default:
+                return true
+            }
+        }
+        .map(String.init)
+        .joined()
     }
     
     func saveProfile() async {
