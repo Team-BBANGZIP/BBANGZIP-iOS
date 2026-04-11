@@ -87,7 +87,7 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-        let opacity: Double = viewModel.breadCount > 0 ? 1 : 0
+        let opacity: Double = 1
         
         return HStack(
             spacing: 1
@@ -482,22 +482,22 @@ struct TimerView: View {
                 }
                 .buttonStyle(
                     BbangButtonStyle(
-                        style: .secondary,
+                        style: .primary,
                         rightIcon: Image(
-                            .icRefreshThin
+                            .icBackward
                         )
                     )
                 )
                 
                 Button(
-                    "초기화하기"
+                    "초기화 하기"
                 ) {
                     viewModel
                         .refreshSheetRefreshButtonTapped()
                 }
                 .buttonStyle(
                     BbangButtonStyle(
-                        style: .primary,
+                        style: .secondary,
                         rightIcon: Image(
                             .icQuit
                         )
@@ -517,7 +517,7 @@ struct TimerView: View {
             [.medium]
         )
         .presentationDragIndicator(
-            .hidden
+            .visible
         )
         .modifier(
             CornerRadiusModifier()
@@ -731,7 +731,7 @@ struct TimerView: View {
             [.medium]
         )
         .presentationDragIndicator(
-            .hidden
+            .visible
         )
         .modifier(
             CornerRadiusModifier()
