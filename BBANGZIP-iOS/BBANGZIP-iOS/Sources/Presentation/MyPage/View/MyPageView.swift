@@ -196,24 +196,25 @@ struct MyPageView: View {
                     }
                 )
                 
-                settingDivider
-                    .padding(.vertical, 12)
+// TODO : 알림설정 구현 추후 반영 해야함.
+//                settingDivider
+//                    .padding(.vertical, 12)
+//                
+//                HStack {
+//                    Image(.icNotification)
+//                        .resizable()
+//                        .frame(width: 20, height: 20)
+//                        .padding(.leading, 4)
+//                    
+//                    Spacer()
+//                }
                 
-                HStack {
-                    Image(.icNotification)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .padding(.leading, 4)
-                    
-                    Spacer()
-                }
-                
-                MenuBox(
-                    menu: "알림 설정",
-                    onMenuTapped: {
-                        print("알림 설정")
-                    }
-                )
+//                MenuBox(
+//                    menu: "알림 설정",
+//                    onMenuTapped: {
+//                        print("알림 설정")
+//                    }
+//                )
                 
                 settingDivider
                     .padding(.vertical, 12)
