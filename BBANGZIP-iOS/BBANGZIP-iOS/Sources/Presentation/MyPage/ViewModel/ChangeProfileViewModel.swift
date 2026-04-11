@@ -50,31 +50,12 @@ final class ChangeProfileViewModel: ObservableObject {
             self.profileImageUrl = profile.profileImageUrl ?? ""
             self.nickname = profile.nickname
             self.commitmentMessage = profile.commitmentMessage ?? "나만의 다짐을 적어보세요"
-            
-            if let url = profile.profileImageUrl {
-                self.profileImageKey = extractProfileImageKey(from: url)
-            }
-            
+            self.profileImageKey = profile.profileImageKey ?? 1
+
             print("Current profileImageKey: \(self.profileImageKey)")
         } catch {
             print("fetch Profile Error: \(error.localizedDescription)")
         }
-    }
-    
-    private func extractProfileImageKey(from url: String) -> Int {
-        if let keyString = url.components(separatedBy: "Profile_").last?.components(separatedBy: ".").first,
-           let key = Int(keyString) {
-            return key
-        }
-        
-        let urlComponents = url.components(separatedBy: "/")
-        if let lastComponent = urlComponents.last,
-           let keyString = lastComponent.components(separatedBy: ".").first,
-           let key = Int(keyString) {
-            return key
-        }
-        
-        return 1
     }
     
     func showChangeProfileImageSheet() {
@@ -84,7 +65,7 @@ final class ChangeProfileViewModel: ObservableObject {
     func saveProfile() {
         updateNickName(nickname)
     }
-    
+
     func showMyPromiseSheet() {
         isMyPromiseSheetPresented = true
     }

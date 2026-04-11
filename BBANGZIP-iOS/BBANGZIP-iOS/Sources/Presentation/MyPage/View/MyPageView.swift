@@ -200,25 +200,25 @@ struct MyPageView: View {
                         navigationPath.append("SettingScreen")
                     }
                 )
-                
-                settingDivider
-                    .padding(.vertical, 12)
-                
-                HStack {
-                    Image(.icNotification)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .padding(.leading, 4)
-                    
-                    Spacer()
-                }
-                
-                MenuBox(
-                    menu: "알림 설정",
-                    onMenuTapped: {
-                        print("알림 설정")
-                    }
-                )
+// TODO : 알림설정 기능 구현 후 반영
+//                settingDivider
+//                    .padding(.vertical, 12)
+//                
+//                HStack {
+//                    Image(.icNotification)
+//                        .resizable()
+//                        .frame(width: 20, height: 20)
+//                        .padding(.leading, 4)
+//                    
+//                    Spacer()
+//                }
+//                
+//                MenuBox(
+//                    menu: "알림 설정",
+//                    onMenuTapped: {
+//                        print("알림 설정")
+//                    }
+//                )
                 
                 settingDivider
                     .padding(.vertical, 12)
