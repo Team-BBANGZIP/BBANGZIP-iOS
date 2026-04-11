@@ -320,7 +320,7 @@ private extension OnboardingView {
                 BbangButtonStyle(
                     style: viewModel.canSave ? .secondary : .disabled,
                     rightIcon: Image(
-                        .icPencil
+                        .icCheck
                     )
                 )
             )
