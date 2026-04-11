@@ -76,6 +76,22 @@ public struct ContentView: View {
                             self.isLoggedIn = true
                         }
                     }
+                    .onReceive(
+                        NotificationCenter.default.publisher(
+                            for: NSNotification.Name(
+                                "OnboardingDismissed"
+                            )
+                        )
+                    ) { _ in
+                        withAnimation(
+                            .easeInOut(
+                                duration: 0.3
+                            )
+                        ) {
+                            self.showOnboarding = false
+                            self.isLoggedIn = false
+                        }
+                    }
             } else if !isLoggedIn {
                 LoginView()
                     .onReceive(
@@ -136,11 +152,16 @@ public struct ContentView: View {
     
     private func checkAuthStatusAndNavigate() {
         let hasToken = TokenManager.shared.hasValidTokens()
+        let isSignUpComplete = UserDefaults.standard.string(
+            forKey: "userName"
+        ) != nil
         
         self.isLaunch = false
         
-        if hasToken {
+        if hasToken && isSignUpComplete {
             self.isLoggedIn = true
+        } else if hasToken && !isSignUpComplete {
+            self.showOnboarding = true
         } else {
             self.isLoggedIn = false
         }
@@ -227,7 +248,7 @@ public struct ContentView: View {
     //                        .renderingMode(.template)
     //                    Text("빵굽기")
     //                }
-    //            
+    //
     //            ToDoView(viewModel: makeTodoViewModel())
     //                .tabItem {
     //                    Image(.icBook)
@@ -241,7 +262,7 @@ public struct ContentView: View {
     ////                        .renderingMode(.template)
     ////                    Text("이웃")
     ////                }
-    //            
+    //
     //            MyPageView()
     //                .tabItem {
     //                    Image(.icPerson)
