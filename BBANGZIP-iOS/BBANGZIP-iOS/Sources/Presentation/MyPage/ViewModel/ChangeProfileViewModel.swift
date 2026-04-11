@@ -10,7 +10,6 @@ import SwiftUI
 @MainActor
 final class ChangeProfileViewModel: ObservableObject {
     @Published var isChangeProfileImageSheetPresented: Bool = false
-    @Published var isChangeNickNameSheetPresented: Bool = false
     @Published var isMyPromiseSheetPresented: Bool = false
     
     @Published var profileImageUrl: String = ""
@@ -46,7 +45,7 @@ final class ChangeProfileViewModel: ObservableObject {
     func fetchProfile() async {
         do {
             let profile = try await getProfileUseCase.getProfile()
-            print("✅ profile: ", profile)
+            print("profile: ", profile)
             
             self.profileImageUrl = profile.profileImageUrl ?? ""
             self.nickname = profile.nickname
@@ -82,8 +81,8 @@ final class ChangeProfileViewModel: ObservableObject {
         isChangeProfileImageSheetPresented = true
     }
     
-    func showChangeNickNameSheet() {
-        isChangeNickNameSheetPresented = true
+    func saveProfile() {
+        updateNickName(nickname)
     }
     
     func showMyPromiseSheet() {
