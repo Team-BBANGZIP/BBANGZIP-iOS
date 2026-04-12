@@ -24,8 +24,8 @@ struct TodoManageView: View {
                 startTimeSection
                     .padding(.top, 24)
                 
-                alertSection
-                    .padding(.top, 20)
+//                alertSection
+//                    .padding(.top, 20)
                 
                 divider
                     .padding(.vertical, 24)
