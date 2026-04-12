@@ -44,7 +44,8 @@ public struct PromiseInputField: View {
         TextEditor(text: $text)
             .frame(minHeight: 90, maxHeight: 90)
             .scrollContentBackground(.hidden)
-            .padding(12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
             .lineSpacing(4)
             .bbangFont(.body1)
             .foregroundColor(Color(.labelNormal))
@@ -70,7 +71,8 @@ public struct PromiseInputField: View {
         Text("나만의 다짐을 적어보세요")
             .foregroundStyle(Color(.labelAssistive))
             .bbangFont(.body1)
-            .padding(16)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 20)
     }
     
     var lengthCounter: some View {
