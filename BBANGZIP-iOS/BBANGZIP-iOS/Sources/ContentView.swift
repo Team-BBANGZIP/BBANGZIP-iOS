@@ -17,16 +17,17 @@ public struct ContentView: View {
     @State private var showOnboarding: Bool = false
     
     @State private var selectedTab: Int = 0
+    @State private var isMyPageInSubView: Bool = false
     
     public init() {
         KakaoSDK.initSDK(appKey: ConfigManager.kakaoAppKey)
-//TODO: 기존 기본 탭바 사용 시 주석 해제
-//        let appearance = UITabBarAppearance()
-//        appearance.backgroundColor = UIColor(Color(.componentAlternative))
-//        appearance.shadowColor = UIColor(Color(.labelDisable))
-//        UITabBar.appearance().unselectedItemTintColor = UIColor(Color(.labelAssistive))
-//        UITabBar.appearance().standardAppearance = appearance
-//        UITabBar.appearance().scrollEdgeAppearance = appearance
+        //TODO: 기존 기본 탭바 사용 시 주석 해제
+        //        let appearance = UITabBarAppearance()
+        //        appearance.backgroundColor = UIColor(Color(.componentAlternative))
+        //        appearance.shadowColor = UIColor(Color(.labelDisable))
+        //        UITabBar.appearance().unselectedItemTintColor = UIColor(Color(.labelAssistive))
+        //        UITabBar.appearance().standardAppearance = appearance
+        //        UITabBar.appearance().scrollEdgeAppearance = appearance
         
         UIApplication.shared.isIdleTimerDisabled = false
     }
@@ -50,24 +51,29 @@ public struct ContentView: View {
                             self.isLoggedIn = true
                         }
                     }
-//TODO: 로그인 반영 후 수정
-//            } else if !isLoggedIn {
-//                LoginView()
-//                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
-//                        withAnimation(.easeInOut(duration: 0.3)) {
-//                            self.isLoggedIn = true
-//                        }
-//                    }
-//                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowOnboarding"))) { _ in
-//                        withAnimation(.easeInOut(duration: 0.3)) {
-//                            self.showOnboarding = true
-//                        }
-//                    }
-//                    .onOpenURL { url in
-//                        if AuthApi.isKakaoTalkLoginUrl(url) {
-//                            _ = AuthController.handleOpenUrl(url: url)
-//                        }
-//                    }
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OnboardingDismissed"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.showOnboarding = false
+                            self.isLoggedIn = false
+                        }
+                    }
+            } else if !isLoggedIn {
+                LoginView()
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.isLoggedIn = true
+                        }
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowOnboarding"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.showOnboarding = true
+                        }
+                    }
+                    .onOpenURL { url in
+                        if AuthApi.isKakaoTalkLoginUrl(url) {
+                            _ = AuthController.handleOpenUrl(url: url)
+                        }
+                    }
             } else {
                 mainContent
             }
@@ -79,11 +85,14 @@ public struct ContentView: View {
     
     private func checkAuthStatusAndNavigate() {
         let hasToken = TokenManager.shared.hasValidTokens()
+        let isSignUpComplete = UserDefaults.standard.string(forKey: "userName") != nil
         
         self.isLaunch = false
         
-        if hasToken {
+        if hasToken && isSignUpComplete {
             self.isLoggedIn = true
+        } else if hasToken && !isSignUpComplete {
+            self.showOnboarding = true
         } else {
             self.isLoggedIn = false
         }
@@ -128,44 +137,44 @@ public struct ContentView: View {
             }
         }
     }
-
-// TODO: 기존 기본 탭바 사용 시 주석 해제
-//    private var mainTabView: some View {
-//        TabView {
-//            TimerView(viewModel: timerViewModel)
-//                .tabItem {
-//                    Image(.icTimer)
-//                        .renderingMode(.template)
-//                    Text("빵굽기")
-//                }
-//            
-//            ToDoView(viewModel: makeTodoViewModel())
-//                .tabItem {
-//                    Image(.icBook)
-//                        .renderingMode(.template)
-//                    Text("할 일")
-//                }
-//// TODO: 2차 스프린트 이후 수정
-////            Text("이웃")
-////                .tabItem {
-////                    Image(.icChat)
-////                        .renderingMode(.template)
-////                    Text("이웃")
-////                }
-//            
-//            MyPageView()
-//                .tabItem {
-//                    Image(.icPerson)
-//                        .renderingMode(.template)
-//                    Text("마이")
-//                }
-//        }
-//        .tint(Color(.staticblack))
-//        .toolbarBackground(
-//            Color(.componentAlternative),
-//            for: .tabBar
-//        )
-//    }
+    
+    // TODO: 기존 기본 탭바 사용 시 주석 해제
+    //    private var mainTabView: some View {
+    //        TabView {
+    //            TimerView(viewModel: timerViewModel)
+    //                .tabItem {
+    //                    Image(.icTimer)
+    //                        .renderingMode(.template)
+    //                    Text("빵굽기")
+    //                }
+    //
+    //            ToDoView(viewModel: makeTodoViewModel())
+    //                .tabItem {
+    //                    Image(.icBook)
+    //                        .renderingMode(.template)
+    //                    Text("할 일")
+    //                }
+    //// TODO: 2차 스프린트 이후 수정
+    ////            Text("이웃")
+    ////                .tabItem {
+    ////                    Image(.icChat)
+    ////                        .renderingMode(.template)
+    ////                    Text("이웃")
+    ////                }
+    //
+    //            MyPageView()
+    //                .tabItem {
+    //                    Image(.icPerson)
+    //                        .renderingMode(.template)
+    //                    Text("마이")
+    //                }
+    //        }
+    //        .tint(Color(.staticblack))
+    //        .toolbarBackground(
+    //            Color(.componentAlternative),
+    //            for: .tabBar
+    //        )
+    //    }
     
     private var mainTabView: some View {
         TabView(selection: $selectedTab) {
@@ -177,15 +186,19 @@ public struct ContentView: View {
                 .tabItem { EmptyView() }
                 .tag(1)
             
-            MyPageView()
+            MyPageView(isInSubView: $isMyPageInSubView)
                 .tabItem { EmptyView() }
                 .tag(2)
         }
         .overlay(alignment: .bottom) {
-            customTabBar
+            if !(selectedTab == 0 && timerViewModel.state != .initial) && !(selectedTab == 2 && isMyPageInSubView) {
+                customTabBar
+                    .transition(.move(edge: .bottom))
+            }
         }
+        .animation(.easeInOut(duration: 0.25), value: timerViewModel.state)
     }
-
+    
     private var customTabBar: some View {
         HStack {
             tabBarItem(icon: Image(.icTimer), title: "빵굽기", tag: 0)
@@ -201,7 +214,7 @@ public struct ContentView: View {
                 .frame(height: 0.5)
         }
     }
-
+    
     private func tabBarItem(icon: Image, title: String, tag: Int) -> some View {
         Button {
             selectedTab = tag

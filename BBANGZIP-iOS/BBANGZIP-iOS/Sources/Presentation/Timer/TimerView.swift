@@ -14,7 +14,6 @@ struct TimerView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                
                 breadCountChip
             }
             .padding(.top, 17)
@@ -23,9 +22,7 @@ struct TimerView: View {
             
             VStack(spacing: 30) {
                 announceText
-                
                 leftTimeView
-                
                 timeToggleButton
             }
             
@@ -35,9 +32,7 @@ struct TimerView: View {
                 if viewModel.state != .initial {
                     refreshButton
                 }
-                
                 timerControlButton
-                
                 if viewModel.state != .initial {
                     resetButton
                 }
@@ -61,8 +56,6 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-//TODO: 서버 연동 후 opacity 분기처리
-//        let opacity: Double = viewModel.breadCount > 0 ? 1 : 0
         let opacity: Double = 1
         
         return HStack(spacing: 1) {
@@ -78,10 +71,7 @@ struct TimerView: View {
         }
         .overlay(
             Capsule()
-                .stroke(
-                    Color(.primaryLight),
-                    lineWidth: 1
-                )
+                .stroke(Color(.primaryLight), lineWidth: 1)
         )
         .opacity(opacity)
         .padding(.trailing, 20)
@@ -111,37 +101,16 @@ struct TimerView: View {
                 .stroke(lineWidth: lineWidth)
                 .foregroundStyle(
                     Color(.secondaryNormal)
-                        .shadow(
-                            .inner(
-                                color: Color(.timerShadow),
-                                radius: 2,
-                                x: 0,
-                                y: 1
-                            )
-                        )
+                        .shadow(.inner(color: Color(.timerShadow), radius: 2, x: 0, y: 1))
                 )
                 .zIndex(1)
             
             Circle()
-                .trim(
-                    from: 0,
-                    to: viewModel.progressPercentage
-                )
+                .trim(from: 0, to: viewModel.progressPercentage)
                 .stroke(
                     Color(.primaryLight)
-                        .shadow(
-                            .inner(
-                                color: Color(.timerProgressShadow),
-                                radius: 4,
-                                x: 0,
-                                y: 2
-                            )
-                        ),
-                    style: StrokeStyle(
-                        lineWidth: lineWidth,
-                        lineCap: .round,
-                        lineJoin: .round
-                    )
+                        .shadow(.inner(color: Color(.timerProgressShadow), radius: 4, x: 0, y: 2)),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
                 )
                 .rotationEffect(.degrees(-90))
                 .zIndex(1)
@@ -164,10 +133,7 @@ struct TimerView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 115, height: 84)
-                        .animation(
-                            .easeInOut(duration: 0.5),
-                            value: viewModel.currentBreadLevel
-                        )
+                        .animation(.easeInOut(duration: 0.5), value: viewModel.currentBreadLevel)
                 }
                 .disabled(viewModel.state != .initial)
             }
@@ -218,19 +184,15 @@ struct TimerView: View {
             Image(.icRefreshThick)
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 26,height: 26)
+                .frame(width: 26, height: 26)
                 .foregroundStyle(Color(.primaryNormal))
                 .opacity(0.6)
         }
         .disabled(disabled)
-        .frame(width: 48,height: 48)
+        .frame(width: 48, height: 48)
         .clipShape(.circle)
         .overlay(
-            Circle()
-                .stroke(
-                    Color(.secondaryStrong),
-                    lineWidth: 1
-                )
+            Circle().stroke(Color(.secondaryStrong), lineWidth: 1)
         )
         .opacity(opacity)
     }
@@ -259,28 +221,18 @@ struct TimerView: View {
                 Button("돌아가기") {
                     viewModel.refreshSheetBackButtonTapped()
                 }
-                .buttonStyle(
-                    BbangButtonStyle(
-                        style: .secondary,
-                        rightIcon: Image(.icRefreshThin)
-                    )
-                )
+                .buttonStyle(BbangButtonStyle(style: .primary, rightIcon: Image(.icBackward)))
                 
-                Button("초기화하기") {
+                Button("초기화 하기") {
                     viewModel.refreshSheetRefreshButtonTapped()
                 }
-                .buttonStyle(
-                    BbangButtonStyle(
-                        style: .primary,
-                        rightIcon: Image(.icQuit)
-                    )
-                )
+                .buttonStyle(BbangButtonStyle(style: .secondary, rightIcon: Image(.icQuit)))
             }
         }
-        .padding(.vertical,12)
-        .padding(.horizontal,16)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
         .presentationDetents([.medium])
-        .presentationDragIndicator(.hidden)
+        .presentationDragIndicator(.visible)
         .modifier(CornerRadiusModifier())
     }
     
@@ -295,30 +247,16 @@ struct TimerView: View {
             Image(image)
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 60,height: 60)
+                .frame(width: 60, height: 60)
                 .foregroundStyle(imageColor)
         }
-        .frame(width: 80,height: 80)
+        .frame(width: 80, height: 80)
         .background(
             Circle()
                 .fill(
                     backgroundColor
-                        .shadow(
-                            .inner(
-                                color: Color(.timerInnerShadow),
-                                radius: 1,
-                                x: 0,
-                                y: 1
-                            )
-                        )
-                        .shadow(
-                            .inner(
-                                color: Color(.timerInnerShadow2),
-                                radius: 10,
-                                x: 0,
-                                y: 2
-                            )
-                        )
+                        .shadow(.inner(color: Color(.timerInnerShadow), radius: 1, x: 0, y: 1))
+                        .shadow(.inner(color: Color(.timerInnerShadow2), radius: 10, x: 0, y: 2))
                 )
         )
         .shadow(
@@ -338,18 +276,14 @@ struct TimerView: View {
                 .foregroundStyle(Color(.primaryNormal))
                 .opacity(0.6)
         }
-        .frame(width: 48,height: 48)
+        .frame(width: 48, height: 48)
         .clipShape(.circle)
         .overlay(
-            Circle()
-                .stroke(
-                    Color(.secondaryStrong),
-                    lineWidth: 1
-                )
+            Circle().stroke(Color(.secondaryStrong), lineWidth: 1)
         )
     }
     
-    var resetSheet: some View  {
+    var resetSheet: some View {
         return VStack(spacing: 0) {
             Text("정말 종료 하시겠어요?")
                 .bbangFont(.title1)
@@ -372,28 +306,18 @@ struct TimerView: View {
                 Button("돌아가기") {
                     viewModel.resetSheetBackButtonTapped()
                 }
-                .buttonStyle(
-                    BbangButtonStyle(
-                        style: .primary,
-                        rightIcon: Image(.icBackward)
-                    )
-                )
+                .buttonStyle(BbangButtonStyle(style: .primary, rightIcon: Image(.icBackward)))
                 
                 Button("종료하기") {
                     viewModel.resetSheetResetButtonTapped()
                 }
-                .buttonStyle(
-                    BbangButtonStyle(
-                        style: .secondary,
-                        rightIcon: Image(.icQuit)
-                    )
-                )
+                .buttonStyle(BbangButtonStyle(style: .secondary, rightIcon: Image(.icQuit)))
             }
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .presentationDetents([.medium])
-        .presentationDragIndicator(.hidden)
+        .presentationDragIndicator(.visible)
         .modifier(CornerRadiusModifier())
     }
     
@@ -425,23 +349,13 @@ struct TimerView: View {
                     Button("\(minute)분 더") {
                         viewModel.completeSheetMoreButtonTapped()
                     }
-                    .buttonStyle(
-                        BbangButtonStyle(
-                            style: .secondary,
-                            rightIcon: Image(.icPlusThick)
-                        )
-                    )
+                    .buttonStyle(BbangButtonStyle(style: .secondary, rightIcon: Image(.icPlusThick)))
                     .frame(width: width * 130 / 370)
                     
                     Button("완료한 일 체크") {
                         viewModel.completeSheetCompleteButtonTapped()
                     }
-                    .buttonStyle(
-                        BbangButtonStyle(
-                            style: .primary,
-                            rightIcon: Image(.icBook)
-                        )
-                    )
+                    .buttonStyle(BbangButtonStyle(style: .primary, rightIcon: Image(.icBook)))
                 }
             }
             .frame(height: 48)
@@ -457,9 +371,7 @@ struct TimerView: View {
         BreadSelectView(
             viewModel: BreadSelectViewModel(
                 breadList: BreadList(totalCount: 0, breadList: []),
-                getBreadsUseCase: GetBreadsUseCase(
-                    repository: GetBreadsRepository()
-                )
+                getBreadsUseCase: GetBreadsUseCase(repository: GetBreadsRepository())
             )
         )
         .presentationDetents([.height(604)])
@@ -474,11 +386,8 @@ struct CornerRadiusModifier: ViewModifier {
             content.presentationCornerRadius(48)
         } else {
             content.background(
-                RoundedRectangle(
-                    cornerRadius: 48,
-                    style: .continuous
-                )
-                .fill(Color(.systemBackground))
+                RoundedRectangle(cornerRadius: 48, style: .continuous)
+                    .fill(Color(.systemBackground))
             )
         }
     }
@@ -493,10 +402,7 @@ struct ArrowView: View {
             .foregroundStyle(Color(.primaryNormal))
             .offset(y: animationOffset)
             .onAppear {
-                withAnimation(
-                    .easeInOut(duration: 1.5)
-                    .repeatForever(autoreverses: true)
-                ) {
+                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                     animationOffset = 8
                 }
             }
