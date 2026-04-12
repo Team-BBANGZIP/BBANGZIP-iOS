@@ -43,7 +43,7 @@ struct DatePickerView: View {
             Text(titleText)
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelAlternative))
-                .padding(.top, 25)
+                .padding(.top, 36)
             
             monthHeader
                 .padding(.top, 28)
