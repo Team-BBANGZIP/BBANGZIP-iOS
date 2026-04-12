@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+//TODO: selectedDate 오류 발생 시 주석 해제 
 struct DatePickerView: View {
     enum Mode { case changeDate, repeatAnotherDay }
     
@@ -60,9 +60,11 @@ struct DatePickerView: View {
                     DragGesture(minimumDistance: 30, coordinateSpace: .local)
                         .onEnded { value in
                             if value.translation.width < -50 {
-                                selectedDate = viewModel.moveMonth(by: 1)
+//                                selectedDate = viewModel.moveMonth(by: 1)
+                                viewModel.moveMonth(by: 1)
                             } else if value.translation.width > 50 {
-                                selectedDate = viewModel.moveMonth(by: -1)
+//                                selectedDate = viewModel.moveMonth(by: -1)
+                                viewModel.moveMonth(by: -1)
                             }
                         }
                 )
@@ -94,7 +96,8 @@ struct DatePickerView: View {
             
             HStack(spacing: 16) {
                 Button {
-                    selectedDate = viewModel.moveMonth(by: -1)
+//                    selectedDate = viewModel.moveMonth(by: -1)
+                    viewModel.moveMonth(by: -1)
                 } label: {
                     Image(.icChevronLeft)
                         .renderingMode(.template)
@@ -106,7 +109,8 @@ struct DatePickerView: View {
                 .buttonStyle(.plain)
                 
                 Button {
-                    selectedDate = viewModel.moveMonth(by: 1)
+//                    selectedDate = viewModel.moveMonth(by: 1)
+                    viewModel.moveMonth(by: 1)
                 } label: {
                     Image(.icChevronRight)
                         .renderingMode(.template)

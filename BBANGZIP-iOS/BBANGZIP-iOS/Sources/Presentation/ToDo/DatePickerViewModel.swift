@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-
+//TODO: selectedDate 오류 발생 시 주석 해제
 final class DatePickerViewModel: ObservableObject {
     @Published private(set) var currentMonth: Date
     @Published private(set) var days: [CalendarDay] = []
@@ -40,17 +40,27 @@ final class DatePickerViewModel: ObservableObject {
         return formatter.string(from: currentMonth)
     }
     
-    func moveMonth(by delta: Int) -> Date {
+//    func moveMonth(by delta: Int) -> Date {
+//        guard let newMonth = calendar.date(
+//            byAdding: .month,
+//            value: delta,
+//            to: currentMonth
+//        ) else {
+//            return currentMonth
+//        }
+//        currentMonth = newMonth
+//        rebuildDays()
+//        return firstDay(of: newMonth)
+//    }
+    
+    func moveMonth(by delta: Int) { 
         guard let newMonth = calendar.date(
             byAdding: .month,
             value: delta,
             to: currentMonth
-        ) else {
-            return currentMonth
-        }
+        ) else { return }
         currentMonth = newMonth
         rebuildDays()
-        return firstDay(of: newMonth)
     }
     
     func tapped(day: CalendarDay) -> Date? {
