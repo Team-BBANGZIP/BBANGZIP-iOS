@@ -212,7 +212,9 @@ struct ToDoView: View {
                             onDuplicate: { [weak viewModel] in
                                 viewModel?.fetchData()
                             },
-                            onChangeDate: {},
+                            onChangeDate: {
+                                viewModel.isMeatballSheetPresented = false
+                            },
                             onPatchedTitle: { [weak viewModel] _ in
                                 viewModel?.fetchData()
                             },

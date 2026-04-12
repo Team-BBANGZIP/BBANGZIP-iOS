@@ -163,6 +163,9 @@ final class TodoManageViewModel: ObservableObject {
         do {
             let newData = try await repository.rescheduleTodo(id: todoId, targetDate: targetDate)
             onDeleted(todoId, 0, 0)
+            await MainActor.run {
+                onChangeDate()  // 성공 시 부모 sheet 닫기
+            }
             print("✅ Todo \(newData.todoId) moved to \(newData.targetDate)")
         } catch {
             print("❌ Reschedule failed: \(error)")
