@@ -144,18 +144,22 @@ struct ToDoView: View {
                 .sheet(
                     isPresented: $viewModel.isAddTodoSheetPresented,
                     onDismiss: {
-                        if let vm = addTodoViewModel {
-                            vm.addTodo { [weak viewModel] in
-                                viewModel?.fetchData()
-                            }
-                        }
+//                        if let vm = addTodoViewModel {
+//                            vm.addTodo { [weak viewModel] in
+//                                viewModel?.fetchData()
+//                            }
+//                        }
                         addTodoViewModel = nil
                     },
                     content: {
                         if let vm = addTodoViewModel {
                             TodoAddView(
                                 viewModel: vm,
-                                isPresented: $viewModel.isAddTodoSheetPresented
+                                isPresented: $viewModel.isAddTodoSheetPresented,
+                                onSuccess: {
+                                    viewModel.fetchData()
+                                    viewModel.isAddTodoSheetPresented = false
+                                }
                             )
                             .presentationDetents([.height(190)])
                             .presentationCornerRadius(48)

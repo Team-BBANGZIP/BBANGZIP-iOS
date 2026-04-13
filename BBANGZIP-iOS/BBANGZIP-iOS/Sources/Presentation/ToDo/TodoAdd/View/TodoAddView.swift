@@ -14,6 +14,8 @@ struct TodoAddView: View {
     @State private var isStartTimeSheetPresented: Bool = false
 
     @FocusState private var isTextFieldFocused: Bool
+    
+    var onSuccess: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,6 +26,7 @@ struct TodoAddView: View {
 
             TaskInputField(text: $viewModel.newTodoTitle) {
                 viewModel.addTodo {
+                    onSuccess?()
                     isPresented = false
                 }
             }
