@@ -62,8 +62,8 @@ final class ChangeProfileViewModel: ObservableObject {
         isChangeProfileImageSheetPresented = true
     }
     
-    func saveProfile() {
-        updateNickName(nickname)
+    func saveProfile() async {
+        await updateNickName(nickname)
     }
 
     func showMyPromiseSheet() {
@@ -120,23 +120,16 @@ final class ChangeProfileViewModel: ObservableObject {
         }
     }
     
-    func updateNickName(_ newValue: String) {
-        Task {
-            do {
-                _ = try await updateProfileUseCase.updateNickname(
-                    nickname: newValue,
-                    currentProfileImageKey: profileImageKey
-                )
-                
-                await MainActor.run {
-                    self.nickname = newValue
-                }
-                
-                print("닉네임 변경 성공")
-            }
-            catch {
-                print("닉네임 변경 실패: ", error)
-            }
+    func updateNickName(_ newValue: String) async {
+        do {
+            _ = try await updateProfileUseCase.updateNickname(
+                nickname: newValue,
+                currentProfileImageKey: profileImageKey
+            )
+            self.nickname = newValue
+            print("닉네임 변경 성공")
+        } catch {
+            print("닉네임 변경 실패: ", error)
         }
     }
 }

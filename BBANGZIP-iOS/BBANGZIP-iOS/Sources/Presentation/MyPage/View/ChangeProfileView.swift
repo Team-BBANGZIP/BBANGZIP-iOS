@@ -16,9 +16,10 @@ struct ChangeProfileView: View {
     
     let maxNameLength: Int = 20
     var onDismiss: (() -> Void)?
+    var onSave: ((String, String) -> Void)?
     
-    init(onDismiss: (() -> Void)? = nil) {
-        self.onDismiss = onDismiss
+    init(onSave: ((String, String) -> Void)? = nil) {
+        self.onSave = onSave
         _viewModel = StateObject(wrappedValue: ChangeProfileViewModel(
             getProfileUseCase: GetProfileUseCaseImpl(repository: ProfileRepository()),
             updateProfileUseCase: DefaultUpdateProfileUseCase(repository: ProfileRepository())
@@ -153,6 +154,15 @@ struct ChangeProfileView: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled(true)
             .padding(.horizontal, 20)
+            .onSubmit {
+                guard !viewModel.nickname.isEmpty else { return }
+                isNameFieldFocused = false
+                Task {
+                    await viewModel.saveProfile()
+                    onSave?(viewModel.nickname, viewModel.commitmentMessage)
+                    dismiss()
+                }
+            }
             
             Rectangle()
                 .fill(Color(.primaryNormal))
@@ -197,9 +207,11 @@ struct ChangeProfileView: View {
     private var saveButton: some View {
         Button(action: {
             isNameFieldFocused = false
-            viewModel.saveProfile()
-            onDismiss?()
-            dismiss()
+            Task {
+                await viewModel.saveProfile()
+                onSave?(viewModel.nickname, viewModel.commitmentMessage)
+                dismiss()
+            }
         }) {
             Text("저장하기")
         }
