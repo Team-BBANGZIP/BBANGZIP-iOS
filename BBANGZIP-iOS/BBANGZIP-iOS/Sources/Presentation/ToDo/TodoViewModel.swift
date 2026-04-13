@@ -108,44 +108,11 @@ final class TodoViewModel: ObservableObject {
     
     func fetchData() {
         Task {
-            // 목데이터로 대체
-            self.todoData = TodoData(
-                myPromiseMessage: "오늘도 화이팅!",
-                summary: TodoSummary(
-                    date: "2026-03-24",
-                    totalCount: 4,
-                    completedCount: 1
-                ),
-                categories: [
-                    Category(
-                        id: 1,
-                        name: "수학",
-                        colorType: .Todoblue1,
-                        todos: [
-                            TimerTodo(id: 1, content: "미적분 3단원 풀기", isCompleted: true, startTime: "09:00", colorType: .Todoblue1, targetDate: "2025-09-01"),
-                            TimerTodo(id: 2, content: "확통 문제집 p.30", isCompleted: false, startTime: nil, colorType: .Todoblue1, targetDate: "2025-09-01")
-                        ],
-                        isStopped: false
-                    ),
-                    Category(
-                        id: 2,
-                        name: "영어",
-                        colorType: .Todogreen1,
-                        todos: [
-                            TimerTodo(id: 3, content: "단어 암기 50개", isCompleted: false, startTime: "14:00", colorType: .Todogreen1, targetDate: "2025-09-01"),
-                            TimerTodo(id: 4, content: "독해 지문 2개", isCompleted: false, startTime: nil, colorType: .Todogreen1, targetDate: "2025-09-01")
-                        ],
-                        isStopped: false
-                    )
-                ]
-            )
-            
-            //TODO: 서버 연동 후 주석해제
-            // do {
-            //     self.todoData = try await fetchUseCase.execute(date: currentTargetDate)
-            // } catch {
-            //     print("❌ 데이터 가져오기 실패: \(error)")
-            // }
+             do {
+                 self.todoData = try await fetchUseCase.execute(date: currentTargetDate)
+             } catch {
+                 print("❌ 데이터 가져오기 실패: \(error)")
+             }
         }
     }
     
@@ -494,6 +461,33 @@ final class TodoViewModel: ObservableObject {
             }
         }
         todoData = data
+    }
+    
+    func dates(offsetWeeks: Int) -> [Date] {
+        guard let baseDate = calendar.date(byAdding: .weekOfYear, value: offsetWeeks, to: currentDate) else { return [] }
+        
+        var newDates: [Date] = []
+        var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear, .weekday], from: baseDate)
+        components.weekday = startWeekOnSunday ? 1 : 2
+        components.hour = 0
+        components.minute = 0
+        components.second = 0
+        
+        guard let startOfWeek = calendar.date(from: components) else { return [] }
+        
+        for dayOffset in 0...6 {
+            if let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) {
+                newDates.append(date)
+            }
+        }
+        return newDates
+    }
+
+    func calculateDate(for day: String, offsetWeeks: Int) -> Date? {
+        guard let dayIndex = daysOfWeek.firstIndex(of: day) else { return nil }
+        let weekDates = dates(offsetWeeks: offsetWeeks)
+        guard dayIndex < weekDates.count else { return nil }
+        return weekDates[dayIndex]
     }
 }
 

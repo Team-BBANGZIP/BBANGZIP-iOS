@@ -9,17 +9,28 @@ import SwiftUI
 
 struct ToDoView: View {
     private let repository = TodoRepositoryImpl()
+    var onNavigationDepthChanged: ((Bool) -> Void)? = nil
     
     @StateObject private var viewModel: TodoViewModel
     @StateObject private var categoryListViewModel: CategoryListViewModel
     @State private var addTodoViewModel: TodoAddViewModel? = nil
     @State private var selectedDate: Date? = nil
     @State private var isShowMenu: Bool = false
-    @State private var navigationPath = NavigationPath()
+    @State private var navigationPath = NavigationPath() {
+        didSet {
+            onNavigationDepthChanged?(!navigationPath.isEmpty)
+        }
+    }
+    
+    @State private var dragOffset: CGFloat = 0
+    @State private var isAnimating: Bool = false
+    @State private var calendarWidth: CGFloat = 0
+    
     init(
         viewModel: TodoViewModel,
         selectedDate: Date? = nil,
-        isShowMenu: Bool = false
+        isShowMenu: Bool = false,
+        onNavigationDepthChanged: ((Bool) -> Void)? = nil
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.selectedDate = selectedDate
@@ -34,6 +45,7 @@ struct ToDoView: View {
                 fetchCategoriesUseCase: fetchCategoriesUseCase
             )
         )
+        self.onNavigationDepthChanged = onNavigationDepthChanged
     }
     
     var body: some View {
@@ -137,18 +149,17 @@ struct ToDoView: View {
                 .sheet(
                     isPresented: $viewModel.isAddTodoSheetPresented,
                     onDismiss: {
-                        if let vm = addTodoViewModel {
-                            vm.addTodo { [weak viewModel] in
-                                viewModel?.fetchData()
-                            }
-                        }
                         addTodoViewModel = nil
                     },
                     content: {
                         if let vm = addTodoViewModel {
                             TodoAddView(
                                 viewModel: vm,
-                                isPresented: $viewModel.isAddTodoSheetPresented
+                                isPresented: $viewModel.isAddTodoSheetPresented,
+                                onSuccess: {
+                                    viewModel.fetchData()
+                                    viewModel.isAddTodoSheetPresented = false
+                                }
                             )
                             .presentationDetents([.height(190)])
                             .presentationCornerRadius(48)
@@ -205,7 +216,9 @@ struct ToDoView: View {
                             onDuplicate: { [weak viewModel] in
                                 viewModel?.fetchData()
                             },
-                            onChangeDate: {},
+                            onChangeDate: {
+                                viewModel.isMeatballSheetPresented = false
+                            },
                             onPatchedTitle: { [weak viewModel] _ in
                                 viewModel?.fetchData()
                             },
@@ -233,6 +246,9 @@ struct ToDoView: View {
             
             Spacer()
                 .frame(height: 28)
+        }
+        .onChange(of: navigationPath.count) { _, count in
+            onNavigationDepthChanged?(count > 0)
         }
     }
     
@@ -272,7 +288,18 @@ struct ToDoView: View {
             .padding(.leading, 20)
             .padding(.vertical, 6)
             
-            Button(action: { viewModel.moveWeek(by: -1) }) {
+            Button(action: {
+                guard !isAnimating else { return }
+                isAnimating = true
+                withAnimation(.easeOut(duration: 0.25)) {
+                    dragOffset = calendarWidth
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    viewModel.moveWeek(by: -1)
+                    dragOffset = 0
+                    isAnimating = false
+                }
+            }) {
                 Image(.icChevronLeft)
                     .renderingMode(.template)
                     .resizable()
@@ -282,7 +309,18 @@ struct ToDoView: View {
             }
             .buttonStyle(.plain)
             
-            Button(action: { viewModel.moveWeek(by: 1) }) {
+            Button(action: {
+                guard !isAnimating else { return }
+                isAnimating = true
+                withAnimation(.easeOut(duration: 0.25)) {
+                    dragOffset = -calendarWidth
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    viewModel.moveWeek(by: 1)
+                    dragOffset = 0
+                    isAnimating = false
+                }
+            }) {
                 Image(.icChevronRight)
                     .renderingMode(.template)
                     .resizable()
@@ -311,10 +349,66 @@ struct ToDoView: View {
     }
     
     private var calendarBodyView: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            
+            HStack(spacing: 0) {
+                weekGridView(offsetWeeks: -1)
+                    .frame(width: width)
+                weekGridView(offsetWeeks: 0)
+                    .frame(width: width)
+                weekGridView(offsetWeeks: 1)
+                    .frame(width: width)
+            }
+            .frame(width: width * 3, alignment: .leading)
+            .offset(x: -width + dragOffset)
+            .clipped()
+            .onAppear { calendarWidth = width }  // 추가
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        guard !isAnimating else { return }
+                        dragOffset = value.translation.width
+                    }
+                    .onEnded { value in
+                        guard !isAnimating else { return }
+                        let threshold = width * 0.3
+                        
+                        if value.translation.width < -threshold {
+                            isAnimating = true
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                dragOffset = -width
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                viewModel.moveWeek(by: 1)
+                                dragOffset = 0
+                                isAnimating = false
+                            }
+                        } else if value.translation.width > threshold {
+                            isAnimating = true
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                dragOffset = width
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                viewModel.moveWeek(by: -1)
+                                dragOffset = 0
+                                isAnimating = false
+                            }
+                        } else {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                dragOffset = 0
+                            }
+                        }
+                    }
+            )
+        }
+        .frame(height: 70)
+    }
+
+    private func weekGridView(offsetWeeks: Int) -> some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
             ForEach(Array(viewModel.daysOfWeek.enumerated()), id: \.offset) { index, day in
-                if let date = viewModel.calculateDateForDay(day) {
-                    
+                if let date = viewModel.calculateDate(for: day, offsetWeeks: offsetWeeks) {
                     let selectedDateBinding = Binding<Date?>(
                         get: { selectedDate },
                         set: { new in
@@ -322,7 +416,6 @@ struct ToDoView: View {
                             viewModel.setSelectedDate(new ?? viewModel.currentDate)
                         }
                     )
-                    
                     CalendarCellView(
                         day: day,
                         date: date,
@@ -331,17 +424,6 @@ struct ToDoView: View {
                 }
             }
         }
-        .frame(height: 70)
-        .gesture(
-            DragGesture(minimumDistance: 30, coordinateSpace: .local)
-                .onEnded { value in
-                    if value.translation.width < -50 {
-                        viewModel.moveWeek(by: 1)
-                    } else if value.translation.width > 50 {
-                        viewModel.moveWeek(by: -1)
-                    }
-                }
-        )
     }
     
     var todoSummaryView: some View {

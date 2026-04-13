@@ -70,10 +70,9 @@ struct MyPageView: View {
                 }
                 if destination == "ChangeProfile" {
                     ChangeProfileView(
-                        onDismiss: {
-                            Task {
-                                await viewModel.fetchProfile()
-                            }
+                        onSave: { newNickname, newMessage in
+                            viewModel.nickname = newNickname
+                            viewModel.commitmentMessage = newMessage
                         }
                     )
                 }

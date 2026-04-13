@@ -21,7 +21,7 @@ struct CalendarCellView: View {
             )
             BbangText(
                 "\(calendar.component(.day, from: date))",
-                font: isSelected ? .label1 : .label4,
+                font: isSelected ? .label1 : .label2,
                 color: isSelected ? Color(.labelNormal) : Color(.labelAlternative)
             )
         }
