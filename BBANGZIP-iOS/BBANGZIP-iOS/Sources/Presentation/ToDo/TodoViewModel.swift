@@ -462,6 +462,33 @@ final class TodoViewModel: ObservableObject {
         }
         todoData = data
     }
+    
+    func dates(offsetWeeks: Int) -> [Date] {
+        guard let baseDate = calendar.date(byAdding: .weekOfYear, value: offsetWeeks, to: currentDate) else { return [] }
+        
+        var newDates: [Date] = []
+        var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear, .weekday], from: baseDate)
+        components.weekday = startWeekOnSunday ? 1 : 2
+        components.hour = 0
+        components.minute = 0
+        components.second = 0
+        
+        guard let startOfWeek = calendar.date(from: components) else { return [] }
+        
+        for dayOffset in 0...6 {
+            if let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek) {
+                newDates.append(date)
+            }
+        }
+        return newDates
+    }
+
+    func calculateDate(for day: String, offsetWeeks: Int) -> Date? {
+        guard let dayIndex = daysOfWeek.firstIndex(of: day) else { return nil }
+        let weekDates = dates(offsetWeeks: offsetWeeks)
+        guard dayIndex < weekDates.count else { return nil }
+        return weekDates[dayIndex]
+    }
 }
 
 extension TodoViewModel {
