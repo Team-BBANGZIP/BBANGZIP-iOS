@@ -13,10 +13,34 @@ struct StartTimeView: View {
     let onSelect: (Date?) -> Void
     
     var body: some View {
-        Text("시작 시간 설정")
-            .bbangFont(.title3)
-            .foregroundStyle(Color(.labelAlternative))
-            .padding(.top, 25)
+        ZStack {
+            Text("시작 시간 설정")
+                .bbangFont(.title3)
+                .foregroundStyle(Color(.labelAlternative))
+            
+            HStack {
+                Button(action: {
+                    onSelect(nil)
+                    isSheetPresented = false
+                }) {
+                    HStack(spacing: 4) {
+                        Image(.icRefreshThin)
+                            .resizable()
+                            .renderingMode(.template)
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(Color(.todored2))
+                        
+                        Text("초기화")
+                            .bbangFont(.label2)
+                            .foregroundStyle(Color(.todored2))
+                    }
+                }
+                
+                Spacer()
+            }
+        }
+        .padding(.top, 25)
+        .padding(.horizontal, 24)
         
         timePicker
             .padding(.horizontal, 20)

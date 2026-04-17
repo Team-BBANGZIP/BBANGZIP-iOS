@@ -8,5 +8,5 @@
 import Foundation
 
 struct TodoStartTimeEditRequestDTO: Encodable {
-    let startTime: String
+    let startTime: String?
 }

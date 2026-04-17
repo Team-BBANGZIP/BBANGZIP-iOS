@@ -14,5 +14,5 @@ struct TodoStartTimeEditResponseDTO: Decodable {
 
 struct TodoStartTimeEditDataDTO: Decodable {
     let todoId: Int
-    let startTime: String
+    let startTime: String?
 }
