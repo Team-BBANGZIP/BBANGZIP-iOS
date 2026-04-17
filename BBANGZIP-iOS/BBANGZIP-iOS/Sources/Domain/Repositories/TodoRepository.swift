@@ -31,8 +31,8 @@ protocol TodoRepository: Sendable {
     )
     func editTodoStartTime(
         id: Int,
-        startTime: Date
-    ) async throws -> String
+        startTime: Date?
+    ) async throws -> String?
     func rescheduleTodo(
         id: Int,
         targetDate: Date?
@@ -169,8 +169,11 @@ final class TodoRepositoryImpl: TodoRepository {
         }
     }
     
-    func editTodoStartTime(id: Int, startTime: Date) async throws -> String {
-        let timeStr = DateFormatter.inputTimeFormatter.string(from: startTime)
+    func editTodoStartTime(id: Int, startTime: Date?) async throws -> String? {
+//        let timeStr = DateFormatter.inputTimeFormatter.string(from: startTime)
+        let timeStr = startTime.map {
+            DateFormatter.inputTimeFormatter.string(from: $0)
+        }
         let dto = TodoStartTimeEditRequestDTO(startTime: timeStr)
         let router = BbangRouter.updateTodoStartTime(id: id, dto: dto)
         

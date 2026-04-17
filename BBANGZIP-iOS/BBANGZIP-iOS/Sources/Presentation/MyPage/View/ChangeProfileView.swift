@@ -66,9 +66,13 @@ struct ChangeProfileView: View {
         .sheet(isPresented: $viewModel.isChangeProfileImageSheetPresented) {
             ProfileImagePickerView(
                 viewModel: ProfileImagePickerViewModel(
-                    currentImage: viewModel.selectedProfileImage,
-                    onSave: { imageName in
-                        viewModel.updateMyProfileImage(imageName)
+//                    currentImage: viewModel.selectedProfileImage,
+//                    onSave: { imageName in
+//                        viewModel.updateMyProfileImage(imageName)
+//                    }
+                    currentKey: viewModel.profileImageKey,
+                    onSave: { key in
+                        viewModel.updateMyProfileImage(key)
                     }
                 ),
                 isPresented: $viewModel.isChangeProfileImageSheetPresented
@@ -102,18 +106,8 @@ struct ChangeProfileView: View {
         } label: {
             ZStack(alignment: .bottomTrailing) {
                 Group {
-                    if let selected = viewModel.selectedProfileImage {
-                        Image(selected).resizable()
-                    } else if !viewModel.profileImageUrl.isEmpty,
-                              let url = URL(string: viewModel.profileImageUrl) {
-                        KFImage(url)
-                            .resizable()
-                            .placeholder { Image(.icProfile).resizable() }
-                            .cacheOriginalImage()
-                            .id(viewModel.profileImageUrl)
-                    } else {
-                        Image(.icProfile).resizable()
-                    }
+                    Image(viewModel.currentProfileImageName)
+                        .resizable()
                 }
                 .frame(width: 100, height: 100)
                 .clipShape(Circle())

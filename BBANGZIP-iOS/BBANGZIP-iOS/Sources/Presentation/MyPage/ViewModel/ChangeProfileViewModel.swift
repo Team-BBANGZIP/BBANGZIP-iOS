@@ -31,6 +31,25 @@ final class ChangeProfileViewModel: ObservableObject {
         "Profile_6": 6
     ]
     
+    var profileImageName: String {
+        switch profileImageKey {
+        case 0:
+            return "icProfile"
+        case 1...6:
+            return "Profile_\(profileImageKey)"
+        default:
+            return "icProfile"
+        }
+    }
+    
+    var currentProfileImageName: String {
+        if let selected = selectedProfileImage,
+           let key = profileImageKeyMap[selected] {
+            return key == 0 ? "icProfile" : "Profile_\(key)"
+        }
+        return profileImageName
+    }
+    
     init(
         getProfileUseCase: GetProfileUseCase,
         updateProfileUseCase: UpdateProfileUseCase
@@ -70,32 +89,21 @@ final class ChangeProfileViewModel: ObservableObject {
         isMyPromiseSheetPresented = true
     }
     
-    func updateMyProfileImage(_ imageName: String) {
-        selectedProfileImage = imageName
-        
-        guard let profileImage = selectedProfileImage,
-              let newProfileImageKey = profileImageKeyMap[profileImage] else {
-            print("❌ Invalid profile image key")
-            return
-        }
+    func updateMyProfileImage(_ key: Int) {
+        profileImageKey = key   // ✅ UI 즉시 반영
         
         Task {
             do {
                 let response = try await updateProfileUseCase.updateProfileImage(
-                    profileImageKey: newProfileImageKey
+                    profileImageKey: key
                 )
                 
-                await MainActor.run {
-                    if let newImageUrl = response.profileImageUrl {
-                        self.profileImageUrl = newImageUrl
-                        self.profileImageKey = newProfileImageKey
-                    }
+                if let newImageUrl = response.profileImageUrl {
+                    self.profileImageUrl = newImageUrl
                 }
                 
-                print("- new key: \(newProfileImageKey)")
-            }
-            catch {
-                print("프로필 이미지 변경 실패: ", error)
+            } catch {
+                print("프로필 이미지 변경 실패:", error)
             }
         }
     }

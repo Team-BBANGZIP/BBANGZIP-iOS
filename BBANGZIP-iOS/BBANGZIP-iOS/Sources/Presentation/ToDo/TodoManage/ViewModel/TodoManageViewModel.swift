@@ -134,14 +134,13 @@ final class TodoManageViewModel: ObservableObject {
     }
     
     func patchStartTime(_ date: Date?) async {
-        guard let date else { return }
-
         let old = startTimeString
+        
         do {
             let newHHmm = try await repository.editTodoStartTime(id: todoId, startTime: date)
-            startTimeDate = date
+            
             onPatchedStartTime(todoId, newHHmm)
-            print("✅ StartTime patch successed: \(date)")
+            print("✅ StartTime patch successed: \(String(describing: date))")
         } catch {
             startTimeString = old
             startTimeBinding.wrappedValue = old

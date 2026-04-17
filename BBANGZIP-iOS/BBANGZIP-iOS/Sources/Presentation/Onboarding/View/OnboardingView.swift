@@ -57,12 +57,9 @@ struct OnboardingView: View {
         ) {
             ProfileImagePickerView(
                 viewModel: ProfileImagePickerViewModel(
-                    currentImage: viewModel.selectedProfileImage,
-                    onSave: { imageName in
-                        viewModel
-                            .setProfileImage(
-                                imageName
-                            )
+                    currentKey: viewModel.selectedProfileImageKey,
+                    onSave: { key in
+                        viewModel.setProfileImage(key)
                     }
                 ),
                 isPresented: $viewModel.showImagePicker
@@ -189,17 +186,14 @@ private extension OnboardingView {
                 )
             
             Image(
-                viewModel.selectedProfileImage ?? "profile_basic"
+                (viewModel.selectedProfileImageKey ?? 0) == 0
+                ? "ic_profile"
+                : "Profile_\(viewModel.selectedProfileImageKey!)"
             )
             .resizable()
             .scaledToFill()
-            .frame(
-                width: 100,
-                height: 100
-            )
-            .clipShape(
-                Circle()
-            )
+            .frame(width: 100, height: 100)
+            .clipShape(Circle())
             
             VStack {
                 Spacer()
