@@ -31,6 +31,25 @@ final class ChangeProfileViewModel: ObservableObject {
         "Profile_6": 6
     ]
     
+    var profileImageName: String {
+        switch profileImageKey {
+        case 0:
+            return "icProfile"
+        case 1...6:
+            return "Profile_\(profileImageKey)"
+        default:
+            return "icProfile"
+        }
+    }
+    
+    var currentProfileImageName: String {
+        if let selected = selectedProfileImage,
+           let key = profileImageKeyMap[selected] {
+            return key == 0 ? "icProfile" : "Profile_\(key)"
+        }
+        return profileImageName
+    }
+    
     init(
         getProfileUseCase: GetProfileUseCase,
         updateProfileUseCase: UpdateProfileUseCase
