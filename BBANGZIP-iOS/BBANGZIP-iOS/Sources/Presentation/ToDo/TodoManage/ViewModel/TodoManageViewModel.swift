@@ -139,7 +139,6 @@ final class TodoManageViewModel: ObservableObject {
         do {
             let newHHmm = try await repository.editTodoStartTime(id: todoId, startTime: date)
             
-            startTimeDate = date
             onPatchedStartTime(todoId, newHHmm)
             print("✅ StartTime patch successed: \(String(describing: date))")
         } catch {
