@@ -65,6 +65,13 @@ struct TodoAddView: View {
             .presentationCornerRadius(48)
             .presentationDragIndicator(.visible)
         }
+        .onChange(of: isStartTimeSheetPresented) { _, isPresented in
+            if !isPresented {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    isTextFieldFocused = true
+                }
+            }
+        }
     }
 
     var startTime: some View {
