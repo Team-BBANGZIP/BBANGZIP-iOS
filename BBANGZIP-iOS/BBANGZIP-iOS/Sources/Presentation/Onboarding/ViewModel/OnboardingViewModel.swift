@@ -11,7 +11,7 @@ import SwiftUI
 final class OnboardingViewModel: ObservableObject {
     @Published var userName: String = ""
     let maxNameLength: Int = 20
-    @Published private(set) var selectedProfileImage: String? = nil
+    @Published private(set) var selectedProfileImageKey: Int? = nil
     @Published var showImagePicker: Bool = false
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
@@ -33,7 +33,7 @@ final class OnboardingViewModel: ObservableObject {
     }
     
     var canSave: Bool {
-        !userName.isEmpty && selectedProfileImage != nil
+        !userName.isEmpty && selectedProfileImageKey != nil
     }
     
     init(signUpUseCase: SignUpUseCase = SignUpUseCaseImpl()) {
@@ -44,8 +44,8 @@ final class OnboardingViewModel: ObservableObject {
         showImagePicker = true
     }
     
-    func setProfileImage(_ imageName: String) {
-        selectedProfileImage = imageName
+    func setProfileImage(_ key: Int) {
+        selectedProfileImageKey = key
     }
     
     func validateNameInput(_ newValue: String) {
@@ -100,8 +100,7 @@ final class OnboardingViewModel: ObservableObject {
     func saveProfile() async {
         guard canSave else { return }
         
-        guard let profileImage = selectedProfileImage,
-              let profileImageKey = profileImageKeyMap[profileImage] else {
+        guard let profileImageKey = selectedProfileImageKey else {
             errorMessage = "프로필 이미지를 선택해주세요."
             return
         }
@@ -126,7 +125,7 @@ final class OnboardingViewModel: ObservableObject {
                     forKey: "userName"
                 )
                 UserDefaults.standard.set(
-                    selectedProfileImage,
+                    selectedProfileImageKey,
                     forKey: "profileImage"
                 )
                 

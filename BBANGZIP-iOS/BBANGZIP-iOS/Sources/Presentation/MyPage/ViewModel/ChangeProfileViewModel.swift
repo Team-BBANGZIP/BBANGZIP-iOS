@@ -89,32 +89,21 @@ final class ChangeProfileViewModel: ObservableObject {
         isMyPromiseSheetPresented = true
     }
     
-    func updateMyProfileImage(_ imageName: String) {
-        selectedProfileImage = imageName
-        
-        guard let profileImage = selectedProfileImage,
-              let newProfileImageKey = profileImageKeyMap[profileImage] else {
-            print("❌ Invalid profile image key")
-            return
-        }
+    func updateMyProfileImage(_ key: Int) {
+        profileImageKey = key   // ✅ UI 즉시 반영
         
         Task {
             do {
                 let response = try await updateProfileUseCase.updateProfileImage(
-                    profileImageKey: newProfileImageKey
+                    profileImageKey: key
                 )
                 
-                await MainActor.run {
-                    if let newImageUrl = response.profileImageUrl {
-                        self.profileImageUrl = newImageUrl
-                        self.profileImageKey = newProfileImageKey
-                    }
+                if let newImageUrl = response.profileImageUrl {
+                    self.profileImageUrl = newImageUrl
                 }
                 
-                print("- new key: \(newProfileImageKey)")
-            }
-            catch {
-                print("프로필 이미지 변경 실패: ", error)
+            } catch {
+                print("프로필 이미지 변경 실패:", error)
             }
         }
     }

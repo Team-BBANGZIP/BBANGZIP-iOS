@@ -66,9 +66,13 @@ struct ChangeProfileView: View {
         .sheet(isPresented: $viewModel.isChangeProfileImageSheetPresented) {
             ProfileImagePickerView(
                 viewModel: ProfileImagePickerViewModel(
-                    currentImage: viewModel.selectedProfileImage,
-                    onSave: { imageName in
-                        viewModel.updateMyProfileImage(imageName)
+//                    currentImage: viewModel.selectedProfileImage,
+//                    onSave: { imageName in
+//                        viewModel.updateMyProfileImage(imageName)
+//                    }
+                    currentKey: viewModel.profileImageKey,
+                    onSave: { key in
+                        viewModel.updateMyProfileImage(key)
                     }
                 ),
                 isPresented: $viewModel.isChangeProfileImageSheetPresented

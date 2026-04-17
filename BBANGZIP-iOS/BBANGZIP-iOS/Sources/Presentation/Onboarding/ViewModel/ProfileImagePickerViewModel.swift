@@ -9,41 +9,35 @@ import SwiftUI
 
 @MainActor
 final class ProfileImagePickerViewModel: ObservableObject {
-    @Published var selectedImage: String?
-    @Published var tempSelectedImage: String?
-    
-    let profileImages = [
-        "Profile_1",
-        "Profile_2",
-        "Profile_3",
-        "Profile_4",
-        "Profile_5",
-        "Profile_6"
-    ]
-    
-    private let onSave: (String) -> Void
+    @Published var selectedKey: Int?
+    @Published var tempSelectedKey: Int?
+
+    let profileImageKeys = [0,1,2,3,4,5,6]
+    let selectableKeys = [1,2,3,4,5,6]
+
+    private let onSave: (Int) -> Void
     
     init(
-        currentImage: String?,
-        onSave: @escaping (String) -> Void
+        currentKey: Int?,
+        onSave: @escaping (Int) -> Void
     ) {
-        self.selectedImage = currentImage
-        self.tempSelectedImage = currentImage
+        self.selectedKey = currentKey
+        self.tempSelectedKey = currentKey
         self.onSave = onSave
     }
     
-    func selectImage(_ imageName: String) {
-        tempSelectedImage = imageName
+    func selectImage(_ key: Int) {
+        tempSelectedKey = key
     }
-    
+
     func confirmSelection() {
-        if let temp = tempSelectedImage {
-            selectedImage = temp
-            onSave(temp)
+        if let key = tempSelectedKey {
+            selectedKey = key
+            onSave(key)
         }
     }
-    
+
     func cancelSelection() {
-        tempSelectedImage = selectedImage
+        tempSelectedKey = selectedKey
     }
 }

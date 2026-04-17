@@ -54,40 +54,34 @@ private extension ProfileImagePickerView {
                 .fill(Color(.backgroundStrong))
                 .frame(width: 100, height: 100)
             
-            if let tempImage = viewModel.tempSelectedImage {
-                Image(tempImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-            } else {
-                Image(.profileBasic)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-            }
+            let key = viewModel.tempSelectedKey ?? 0
+            
+            Image(key == 0 ? "icProfile" : "Profile_\(key)")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 100, height: 100)
+                .clipShape(Circle())
         }
     }
     
     var profileImagesGrid: some View {
         LazyVGrid(columns: columns, spacing: 20) {
-            ForEach(viewModel.profileImages, id: \.self) { imageName in
-                profileImageButton(imageName)
+            ForEach(viewModel.selectableKeys, id: \.self) { key in
+                profileImageButton(key)
             }
         }
     }
     
-    func profileImageButton(_ imageName: String) -> some View {
-        Button(action: {
-            viewModel.selectImage(imageName)
-        }) {
+    func profileImageButton(_ key: Int) -> some View {
+        Button {
+            viewModel.selectImage(key)
+        } label: {
             ZStack {
                 Circle()
                     .fill(Color(.backgroundStrong))
                     .frame(width: 60, height: 60)
                 
-                Image(imageName)
+                Image(key == 0 ? "icProfile" : "Profile_\(key)")
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 60)
@@ -118,26 +112,6 @@ private extension ProfileImagePickerView {
                     style: .secondary,
                     rightIcon: Image(.icCheck)
                 )
-            )
-        }
-    }
-}
-
-#Preview {
-    @Previewable @State var isPresented = true
-    
-    ZStack {
-        Color.black.opacity(0.3)
-            .ignoresSafeArea()
-        
-        VStack {
-            Spacer()
-            ProfileImagePickerView(
-                viewModel: ProfileImagePickerViewModel(
-                    currentImage: nil,
-                    onSave: { _ in }
-                ),
-                isPresented: $isPresented
             )
         }
     }
