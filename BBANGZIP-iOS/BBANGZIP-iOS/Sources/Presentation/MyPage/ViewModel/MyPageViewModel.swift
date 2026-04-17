@@ -21,6 +21,17 @@ final class MyPageViewModel: ObservableObject {
     private let signOutUseCase: SignOutUseCase
     private let withdrawUseCase: WithdrawUseCase
     
+    var profileImageName: String {
+        switch profileImageKey {
+        case 0:
+            return "icProfile"
+        case 1...6:
+            return "Profile_\(profileImageKey)"
+        default:
+            return "icProfile"
+        }
+    }
+    
     init(
         getProfileUseCase: GetProfileUseCase,
         signOutUseCase: SignOutUseCase,

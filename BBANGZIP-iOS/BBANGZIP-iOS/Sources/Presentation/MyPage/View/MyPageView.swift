@@ -133,18 +133,23 @@ struct MyPageView: View {
                 navigationPath.append("ChangeProfile")
             } label: {
                 HStack(spacing: 12) {
-                    if let url = URL(string: viewModel.profileImageUrl) {
-                        KFImage(url)
-                            .resizable()
-                            .placeholder { Image(.icProfile).resizable() }
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
-                    } else {
-                        Image(.icProfile)
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
-                    }
+//                    if let url = URL(string: viewModel.profileImageUrl) {
+//                        KFImage(url)
+//                            .resizable()
+//                            .placeholder { Image(.icProfile).resizable() }
+//                            .frame(width: 60, height: 60)
+//                            .clipShape(Circle())
+//                    }
+//                    else {
+//                        Image(.icProfile)
+//                            .resizable()
+//                            .frame(width: 60, height: 60)
+//                            .clipShape(Circle())
+//                    }
+                    Image(viewModel.profileImageName)
+                        .resizable()
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
                     
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 0) {
