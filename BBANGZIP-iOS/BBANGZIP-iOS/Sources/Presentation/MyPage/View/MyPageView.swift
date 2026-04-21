@@ -253,7 +253,7 @@ struct MyPageView: View {
                 MenuBox(
                     menu: "피드백 남기기",
                     onMenuTapped: {
-                        print("피드백 남기기")
+                        openURL("https://forms.gle/F78qHjofp1ERFFFL8")
                     }
                 )
                 
