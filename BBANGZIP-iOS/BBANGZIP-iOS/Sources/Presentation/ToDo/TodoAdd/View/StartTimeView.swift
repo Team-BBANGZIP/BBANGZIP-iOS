@@ -11,13 +11,13 @@ struct StartTimeView: View {
     @ObservedObject var viewModel: StartTimeViewModel
     @Binding var isSheetPresented: Bool
     let onSelect: (Date?) -> Void
-    
+
     var body: some View {
         ZStack {
             Text("시작 시간 설정")
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelAlternative))
-            
+
             HStack {
                 Button(action: {
                     onSelect(nil)
@@ -29,28 +29,28 @@ struct StartTimeView: View {
                             .renderingMode(.template)
                             .frame(width: 20, height: 20)
                             .foregroundStyle(Color(.todored2))
-                        
+
                         Text("초기화")
                             .bbangFont(.label2)
                             .foregroundStyle(Color(.todored2))
                     }
                 }
-                
+
                 Spacer()
             }
         }
         .padding(.top, 25)
         .padding(.horizontal, 24)
-        
+
         timePicker
             .padding(.horizontal, 20)
             .padding(.top, 32)
-        
+
         buttons
             .padding(.horizontal, 20)
             .padding(.top, 48)
     }
-    
+
     var timePicker: some View {
         DatePicker(
             "",
@@ -61,11 +61,10 @@ struct StartTimeView: View {
         .labelsHidden()
         .scaleEffect(0.9)
     }
-    
+
     var buttons: some View {
         HStack(spacing: 15) {
             Button("취소") {
-                onSelect(nil)
                 isSheetPresented = false
             }
             .buttonStyle(
@@ -74,7 +73,7 @@ struct StartTimeView: View {
                     rightIcon: Image(.icQuit)
                 )
             )
-            
+
             Button("설정") {
                 onSelect(viewModel.tempTime)
                 isSheetPresented = false

@@ -189,9 +189,10 @@ struct ToDoView: View {
                     )
                     
                     let startTimeBinding = Binding<String?>(
-                        get: { viewModel.todoDataStartTime(for: id) ?? viewModel.sheetStartTime },
+                        get: { viewModel.todoDataStartTime(for: id) },
                         set: { new in
                             viewModel.updateTodoStartTime(id: id, newTime: new)
+                            viewModel.sheetStartTime = new
                         }
                     )
                     
