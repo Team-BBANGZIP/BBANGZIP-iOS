@@ -215,6 +215,7 @@ struct ToDoView: View {
                             onPostpone: {},
                             onDuplicate: { [weak viewModel] in
                                 viewModel?.fetchData()
+                                viewModel?.isMeatballSheetPresented = false
                             },
                             onChangeDate: {
                                 viewModel.isMeatballSheetPresented = false
