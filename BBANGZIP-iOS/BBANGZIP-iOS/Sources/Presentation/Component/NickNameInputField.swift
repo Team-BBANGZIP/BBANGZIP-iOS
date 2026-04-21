@@ -43,7 +43,7 @@ public struct NickNameInputField: View {
     var lengthCounter: some View {
         Text("\(text.count)/\(maxLength)")
             .bbangFont(.body3)
-            .foregroundColor(Color(.labelAlternative))
+            .foregroundColor(Color(.labelAssistive))
     }
     
     private func isValidInput(_ input: String) -> Bool {

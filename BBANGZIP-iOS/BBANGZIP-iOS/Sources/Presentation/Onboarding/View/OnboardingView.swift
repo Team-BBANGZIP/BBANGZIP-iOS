@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @StateObject private var viewModel = OnboardingViewModel()
+    @StateObject private var viewModel: OnboardingViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isNameFieldFocused: Bool
+
+    init(signUpUseCase: SignUpUseCase = SignUpUseCaseImpl()) {
+        _viewModel = StateObject(wrappedValue: OnboardingViewModel(signUpUseCase: signUpUseCase))
+    }
 
     var body: some View {
         ZStack {
@@ -161,7 +165,7 @@ private extension OnboardingView {
                 Spacer()
                 Text("\(viewModel.userName.count)/\(viewModel.maxNameLength)")
                     .bbangFont(.body3)
-                    .foregroundStyle(Color(.labelAlternative))
+                    .foregroundStyle(Color(.labelAssistive))
             }
             .padding(.horizontal, 20)
             .padding(.top, 4)
