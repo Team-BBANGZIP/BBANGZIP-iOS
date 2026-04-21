@@ -238,9 +238,6 @@ struct ToDoView: View {
                             }
                         )
                     )
-                    .presentationDetents(viewModel.sheetIsCompleted ? [.height(278)] : [.height(466)])
-                    .presentationCornerRadius(45)
-                    .presentationDragIndicator(.visible)
                 }
             }
             
