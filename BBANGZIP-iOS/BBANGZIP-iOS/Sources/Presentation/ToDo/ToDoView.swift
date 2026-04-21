@@ -59,7 +59,6 @@ struct ToDoView: View {
                             VStack(spacing: 16) {
                                 calendarHeaderView
                                 calendarBodyView
-                                    .padding(.horizontal, 20)
                             }
                             .padding(.vertical, 16)
                             .background(Color(.secondaryLight))
@@ -353,11 +352,17 @@ struct ToDoView: View {
             
             HStack(spacing: 0) {
                 weekGridView(offsetWeeks: -1)
+                    .padding(.horizontal, 20)
                     .frame(width: width)
+                    .clipped()
                 weekGridView(offsetWeeks: 0)
+                    .padding(.horizontal, 20)
                     .frame(width: width)
+                    .clipped()
                 weekGridView(offsetWeeks: 1)
+                    .padding(.horizontal, 20)
                     .frame(width: width)
+                    .clipped()
             }
             .frame(width: width * 3, alignment: .leading)
             .offset(x: -width + dragOffset)
@@ -405,7 +410,7 @@ struct ToDoView: View {
     }
 
     private func weekGridView(offsetWeeks: Int) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 9.17), count: 7), spacing: 0) {
             ForEach(Array(viewModel.daysOfWeek.enumerated()), id: \.offset) { index, day in
                 if let date = viewModel.calculateDate(for: day, offsetWeeks: offsetWeeks) {
                     let selectedDateBinding = Binding<Date?>(
