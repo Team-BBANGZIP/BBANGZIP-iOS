@@ -21,7 +21,6 @@ struct CategoryButton: View {
             Text(labelText)
                 .bbangFont(.label3)
                 .foregroundColor(Color(.labelStrong))
-                .padding(.vertical, 7)
             
             if showsPlusIcon {
                 Image(.icPlusThick)
@@ -32,6 +31,7 @@ struct CategoryButton: View {
             }
         }
         .padding(.horizontal, 10)
+        .frame(height: 32)
         .background(Color(.secondaryLight))
         .cornerRadius(32)
     }

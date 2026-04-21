@@ -55,7 +55,7 @@ protocol TodoRepository: Sendable {
 final class TodoRepositoryImpl: TodoRepository {
     private let api: API
     
-    init(api: API = API()) {
+    init(api: API = .shared) {
         self.api = api
     }
     

@@ -114,6 +114,7 @@ final class TimerViewModel: ObservableObject {
                     targetDate: today,
                     count: count
                 )
+                loadBreadCount()
             } catch {
                 print("❌ 타이머 완료 요청 실패: \(error)")
             }
@@ -136,7 +137,6 @@ final class TimerViewModel: ObservableObject {
                 state = .done
                 announceText = "빵이 완성됐어요!"
                 currentBreadLevel = 5
-                loadBreadCount()
                 isCompleteSheetOn = true
                 sendCompleteRequest()
             }
@@ -207,22 +207,14 @@ final class TimerViewModel: ObservableObject {
     }
     
     private func canGetBreadReward() -> (count: Int, imageName: String) {
-        let totalSeconds = isHour ? 3600 : 1800
-        let elapsedSeconds = totalSeconds - leftSeconds
-        let halfTime = totalSeconds / 2
-        
         if isHour {
-            if elapsedSeconds >= halfTime {
-                return (2, "prize2")
+            if leftSeconds <= 1800 {
+                return (2, "prize2renew")
             } else {
-                return (1, "prize")
+                return (1, "prize1renew")
             }
         } else {
-            if elapsedSeconds >= halfTime {
-                return (1, "prize")
-            } else {
-                return (1, "prize")
-            }
+            return (1, "prize1renew")
         }
     }
     
@@ -239,8 +231,8 @@ final class TimerViewModel: ObservableObject {
         return isHour ? "두" : "한"
     }
     
-    var completeSheetImageName: String {
-        return isHour ? "prize2" : "prize"
+    var completeSheetLottieFileName: String {
+        return isHour ? "[Success] Bread2" : "[Success] Bread1"
     }
 }
 

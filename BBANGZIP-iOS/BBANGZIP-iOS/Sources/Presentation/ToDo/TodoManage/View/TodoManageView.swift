@@ -9,43 +9,58 @@ import SwiftUI
 
 struct TodoManageView: View {
     @ObservedObject var viewModel: TodoManageViewModel
-    
+    @State private var contentHeight: CGFloat = 300
+
     var body: some View {
         VStack(spacing: 0) {
             titleSection
-            
+                .padding(.top, 36)
+
             subtitleSection
                 .padding(.top, 4)
-            
+
             actionButtons
                 .padding(.top, 28)
-            
+
             if !viewModel.isCompleted {
                 startTimeSection
                     .padding(.top, 24)
-                
-//                alertSection
-//                    .padding(.top, 20)
-                
+
                 divider
                     .padding(.vertical, 24)
-                
+
                 postponeSection
-                
+
                 duplicateSection
                     .padding(.top, 20)
-                
+
                 changeDateSection
                     .padding(.top, 20)
+                    .padding(.bottom, 20)
             } else {
                 divider
                     .padding(.top, 20)
-                
+
                 repeatSection
                     .padding(.top, 28)
-            }            
+                    .padding(.bottom, 20)
+            }
         }
         .padding(.horizontal, 20)
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        contentHeight = geometry.size.height
+                    }
+                    .onChange(of: geometry.size.height) { _, newValue in
+                        contentHeight = newValue
+                    }
+            }
+        )
+        .presentationDetents([.height(contentHeight)])
+        .presentationCornerRadius(48)
+        .presentationDragIndicator(.visible)
         .sheet(isPresented: $viewModel.isEditSheetPresented) {
             TodoContentEditView(
                 originalTodo: viewModel.title,

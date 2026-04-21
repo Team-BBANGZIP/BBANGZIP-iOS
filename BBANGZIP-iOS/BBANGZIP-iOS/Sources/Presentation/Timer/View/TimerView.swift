@@ -56,9 +56,7 @@ struct TimerView: View {
     }
     
     var breadCountChip: some View {
-        let opacity: Double = viewModel.breadCount > 0 ? 1 : 0
-        
-        return HStack(spacing: 1) {
+        HStack(spacing: 1) {
             Image(.icBread)
                 .renderingMode(.template)
                 .foregroundStyle(Color(.primaryLight))
@@ -73,7 +71,6 @@ struct TimerView: View {
             Capsule()
                 .stroke(Color(.primaryLight), lineWidth: 1)
         )
-        .opacity(opacity)
         .padding(.trailing, 20)
     }
     
@@ -210,7 +207,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.prize)
+            Image(.refresh)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: .infinity)
@@ -336,10 +333,9 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(viewModel.completeSheetImageName)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+            LottieView(fileName: viewModel.completeSheetLottieFileName)
                 .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
                 .padding(.horizontal, 4)
                 .padding(.bottom, 42)
             

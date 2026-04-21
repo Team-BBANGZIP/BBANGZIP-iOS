@@ -120,14 +120,9 @@ final class OnboardingViewModel: ObservableObject {
             )
             
             if result.isSuccess {
-                UserDefaults.standard.set(
-                    userName,
-                    forKey: "userName"
-                )
-                UserDefaults.standard.set(
-                    selectedProfileImageKey,
-                    forKey: "profileImage"
-                )
+                UserDefaults.standard.set(userName, forKey: "userName")
+                UserDefaults.standard.set(selectedProfileImageKey, forKey: "profileImage")
+                UserDefaults.standard.set(true, forKey: "isSignUpComplete")
                 
                 NotificationCenter.default.post(
                     name: NSNotification.Name("OnboardingCompleted"),

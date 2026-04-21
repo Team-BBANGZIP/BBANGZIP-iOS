@@ -73,7 +73,7 @@ private extension NameInputView {
     var characterCounter: some View {
         Text("\(viewModel.nameCount)/\(viewModel.maxNameLength)")
             .bbangFont(.body3)
-            .foregroundStyle(Color(.labelAlternative))
+            .foregroundStyle(Color(.labelAssistive))
     }
 }
 
