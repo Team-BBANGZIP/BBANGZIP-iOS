@@ -213,15 +213,15 @@ final class TimerViewModel: ObservableObject {
         
         if isHour {
             if elapsedSeconds >= halfTime {
-                return (2, "prize2")
+                return (2, "prize2renew")
             } else {
-                return (1, "prize")
+                return (1, "prize1renew")
             }
         } else {
             if elapsedSeconds >= halfTime {
-                return (1, "prize")
+                return (1, "prize1renew")
             } else {
-                return (1, "prize")
+                return (1, "prize1renew")
             }
         }
     }
@@ -239,8 +239,8 @@ final class TimerViewModel: ObservableObject {
         return isHour ? "두" : "한"
     }
     
-    var completeSheetImageName: String {
-        return isHour ? "prize2" : "prize"
+    var completeSheetLottieFileName: String {
+        return isHour ? "[Success] Bread2" : "[Success] Bread1"
     }
 }
 

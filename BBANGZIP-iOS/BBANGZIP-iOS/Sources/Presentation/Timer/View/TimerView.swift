@@ -207,7 +207,7 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(.prize)
+            Image(.refresh)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: .infinity)
@@ -333,10 +333,9 @@ struct TimerView: View {
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
             
-            Image(viewModel.completeSheetImageName)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+            LottieView(fileName: viewModel.completeSheetLottieFileName)
                 .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
                 .padding(.horizontal, 4)
                 .padding(.bottom, 42)
             

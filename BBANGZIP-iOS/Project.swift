@@ -55,14 +55,15 @@ let project = Project.makeModule(
     bundleId: "BBANGZIP-iOS.app",
     infoPlist: .extendingDefault(with: infoPlist),
     sources: ["BBANGZIP-iOS/Sources/**"],
-    resources: ["BBANGZIP-iOS/Resources/**"],
+    resources: ["BBANGZIP-iOS/Resources/**", "BBANGZIP-iOS/**/*.json"],
     dependencies: [
         .external(name: "Alamofire", condition: .none),
         .external(name: "KakaoSDKAuth", condition: .none),
         .external(name: "KakaoSDKCommon", condition: .none),
         .external(name: "KakaoSDKUser", condition: .none),
         .external(name: "Kingfisher", condition: .none),
-        .external(name: "CombineCocoa", condition: .none)
+        .external(name: "CombineCocoa", condition: .none),
+        .external(name: "Lottie", condition: .none)
     ],
     settings: settings
 )
