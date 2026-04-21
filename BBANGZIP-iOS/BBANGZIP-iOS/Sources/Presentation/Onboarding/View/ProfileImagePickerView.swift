@@ -56,7 +56,7 @@ private extension ProfileImagePickerView {
             
             let key = viewModel.tempSelectedKey ?? 0
             
-            Image(key == 0 ? "icProfile" : "Profile_\(key)")
+            Image(key == 0 ? "profile_basic" : "Profile_\(key)")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 100)
