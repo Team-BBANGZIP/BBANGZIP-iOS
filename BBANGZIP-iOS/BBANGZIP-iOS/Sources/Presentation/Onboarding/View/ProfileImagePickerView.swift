@@ -72,21 +72,37 @@ private extension ProfileImagePickerView {
         }
     }
     
+    func outlineColor(for key: Int) -> Color {
+        switch key {
+        case 1: return Color(.todored1)
+        case 2: return Color(.todoyellow1)
+        case 3: return Color(.todopurple2)
+        case 4: return Color(.todoblue1)
+        case 5: return Color(.todogreen1)
+        case 6: return Color(.todored2)
+        default: return .clear
+        }
+    }
+
     func profileImageButton(_ key: Int) -> some View {
-        Button {
+        let isSelected = viewModel.tempSelectedKey == key
+
+        return Button {
             viewModel.selectImage(key)
         } label: {
             ZStack {
-                Circle()
-                    .fill(Color(.backgroundStrong))
-                    .frame(width: 60, height: 60)
-                
-                Image(key == 0 ? "icProfile" : "Profile_\(key)")
+                Image(key == 0 ? "profile_basic" : "Profile_\(key)")
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 60)
                     .clipShape(Circle())
+
+                if isSelected {
+                    Circle()
+                        .stroke(outlineColor(for: key), lineWidth: 3)
+                }
             }
+            .frame(width: 60, height: 60)
         }
     }
     
