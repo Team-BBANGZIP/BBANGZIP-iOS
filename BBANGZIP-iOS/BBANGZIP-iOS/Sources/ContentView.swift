@@ -87,14 +87,11 @@ public struct ContentView: View {
     
     private func checkAuthStatusAndNavigate() {
         let hasToken = TokenManager.shared.hasValidTokens()
-        let isSignUpComplete = UserDefaults.standard.string(forKey: "userName") != nil
-        
+
         self.isLaunch = false
-        
-        if hasToken && isSignUpComplete {
+
+        if hasToken {
             self.isLoggedIn = true
-        } else if hasToken && !isSignUpComplete {
-            self.showOnboarding = true
         } else {
             self.isLoggedIn = false
         }

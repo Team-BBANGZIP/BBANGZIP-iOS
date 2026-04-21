@@ -116,11 +116,12 @@ final class LoginViewModel: NSObject, ObservableObject {
                 isLoading = false
                 
                 if result.isSignUpComplete {
+                    UserDefaults.standard.set(true, forKey: "isSignUpComplete")
                     shouldNavigateToMain = true
                 } else {
                     shouldShowOnboarding = true
                 }
-                
+
             } catch {
                 isLoading = false
                 errorMessage = "로그인에 실패했습니다."
@@ -161,11 +162,12 @@ final class LoginViewModel: NSObject, ObservableObject {
                 isLoading = false
                 
                 if result.isSignUpComplete {
+                    UserDefaults.standard.set(true, forKey: "isSignUpComplete")
                     shouldNavigateToMain = true
                 } else {
                     shouldShowOnboarding = true
                 }
-                
+
             } catch {
                 isLoading = false
                 errorMessage = "로그인에 실패했습니다."
