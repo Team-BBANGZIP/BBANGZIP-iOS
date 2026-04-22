@@ -38,7 +38,7 @@ final class TimerViewModel: ObservableObject {
     private var timerTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     
-    private lazy var leftSeconds: Int = isHour ? 3600: 1800
+    private lazy var leftSeconds: Int = isHour ? 3600 : 1800
     
     init(
         timerUseCase: TimerUseCase,
@@ -78,7 +78,7 @@ final class TimerViewModel: ObservableObject {
                 guard let self else { return }
                 leftSeconds = isHour ? 3600 : 1800
                 leftTimeText = formatTime(seconds: leftSeconds)
-                resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
+                resetSheetLeftTimeText = resetSheetRemainingText()
                 currentBreadLevel = 1
             }
             .store(in: &cancellables)
@@ -124,15 +124,19 @@ final class TimerViewModel: ObservableObject {
     private func resumeTimer() {
         state = .running
         currentBreadLevel = calculateBreadLevel(remainingSeconds: leftSeconds)
+        
         timerTask = Task {
             for await remainingSeconds in timerUseCase.timerStream(from: leftSeconds) {
                 leftSeconds = remainingSeconds
                 leftTimeText = formatTime(seconds: remainingSeconds)
+                
                 let progress = 1 - CGFloat(remainingSeconds) / CGFloat(isHour ? 3600 : 1800)
                 progressPercentage = progress <= 0.01 ? 0.01 : progress
-                resetSheetLeftTimeText = leftSeconds >= 60 ? "\(leftSeconds / 60)분" : "\(leftSeconds % 60)초"
+                
+                resetSheetLeftTimeText = resetSheetRemainingText()
                 currentBreadLevel = calculateBreadLevel(remainingSeconds: remainingSeconds)
             }
+            
             if leftSeconds == 0 {
                 state = .done
                 announceText = "빵이 완성됐어요!"
@@ -150,6 +154,7 @@ final class TimerViewModel: ObservableObject {
         leftTimeText = formatTime(seconds: leftSeconds)
         progressPercentage = 0.01
         currentBreadLevel = 1
+        resetSheetLeftTimeText = resetSheetRemainingText()
         resumeTimer()
     }
     
@@ -162,12 +167,36 @@ final class TimerViewModel: ObservableObject {
         progressPercentage = 0.01
         currentBreadLevel = 1
         announceText = "오늘의 빵을 구워보세요!"
+        resetSheetLeftTimeText = resetSheetRemainingText()
     }
     
     private func formatTime(seconds: Int) -> String {
         let minutes = seconds / 60
         let seconds = seconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    private func resetSheetRemainingText() -> String {
+        let remainingSecondsForNextReward: Int
+        
+        if isHour {
+            if leftSeconds > 1800 {
+                // 60:00 ~ 30:01 구간: 첫 번째 빵까지 남은 시간
+                remainingSecondsForNextReward = leftSeconds - 1800
+            } else {
+                // 30:00 ~ 00:00 구간: 두 번째 빵까지 남은 시간
+                remainingSecondsForNextReward = leftSeconds
+            }
+        } else {
+            // 30분 모드: 한 개의 빵까지 남은 시간
+            remainingSecondsForNextReward = leftSeconds
+        }
+        
+        if remainingSecondsForNextReward >= 60 {
+            return "\(remainingSecondsForNextReward / 60)분"
+        } else {
+            return "\(remainingSecondsForNextReward)초"
+        }
     }
     
     private func calculateBreadLevel(remainingSeconds: Int) -> Int {
@@ -288,13 +317,11 @@ extension TimerViewModel {
     }
     
     func completeSheetMoreButtonTapped() {
-        // 30분/60분 더 하기
         timerControlButtonTapped()
         isCompleteSheetOn = false
     }
     
     func completeSheetCompleteButtonTapped() {
-        // 완료한 일 체크 버튼 - CheckedOffView로 이동
         shouldShowCheckedOffView = true
         isCompleteSheetOn = false
     }
