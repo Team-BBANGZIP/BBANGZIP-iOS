@@ -50,7 +50,7 @@ private let moduleName = "BBANGZIP"
 
 let project = Project.makeModule(
     name: moduleName,
-    destinations: [.iPhone, .iPad],
+    destinations: [.iPhone],
     product: .app,
     bundleId: "BBANGZIP-iOS.app",
     infoPlist: .extendingDefault(with: infoPlist),
