@@ -260,9 +260,7 @@ struct MyPageView: View {
                 MenuBox(
                     menu: "앱 리뷰 남기기",
                     onMenuTapped: {
-                        // TODO: 출시 후 실제 앱스토어 링크로 변경
-                        // openURL("https://apps.apple.com/app/idXXXXXXXXXX")
-                        openURL("https://www.apple.com/kr/app-store/")
+                        openURL("https://apps.apple.com/app/id6762832051?action=write-review")
                     }
                 )
                 
