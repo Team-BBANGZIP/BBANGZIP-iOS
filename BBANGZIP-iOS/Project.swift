@@ -10,8 +10,7 @@ let infoPlist: [String: Plist.Value] = [
         "UISceneConfigurations": [
             "UIWindowSceneSessionRoleApplication": [
                 [
-                    "UISceneConfigurationName": "Default Configuration",
-                    "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
+                    "UISceneConfigurationName": "Default Configuration"
                 ],
             ]
         ]
@@ -29,9 +28,7 @@ let infoPlist: [String: Plist.Value] = [
     ],
     "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
     "BASE_URL": "$(BASE_URL)",
-    "NSAppTransportSecurity": [
-        "NSAllowsArbitraryLoads": true
-    ],
+    "ITSAppUsesNonExemptEncryption": false,
     "UIUserInterfaceStyle": "Light",
     "UISupportedInterfaceOrientations": [
         "UIInterfaceOrientationPortrait"

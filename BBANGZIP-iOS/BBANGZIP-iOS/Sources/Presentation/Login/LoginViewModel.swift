@@ -9,6 +9,7 @@ import SwiftUI
 import AuthenticationServices
 import KakaoSDKAuth
 import KakaoSDKUser
+import KakaoSDKCommon
 
 @MainActor
 final class LoginViewModel: NSObject, ObservableObject {
@@ -59,6 +60,9 @@ final class LoginViewModel: NSObject, ObservableObject {
     }
     
     func tapKakao() {
+        guard !isLoading else { return }
+        isLoading = true
+
         if UserApi.isKakaoTalkLoginAvailable() {
             loginWithKakaoTalk()
         } else {
@@ -71,6 +75,10 @@ final class LoginViewModel: NSObject, ObservableObject {
             guard let self = self else { return }
             
             if let error = error {
+                self.isLoading = false
+                if let sdkError = error as? SdkError, case .ClientFailed(.Cancelled, _) = sdkError {
+                    return
+                }
                 LoggerFactory.create(category: .data)
                     .error("Kakao Talk Login Failed: \(error)")
                 self.errorMessage = "카카오 로그인에 실패했습니다."
@@ -87,6 +95,10 @@ final class LoginViewModel: NSObject, ObservableObject {
             guard let self = self else { return }
             
             if let error = error {
+                self.isLoading = false
+                if let sdkError = error as? SdkError, case .ClientFailed(.Cancelled, _) = sdkError {
+                    return // 사용자가 취소 → 알럿 없이 조용히 종료
+                }
                 LoggerFactory.create(category: .data)
                     .error("Kakao Account Login Failed: \(error)")
                 self.errorMessage = "카카오 로그인에 실패했습니다."
