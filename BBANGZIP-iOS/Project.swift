@@ -4,7 +4,7 @@ import ProjectDescriptionHelpers
 let infoPlist: [String: Plist.Value] = [
     "CFBundleDisplayName": "제 과제 빵점",
     "CFBundleShortVersionString": "1.0.0",
-    "CFBundleVersion": "2",
+    "CFBundleVersion": "3",
     "UIMainStoryboardFile": "",
     "UILaunchStoryboardName": "LaunchScreen.storyboard",
     "UIApplicationSceneManifest": [
