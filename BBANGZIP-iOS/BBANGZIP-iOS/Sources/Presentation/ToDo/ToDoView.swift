@@ -148,6 +148,12 @@ struct ToDoView: View {
                 .sheet(
                     isPresented: $viewModel.isAddTodoSheetPresented,
                     onDismiss: {
+                        if let vm = addTodoViewModel,
+                           !vm.newTodoTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            vm.addTodo {
+                                viewModel.fetchData()
+                            }
+                        }
                         addTodoViewModel = nil
                     },
                     content: {
