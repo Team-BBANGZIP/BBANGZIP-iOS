@@ -38,7 +38,7 @@ struct BreadSelectView: View {
                 .bbangFont(.title1)
                 .foregroundColor(Color(.primaryNormal))
             
-            Text("오늘까지 총 \(viewModel.breadList.totalCount)개의 빵을 모았어요!")
+            Text("오늘까지 총 \(viewModel.breadList.totalCount)개의 빵 조각을 모았어요!")
                 .bbangFont(.subtitle1)
                 .foregroundColor(Color(.labelAlternative))
                 .padding(.horizontal, 16)
