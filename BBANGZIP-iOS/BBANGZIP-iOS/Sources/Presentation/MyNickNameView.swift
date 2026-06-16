@@ -24,7 +24,7 @@ struct MyNickNameView: View {
             Spacer()
                 .frame(height: 25)
             
-            Text("이름 설정하기")
+            Text("닉네임 설정하기")
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelAlternative))
                 .padding(.top, 50)

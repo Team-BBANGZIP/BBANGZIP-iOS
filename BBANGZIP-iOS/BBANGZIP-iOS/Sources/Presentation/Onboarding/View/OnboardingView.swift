@@ -145,7 +145,7 @@ private extension OnboardingView {
             TextField(
                 "",
                 text: $viewModel.userName,
-                prompt: Text("이름을 입력해주세요")
+                prompt: Text("닉네임을 입력해주세요")
                     .foregroundColor(Color(.labelAssistive))
             )
             .bbangFont(.body1)

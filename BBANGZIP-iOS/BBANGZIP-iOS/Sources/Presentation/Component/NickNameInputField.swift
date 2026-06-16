@@ -20,7 +20,7 @@ public struct NickNameInputField: View {
         VStack(spacing: 10) {
             TaskInputField(
                 text: $text,
-                placeholder: "이름을 입력해주세요"
+                placeholder: "닉네임을 입력해주세요"
             )
             .focused($isFocused)
             .onChange(of: text) { newValue in

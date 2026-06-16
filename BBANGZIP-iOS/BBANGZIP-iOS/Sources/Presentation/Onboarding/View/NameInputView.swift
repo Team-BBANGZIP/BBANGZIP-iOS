@@ -18,7 +18,7 @@ struct NameInputView: View {
             Spacer()
                 .frame(height: 33)
             
-            Text("이름 설정하기")
+            Text("닉네임 설정하기")
                 .bbangFont(.title3)
                 .foregroundStyle(Color(.labelNormal))
                 .padding(.bottom, 30)
@@ -53,7 +53,7 @@ private extension NameInputView {
         VStack(spacing: 8) {
             TaskInputField(
                 text: $viewModel.tempUserName,
-                placeholder: "이름을 입력해주세요",
+                placeholder: "닉네임을 입력해주세요",
                 onSubmit: {
                     isPresented = false
                 }

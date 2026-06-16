@@ -129,7 +129,7 @@ struct ChangeProfileView: View {
     
     private var nameInputSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("이름")
+            Text("닉네임")
                 .bbangFont(.title3)
                 .foregroundColor(Color(.labelNeutral))
                 .padding(.horizontal, 20)
@@ -139,7 +139,7 @@ struct ChangeProfileView: View {
             TextField(
                 "",
                 text: $viewModel.nickname,
-                prompt: Text("이름을 입력해주세요")
+                prompt: Text("닉네임을 입력해주세요")
                     .foregroundColor(Color(.labelAssistive))
             )
             .bbangFont(.body1)
