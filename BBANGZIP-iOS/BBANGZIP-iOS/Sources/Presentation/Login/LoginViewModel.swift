@@ -18,6 +18,7 @@ final class LoginViewModel: NSObject, ObservableObject {
     @Published var showBbangBackground = false
     @Published var showKakao = false
     @Published var showApple = false
+    @Published var showGuest = false
     
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -55,6 +56,11 @@ final class LoginViewModel: NSObject, ObservableObject {
             try? await Task.sleep(nanoseconds: 600_000_000)
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.showApple = true
+            }
+
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            withAnimation(.easeInOut(duration: 0.35)) {
+                self.showGuest = true
             }
         }
     }

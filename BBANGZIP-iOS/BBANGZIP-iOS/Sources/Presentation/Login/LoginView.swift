@@ -61,8 +61,8 @@ struct LoginView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
                         }
-                        .opacity(vm.showApple ? 1 : 0)
-                        .offset(y: vm.showApple ? 0 : 8)
+                        .opacity(vm.showGuest ? 1 : 0)
+                        .offset(y: vm.showGuest ? 0 : 6)
                         
                         Spacer()
                             .frame(height: 20)
