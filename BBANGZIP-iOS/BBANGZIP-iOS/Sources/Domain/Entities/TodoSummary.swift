@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoSummary {
+struct TodoSummary: Codable {
     let date: String
     let totalCount: Int
     let completedCount: Int

@@ -3,19 +3,30 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 
 public struct ContentView: View {
+    private enum AuthMode {
+        case unauthenticated
+        case guest
+        case authenticated
+    }
+    
     @State private var isTodoNavigating: Bool = false
     
-    @StateObject private var timerViewModel = TimerViewModel(
+    @StateObject private var authenticatedTimerViewModel = TimerViewModel(
         timerUseCase: TimerUseCaseImpl(),
         breadCountUseCase: BreadCountUseCaseImpl(repository: BreadCountRepositoryImpl()),
         timerCompleteUseCase: DefaultTimerCompleteUseCase(repository: TimerCompleteRepository())
+    )
+    @StateObject private var guestTimerViewModel = TimerViewModel(
+        timerUseCase: TimerUseCaseImpl(),
+        breadCountUseCase: BreadCountUseCaseImpl(repository: LocalGuestBreadCountRepository()),
+        timerCompleteUseCase: DefaultTimerCompleteUseCase(repository: LocalGuestTimerCompleteRepository())
     )
     
     @Environment(\.scenePhase) private var scenePhase
     @State private var wasPausedByLock = false
     @State private var showCheckedOffView = false
     @State private var isLaunch: Bool = true
-    @State private var isLoggedIn: Bool = false
+    @State private var authMode: AuthMode = .unauthenticated
     @State private var showOnboarding: Bool = false
     
     @State private var selectedTab: Int = 0
@@ -50,20 +61,25 @@ public struct ContentView: View {
                     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OnboardingCompleted"))) { _ in
                         withAnimation(.easeInOut(duration: 0.3)) {
                             self.showOnboarding = false
-                            self.isLoggedIn = true
+                            self.authMode = .authenticated
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OnboardingDismissed"))) { _ in
                         withAnimation(.easeInOut(duration: 0.3)) {
                             self.showOnboarding = false
-                            self.isLoggedIn = false
+                            self.authMode = .unauthenticated
                         }
                     }
-            } else if !isLoggedIn {
+            } else if authMode == .unauthenticated {
                 LoginView()
                     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
                         withAnimation(.easeInOut(duration: 0.3)) {
-                            self.isLoggedIn = true
+                            self.authMode = .authenticated
+                        }
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ContinueAsGuest"))) { _ in
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            self.authMode = .guest
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowOnboarding"))) { _ in
@@ -91,25 +107,29 @@ public struct ContentView: View {
         self.isLaunch = false
 
         if hasToken {
-            self.isLoggedIn = true
+            self.authMode = .authenticated
         } else {
-            self.isLoggedIn = false
+            self.authMode = .unauthenticated
         }
     }
     
     private func handleAuthenticationFailure() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            if timerViewModel.state == .running {
-                timerViewModel.pauseForLock()
+            if currentTimerViewModel.state == .running {
+                currentTimerViewModel.pauseForLock()
             }
-            timerViewModel.resetToInitial()
+            currentTimerViewModel.resetToInitial()
             
             showCheckedOffView = false
             wasPausedByLock = false
             UIApplication.shared.isIdleTimerDisabled = false
             
-            isLoggedIn = false
+            authMode = .unauthenticated
         }
+    }
+    
+    private var currentTimerViewModel: TimerViewModel {
+        authMode == .guest ? guestTimerViewModel : authenticatedTimerViewModel
     }
     
     private var mainContent: some View {
@@ -126,13 +146,13 @@ public struct ContentView: View {
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(newPhase)
         }
-        .onChange(of: timerViewModel.state) { oldState, newState in
+        .onChange(of: currentTimerViewModel.state) { oldState, newState in
             handleTimerStateChange(newState)
         }
-        .onReceive(timerViewModel.$shouldShowCheckedOffView) { shouldShow in
+        .onReceive(currentTimerViewModel.$shouldShowCheckedOffView) { shouldShow in
             if shouldShow {
                 showCheckedOffView = true
-                timerViewModel.resetCheckedOffViewFlag()
+                currentTimerViewModel.resetCheckedOffViewFlag()
             }
         }
     }
@@ -177,7 +197,7 @@ public struct ContentView: View {
     
     private var mainTabView: some View {
         TabView(selection: $selectedTab) {
-            TimerView(viewModel: timerViewModel)
+            TimerView(viewModel: currentTimerViewModel)
                 .tabItem { EmptyView() }
                 .tag(0)
             
@@ -187,17 +207,23 @@ public struct ContentView: View {
                 .tabItem { EmptyView() }
                 .tag(1)
             
-            MyPageView(isInSubView: $isMyPageInSubView)
+            MyPageView(
+                isInSubView: $isMyPageInSubView,
+                isGuest: authMode == .guest,
+                onLoginTapped: {
+                    authMode = .unauthenticated
+                }
+            )
                 .tabItem { EmptyView() }
                 .tag(2)
         }
         .overlay(alignment: .bottom) {
-            if !(selectedTab == 0 && timerViewModel.state != .initial) && !(selectedTab == 2 && isMyPageInSubView) {
+            if !(selectedTab == 0 && currentTimerViewModel.state != .initial) && !(selectedTab == 2 && isMyPageInSubView) {
                 customTabBar
                     .transition(.move(edge: .bottom))
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: timerViewModel.state)
+        .animation(.easeInOut(duration: 0.25), value: currentTimerViewModel.state)
     }
     
     private var customTabBar: some View {
@@ -214,7 +240,7 @@ public struct ContentView: View {
                 .fill(Color(.labelDisable))
                 .frame(height: 0.5)
         }
-        .opacity((timerViewModel.state == .running || timerViewModel.state == .paused) || isTodoNavigating ? 0 : 1)
+        .opacity((currentTimerViewModel.state == .running || currentTimerViewModel.state == .paused) || isTodoNavigating ? 0 : 1)
     }
     
     private func tabBarItem(icon: Image, title: String, tag: Int) -> some View {
@@ -234,7 +260,7 @@ public struct ContentView: View {
     }
     
     private var checkedOffView: some View {
-        let repo = TodoRepositoryImpl()
+        let repo: TodoRepository = authMode == .guest ? LocalGuestTodoRepository() : TodoRepositoryImpl()
         let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
@@ -251,21 +277,24 @@ public struct ContentView: View {
             viewModel: checkedOffViewModel,
             onBackToTimer: {
                 showCheckedOffView = false
-                timerViewModel.resetToInitial()
+                currentTimerViewModel.resetToInitial()
             },
             onStartAdditionalTimer: {
                 showCheckedOffView = false
-                timerViewModel.startAdditionalTimer()
+                currentTimerViewModel.startAdditionalTimer()
             }
         )
     }
     
     private func makeTodoViewModel() -> TodoViewModel {
-        let repo = TodoRepositoryImpl()
+        let repo: TodoRepository = authMode == .guest ? LocalGuestTodoRepository() : TodoRepositoryImpl()
         let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
-        let writeCommitmentMessageUseCase = DefaultWriteCommitmentMessageUseCase(repository:  WriteCommitmentMessageRepository())
+        let commitmentRepository: WriteCommitmentMessageRepositoryProtocol = authMode == .guest
+            ? LocalGuestCommitmentMessageRepository()
+            : WriteCommitmentMessageRepository()
+        let writeCommitmentMessageUseCase = DefaultWriteCommitmentMessageUseCase(repository: commitmentRepository)
         let reorderTodoUseCase = DefaultReorderTodoUseCase(repository: repo)
         return TodoViewModel(
             fetchUseCase: fetchUseCase,
@@ -283,8 +312,8 @@ public struct ContentView: View {
                 wasPausedByLock = false
             }
         case .inactive:
-            if timerViewModel.state == .running {
-                timerViewModel.pauseForLock()
+            if currentTimerViewModel.state == .running {
+                currentTimerViewModel.pauseForLock()
                 wasPausedByLock = true
             }
         case .background:

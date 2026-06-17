@@ -49,6 +49,21 @@ struct LoginView: View {
                             .opacity(vm.showApple ? 1 : 0)
                             .offset(y: vm.showApple ? 0 : 8)
                         
+                        Button {
+                            NotificationCenter.default.post(
+                                name: NSNotification.Name("ContinueAsGuest"),
+                                object: nil
+                            )
+                        } label: {
+                            Text("게스트로 시작하기")
+                                .bbangFont(.body2)
+                                .foregroundColor(Color(.labelAlternative))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                        }
+                        .opacity(vm.showApple ? 1 : 0)
+                        .offset(y: vm.showApple ? 0 : 8)
+                        
                         Spacer()
                             .frame(height: 20)
                     }

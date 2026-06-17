@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoData {
+struct TodoData: Codable {
     var myPromiseMessage: String
     let summary: TodoSummary
     var categories: [Category]

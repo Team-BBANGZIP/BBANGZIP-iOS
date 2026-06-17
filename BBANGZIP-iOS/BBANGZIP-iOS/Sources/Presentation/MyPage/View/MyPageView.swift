@@ -13,9 +13,17 @@ struct MyPageView: View {
     @State private var navigationPath = NavigationPath()
     @State private var isActive = false
     @Binding var isInSubView: Bool
+    private let isGuest: Bool
+    private let onLoginTapped: () -> Void
     
-    init(isInSubView: Binding<Bool> = .constant(false)) {
+    init(
+        isInSubView: Binding<Bool> = .constant(false),
+        isGuest: Bool = false,
+        onLoginTapped: @escaping () -> Void = {}
+    ) {
         self._isInSubView = isInSubView
+        self.isGuest = isGuest
+        self.onLoginTapped = onLoginTapped
         let repository = AuthRepositoryImpl()
         _viewModel = StateObject(
             wrappedValue: MyPageViewModel(
@@ -69,12 +77,14 @@ struct MyPageView: View {
                     SettingScreenView()
                 }
                 if destination == "ChangeProfile" {
-                    ChangeProfileView(
-                        onSave: { newNickname, newMessage in
-                            viewModel.nickname = newNickname
-                            viewModel.commitmentMessage = newMessage
-                        }
-                    )
+                    if !isGuest {
+                        ChangeProfileView(
+                            onSave: { newNickname, newMessage in
+                                viewModel.nickname = newNickname
+                                viewModel.commitmentMessage = newMessage
+                            }
+                        )
+                    }
                 }
             }
             .sheet(isPresented: $viewModel.showSignOutAlert) {
@@ -109,8 +119,13 @@ struct MyPageView: View {
                 isInSubView = !navigationPath.isEmpty
             }
             .onAppear {
-                Task {
-                    await viewModel.fetchProfile()
+                if isGuest {
+                    viewModel.nickname = "게스트"
+                    viewModel.commitmentMessage = "로그인하면 데이터를 백업하고 복구할 수 있어요"
+                } else {
+                    Task {
+                        await viewModel.fetchProfile()
+                    }
                 }
             }
         }
@@ -130,7 +145,11 @@ struct MyPageView: View {
             }
             
             Button {
-                navigationPath.append("ChangeProfile")
+                if isGuest {
+                    onLoginTapped()
+                } else {
+                    navigationPath.append("ChangeProfile")
+                }
             } label: {
                 HStack(spacing: 12) {
 //                    if let url = URL(string: viewModel.profileImageUrl) {
@@ -179,7 +198,7 @@ struct MyPageView: View {
                 .padding(.horizontal, 20)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(PlainButtonStyle())
+                .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -282,36 +301,47 @@ struct MyPageView: View {
                 }
                 .frame(height: 44)
                 
-                HStack(spacing: 12) {
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.showSignOutAlert = true
-                    }) {
+                if isGuest {
+                    Button(action: onLoginTapped) {
                         BbangText(
-                            "로그아웃",
+                            "로그인하기",
                             font: .body4,
                             color: Color(.labelAssistive)
                         )
                     }
-                    
-                    Rectangle()
-                        .frame(width: 1, height: 16)
-                        .foregroundStyle(Color(.labelAssistive))
-                    
-                    Button(action: {
-                        viewModel.showWithdrawAlert = true
-                    }) {
-                        BbangText(
-                            "회원 탈퇴",
-                            font: .body4,
-                            color: Color(.labelAssistive)
-                        )
+                    .padding(.top, 5)
+                } else {
+                    HStack(spacing: 12) {
+                        Spacer()
+                        
+                        Button(action: {
+                            viewModel.showSignOutAlert = true
+                        }) {
+                            BbangText(
+                                "로그아웃",
+                                font: .body4,
+                                color: Color(.labelAssistive)
+                            )
+                        }
+                        
+                        Rectangle()
+                            .frame(width: 1, height: 16)
+                            .foregroundStyle(Color(.labelAssistive))
+                        
+                        Button(action: {
+                            viewModel.showWithdrawAlert = true
+                        }) {
+                            BbangText(
+                                "회원 탈퇴",
+                                font: .body4,
+                                color: Color(.labelAssistive)
+                            )
+                        }
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
+                    .padding(.top, 5)
                 }
-                .padding(.top, 5)
                 
                 Spacer()
                     .frame(height: 32)

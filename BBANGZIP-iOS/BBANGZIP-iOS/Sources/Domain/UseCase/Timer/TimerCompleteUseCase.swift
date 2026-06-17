@@ -15,9 +15,9 @@ protocol TimerCompleteUseCase: Sendable {
 }
 
 final class DefaultTimerCompleteUseCase: TimerCompleteUseCase {
-    private let repository: TimerCompleteRepository
+    private let repository: TimerCompleteRepositoryProtocol
     
-    init(repository: TimerCompleteRepository) {
+    init(repository: TimerCompleteRepositoryProtocol) {
         self.repository = repository
     }
     

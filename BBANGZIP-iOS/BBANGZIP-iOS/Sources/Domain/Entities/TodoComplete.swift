@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TodoComplete {
+struct TodoComplete: Codable {
     let todoId: Int
     let isCompleted: Bool
     let completedCount: Int

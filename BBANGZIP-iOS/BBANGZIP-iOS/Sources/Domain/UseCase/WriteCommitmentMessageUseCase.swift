@@ -12,9 +12,9 @@ protocol WriteCommitmentMessageUseCase: Sendable {
 }
 
 final class DefaultWriteCommitmentMessageUseCase: WriteCommitmentMessageUseCase {
-    private let repository: WriteCommitmentMessageRepository
+    private let repository: WriteCommitmentMessageRepositoryProtocol
     
-    init(repository: WriteCommitmentMessageRepository) {
+    init(repository: WriteCommitmentMessageRepositoryProtocol) {
         self.repository = repository
     }
     
