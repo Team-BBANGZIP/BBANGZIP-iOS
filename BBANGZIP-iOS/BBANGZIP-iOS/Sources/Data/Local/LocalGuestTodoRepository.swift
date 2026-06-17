@@ -68,7 +68,12 @@ final class LocalGuestTodoRepository: TodoRepository, @unchecked Sendable {
     }
 
     func rescheduleTodo(id: Int, targetDate: Date?) async throws -> TodoRescheduleDataDTO {
-        let dateString = targetDate.map { DateFormatter.inputDateYMDFormatter.string(from: $0) }
+        let resolvedTargetDate = targetDate ?? Calendar.current.date(
+            byAdding: .day,
+            value: 1,
+            to: Calendar.current.appToday()
+        ) ?? Calendar.current.appToday()
+        let dateString = DateFormatter.inputDateYMDFormatter.string(from: resolvedTargetDate)
         let updated = try store.updateTodo(id: id) { todo in
             todo.targetDate = dateString
         }
@@ -136,7 +141,7 @@ final class LocalGuestTodoStore: @unchecked Sendable {
         let targetDate = state.categories
             .flatMap(\.todos)
             .first { $0.id == id }?
-            .targetDate ?? DateFormatter.inputDateYMDFormatter.string(from: Date())
+            .targetDate ?? DateFormatter.inputDateYMDFormatter.string(from: Calendar.current.appToday())
 
         return todoData(for: targetDate)
     }
@@ -215,14 +220,14 @@ final class LocalGuestTodoStore: @unchecked Sendable {
             for categoryIndex in state.categories.indices {
                 if let todoIndex = state.categories[categoryIndex].todos.firstIndex(where: { $0.id == id }) {
                     let todo = state.categories[categoryIndex].todos.remove(at: todoIndex)
-                    return todo.targetDate ?? DateFormatter.inputDateYMDFormatter.string(from: Date())
+                    return todo.targetDate ?? DateFormatter.inputDateYMDFormatter.string(from: Calendar.current.appToday())
                 }
             }
 
             throw LocalGuestTodoError.missingTodo
         }
 
-        return DateFormatter.inputDateYMDFormatter.date(from: targetDateString) ?? Date()
+        return DateFormatter.inputDateYMDFormatter.date(from: targetDateString) ?? Calendar.current.appToday()
     }
 
     func updateCategory(_ category: Category) throws {
@@ -321,7 +326,7 @@ final class LocalGuestTodoStore: @unchecked Sendable {
         }
     }
 
-    func addTimerBreadCount(_ count: Int, targetDate: Date = Date()) {
+    func addTimerBreadCount(_ count: Int, targetDate: Date = Calendar.current.appToday()) {
         try? mutateState { state in
             let dateString = DateFormatter.inputDateYMDFormatter.string(from: targetDate)
             state.timerBreadCountByDate[dateString, default: 0] += count
@@ -329,7 +334,7 @@ final class LocalGuestTodoStore: @unchecked Sendable {
     }
 
     func todayBreadCount() -> Int {
-        let dateString = DateFormatter.inputDateYMDFormatter.string(from: Date())
+        let dateString = DateFormatter.inputDateYMDFormatter.string(from: Calendar.current.appToday())
         return loadState().timerBreadCountByDate[dateString, default: 0]
     }
     
@@ -422,7 +427,7 @@ final class LocalGuestTodoStore: @unchecked Sendable {
                     isCompleted: false,
                     startTime: nil,
                     colorType: .Todored1,
-                    targetDate: DateFormatter.inputDateYMDFormatter.string(from: Date())
+                    targetDate: DateFormatter.inputDateYMDFormatter.string(from: Calendar.current.appToday())
                 )
             ],
             isStopped: false

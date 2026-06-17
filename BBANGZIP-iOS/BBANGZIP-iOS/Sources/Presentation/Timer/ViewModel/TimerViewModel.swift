@@ -108,7 +108,7 @@ final class TimerViewModel: ObservableObject {
         Task {
             do {
                 let count = isHour ? 2 : 1
-                let today = DateFormatter.inputDateYMDFormatter.string(from: Date())
+                let today = DateFormatter.inputDateYMDFormatter.string(from: Calendar.current.appToday())
                 let _ = try await timerCompleteUseCase.execute(
                     targetDate: today,
                     count: count

@@ -25,7 +25,7 @@ final class TimerCheckedOffViewModel: ObservableObject {
     }
     
     var currentTargetDate: Date {
-        return Date()
+        Calendar.current.appToday()
     }
     
     init(

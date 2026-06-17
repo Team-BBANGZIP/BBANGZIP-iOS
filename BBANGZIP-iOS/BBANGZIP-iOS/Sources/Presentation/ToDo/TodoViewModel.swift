@@ -130,12 +130,7 @@ final class TodoViewModel: ObservableObject {
     }
     
     private func adjustedToday() -> Date {
-        let now = Date()
-        let hour = calendar.component(.hour, from: now)
-        if hour < 5 {
-            return calendar.date(byAdding: .day, value: -1, to: now) ?? now
-        }
-        return now
+        calendar.appToday()
     }
     
     func moveTodoItems(from source: IndexSet, to destination: Int) {
@@ -432,8 +427,8 @@ final class TodoViewModel: ObservableObject {
             myPromiseMessage: data.myPromiseMessage,
             summary: TodoSummary(
                 date: data.summary.date,
-                totalCount: newTotal,
-                completedCount: newCompleted
+                totalCount: data.categories.flatMap(\.todos).count,
+                completedCount: data.categories.flatMap(\.todos).filter(\.isCompleted).count
             ),
             categories: data.categories
         )

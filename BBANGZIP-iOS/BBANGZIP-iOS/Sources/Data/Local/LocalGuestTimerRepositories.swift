@@ -20,7 +20,7 @@ final class LocalGuestTimerCompleteRepository: TimerCompleteRepositoryProtocol, 
     }
 
     func completeTimer(request: TimerCompleteRequestDTO) async throws -> TimerCompleteCount {
-        let targetDate = DateFormatter.inputDateYMDFormatter.date(from: request.targetDate) ?? Date()
+        let targetDate = DateFormatter.inputDateYMDFormatter.date(from: request.targetDate) ?? Calendar.current.appToday()
         store.addTimerBreadCount(request.count, targetDate: targetDate)
         return TimerCompleteCount(count: store.todayBreadCount())
     }
