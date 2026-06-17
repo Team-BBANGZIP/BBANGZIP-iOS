@@ -9,6 +9,18 @@ import SwiftUI
 
 struct TimerView: View {
     @ObservedObject var viewModel: TimerViewModel
+    private let isGuest: Bool
+    private let onLoginTapped: () -> Void
+    
+    init(
+        viewModel: TimerViewModel,
+        isGuest: Bool = false,
+        onLoginTapped: @escaping () -> Void = {}
+    ) {
+        self.viewModel = viewModel
+        self.isGuest = isGuest
+        self.onLoginTapped = onLoginTapped
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -364,15 +376,55 @@ struct TimerView: View {
     }
     
     var breadSelectSheet: some View {
-        BreadSelectView(
-            viewModel: BreadSelectViewModel(
-                breadList: BreadList(totalCount: 0, breadList: []),
-                getBreadsUseCase: GetBreadsUseCase(repository: GetBreadsRepository())
-            )
-        )
-        .presentationDetents([.height(604)])
+        Group {
+            if isGuest {
+                guestBreadSelectSheet
+            } else {
+                BreadSelectView(
+                    viewModel: BreadSelectViewModel(
+                        breadList: BreadList(totalCount: 0, breadList: []),
+                        getBreadsUseCase: GetBreadsUseCase(repository: GetBreadsRepository())
+                    )
+                )
+            }
+        }
+        .presentationDetents([.height(isGuest ? 452 : 604)])
         .presentationDragIndicator(.visible)
         .modifier(CornerRadiusModifier())
+    }
+    
+    private var guestBreadSelectSheet: some View {
+        VStack(spacing: 0) {
+            Text("빵 도감은 로그인 후 사용할 수 있어요")
+                .bbangFont(.title1)
+                .foregroundColor(Color(.primaryNormal))
+                .padding(.top, 48)
+                .padding(.horizontal, 20)
+                .multilineTextAlignment(.center)
+            
+            Text("게스트 모드에서도 타이머와\n오늘의 빵 개수는 이 기기에 저장돼요.\n\n로그인하면 빵 도감과 리워드를\n계정에 저장하고 다시 불러올 수 있어요.")
+                .bbangFont(.body1)
+                .foregroundColor(Color(.labelAlternative))
+                .padding(.top, 12)
+                .padding(.horizontal, 24)
+                .multilineTextAlignment(.center)
+            
+            Image(.itemLocked)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 96, height: 96)
+                .padding(.top, 32)
+            
+            Spacer(minLength: 24)
+            
+            Button("로그인하기") {
+                viewModel.isBreadSelectSheetOn = false
+                onLoginTapped()
+            }
+            .buttonStyle(BbangButtonStyle(style: .primary, rightIcon: Image(.icCheck)))
+            .padding(.horizontal, 16)
+            .padding(.bottom, 28)
+        }
     }
 }
 

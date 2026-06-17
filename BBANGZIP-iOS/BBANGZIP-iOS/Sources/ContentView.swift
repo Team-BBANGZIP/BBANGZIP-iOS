@@ -197,7 +197,13 @@ public struct ContentView: View {
     
     private var mainTabView: some View {
         TabView(selection: $selectedTab) {
-            TimerView(viewModel: currentTimerViewModel)
+            TimerView(
+                viewModel: currentTimerViewModel,
+                isGuest: authMode == .guest,
+                onLoginTapped: {
+                    authMode = .unauthenticated
+                }
+            )
                 .tabItem { EmptyView() }
                 .tag(0)
             
