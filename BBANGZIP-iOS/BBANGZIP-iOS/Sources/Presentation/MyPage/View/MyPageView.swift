@@ -121,7 +121,7 @@ struct MyPageView: View {
             .onAppear {
                 if isGuest {
                     viewModel.nickname = "게스트"
-                    viewModel.commitmentMessage = "로그인하면 데이터를 백업하고 복구할 수 있어요"
+                    viewModel.commitmentMessage = "데이터는 이 기기에만 저장돼요"
                 } else {
                     Task {
                         await viewModel.fetchProfile()
@@ -208,6 +208,11 @@ struct MyPageView: View {
                 .cornerRadius(30)
             
             VStack(spacing: 12) {
+                if isGuest {
+                    guestDataNotice
+                        .padding(.bottom, 8)
+                }
+
                 HStack {
                     Image(.icScreen)
                         .resizable()
@@ -349,6 +354,30 @@ struct MyPageView: View {
             .padding(.top, 32)
             .padding(.horizontal, 20)
         }
+    }
+
+    private var guestDataNotice: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(.icAlert)
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: 18, height: 18)
+                .foregroundStyle(Color(.labelAlternative))
+                .padding(.top, 1)
+
+            BbangText(
+                "게스트 모드의 데이터는 이 기기에만 저장되며,\n앱을 삭제하면 복구할 수 없어요.",
+                font: .label4,
+                color: Color(.labelAlternative)
+            )
+            .multilineTextAlignment(.leading)
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color(.secondaryLight))
+        .cornerRadius(12)
     }
     
     private var settingDivider: some View {
