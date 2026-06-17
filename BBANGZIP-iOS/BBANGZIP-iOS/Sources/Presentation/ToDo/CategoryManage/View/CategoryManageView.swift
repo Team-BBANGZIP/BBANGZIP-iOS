@@ -19,6 +19,8 @@ struct CategoryManageView: View {
     
     init(
         category: Category,
+        updateUseCase: UpdateCategoryUseCaseProtocol = UpdateCategoryUseCase(),
+        deleteUseCase: DeleteCategoryUseCaseProtocol = DeleteCategoryUseCase(),
         onSaved: @escaping (Category) -> Void,
         onDeleted: @escaping (_ categoryId: Int) -> Void
     ) {
@@ -26,7 +28,9 @@ struct CategoryManageView: View {
         self.onDeleted = onDeleted
         _viewModel = StateObject(
             wrappedValue: CategoryManageViewModel(
-                category: category
+                category: category,
+                updateUseCase: updateUseCase,
+                deleteUseCase: deleteUseCase
             )
         )
     }

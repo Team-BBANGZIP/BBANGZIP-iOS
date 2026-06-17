@@ -141,6 +141,34 @@ final class LocalGuestTodoStore: @unchecked Sendable {
         return todoData(for: targetDate)
     }
 
+    func categories() -> [Category] {
+        loadState().categories
+    }
+
+    func category(id: Int) throws -> Category {
+        guard let category = loadState().categories.first(where: { $0.id == id }) else {
+            throw LocalGuestTodoError.missingCategory
+        }
+
+        return category
+    }
+
+    func addCategory(name: String, color: CategoryColor) throws -> Category {
+        try mutateState { state in
+            let category = Category(
+                id: state.nextCategoryId,
+                name: name,
+                colorType: color,
+                todos: [],
+                isStopped: false
+            )
+
+            state.nextCategoryId += 1
+            state.categories.append(category)
+            return category
+        }
+    }
+
     func addTodo(
         categoryId: Int,
         content: String,
@@ -224,6 +252,19 @@ final class LocalGuestTodoStore: @unchecked Sendable {
                 state.categories.append(Self.defaultCategory)
                 state.nextCategoryId = max(state.nextCategoryId, 2)
             }
+        }
+    }
+
+    func updateCategoryOrder(categoryIds: [Int]) throws {
+        try mutateState { state in
+            let current = state.categories
+            let ordered = categoryIds.compactMap { id in
+                current.first { $0.id == id }
+            }
+            let remaining = current.filter { category in
+                !categoryIds.contains(category.id)
+            }
+            state.categories = ordered + remaining
         }
     }
 
@@ -337,6 +378,7 @@ final class LocalGuestTodoStore: @unchecked Sendable {
     private func saveState(_ state: State) {
         guard let data = try? JSONEncoder().encode(state) else { return }
         defaults.set(data, forKey: key)
+        defaults.synchronize()
     }
 
     @discardableResult

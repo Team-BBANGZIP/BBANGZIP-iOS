@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct ToDoView: View {
-    private let repository = TodoRepositoryImpl()
+    private let repository: TodoRepository
+    private let addCategoryUseCase: AddCategoryUseCaseProtocol
+    private let updateCategoryUseCase: UpdateCategoryUseCaseProtocol
+    private let deleteCategoryUseCase: DeleteCategoryUseCaseProtocol
     var onNavigationDepthChanged: ((Bool) -> Void)? = nil
     
     @StateObject private var viewModel: TodoViewModel
@@ -28,21 +31,31 @@ struct ToDoView: View {
     
     init(
         viewModel: TodoViewModel,
+        repository: TodoRepository = TodoRepositoryImpl(),
+        fetchCategoriesUseCase: FetchCategoriesUseCase = FetchCategoriesUseCaseImpl(
+            repository: CategoryFetchRepositoryImpl()
+        ),
+        addCategoryUseCase: AddCategoryUseCaseProtocol = AddCategoryUseCase(),
+        updateCategoryUseCase: UpdateCategoryUseCaseProtocol = UpdateCategoryUseCase(),
+        deleteCategoryUseCase: DeleteCategoryUseCaseProtocol = DeleteCategoryUseCase(),
+        updateCategoryOrderUseCase: UpdateCategoryOrderUseCaseProtocol = UpdateCategoryOrderUseCase(),
         selectedDate: Date? = nil,
         isShowMenu: Bool = false,
         onNavigationDepthChanged: ((Bool) -> Void)? = nil
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.repository = repository
+        self.addCategoryUseCase = addCategoryUseCase
+        self.updateCategoryUseCase = updateCategoryUseCase
+        self.deleteCategoryUseCase = deleteCategoryUseCase
         self.selectedDate = selectedDate
         self.isShowMenu = isShowMenu
         
-        let categoryFetchRepository = CategoryFetchRepositoryImpl()
-        let fetchCategoriesUseCase = FetchCategoriesUseCaseImpl(
-            repository: categoryFetchRepository
-        )
         _categoryListViewModel = StateObject(
             wrappedValue: CategoryListViewModel(
-                fetchCategoriesUseCase: fetchCategoriesUseCase
+                fetchCategoriesUseCase: fetchCategoriesUseCase,
+                addCategoryUseCase: addCategoryUseCase,
+                updateOrderUseCase: updateCategoryOrderUseCase
             )
         )
         self.onNavigationDepthChanged = onNavigationDepthChanged
@@ -118,9 +131,12 @@ struct ToDoView: View {
                 }
                 .navigationDestination(for: String.self) { destination in
                     if destination == "CategoryAdd" {
-                        CategoryAddView(onDismiss: {
-                            viewModel.fetchData()
-                        })
+                        CategoryAddView(
+                            useCase: addCategoryUseCase,
+                            onDismiss: {
+                                viewModel.fetchData()
+                            }
+                        )
                     } else if destination == "CategoryList" {
                         CategoryListView(
                             viewModel: categoryListViewModel,
@@ -131,6 +147,8 @@ struct ToDoView: View {
                 .navigationDestination(for: Category.self) { category in
                     CategoryManageView(
                         category: category,
+                        updateUseCase: updateCategoryUseCase,
+                        deleteUseCase: deleteCategoryUseCase,
                         onSaved: { updated in
                             withAnimation(.spring()) {
                                 categoryListViewModel.updateCategory(updated)

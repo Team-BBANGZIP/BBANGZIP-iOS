@@ -8,12 +8,20 @@
 import SwiftUI
 
 struct CategoryAddView: View {
-    @StateObject private var viewModel = CategoryAddViewModel()
+    @StateObject private var viewModel: CategoryAddViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
     @State private var isColorPickerPresented = false
     
     var onDismiss: (() -> Void)?
+
+    init(
+        useCase: AddCategoryUseCaseProtocol = AddCategoryUseCase(),
+        onDismiss: (() -> Void)? = nil
+    ) {
+        _viewModel = StateObject(wrappedValue: CategoryAddViewModel(useCase: useCase))
+        self.onDismiss = onDismiss
+    }
     
     private var isErrorPresented: Binding<Bool> {
         Binding(

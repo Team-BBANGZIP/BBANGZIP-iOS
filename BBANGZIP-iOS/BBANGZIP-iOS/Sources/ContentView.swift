@@ -3,6 +3,8 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 
 public struct ContentView: View {
+    private static let didContinueAsGuestKey = "didContinueAsGuest"
+
     private enum AuthMode {
         case unauthenticated
         case guest
@@ -74,11 +76,13 @@ public struct ContentView: View {
                 LoginView()
                     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoginSuccess"))) { _ in
                         withAnimation(.easeInOut(duration: 0.3)) {
+                            UserDefaults.standard.set(false, forKey: Self.didContinueAsGuestKey)
                             self.authMode = .authenticated
                         }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ContinueAsGuest"))) { _ in
                         withAnimation(.easeInOut(duration: 0.3)) {
+                            UserDefaults.standard.set(true, forKey: Self.didContinueAsGuestKey)
                             self.authMode = .guest
                         }
                     }
@@ -103,11 +107,15 @@ public struct ContentView: View {
     
     private func checkAuthStatusAndNavigate() {
         let hasToken = TokenManager.shared.hasValidTokens()
+        let didContinueAsGuest = UserDefaults.standard.bool(forKey: Self.didContinueAsGuestKey)
 
         self.isLaunch = false
 
         if hasToken {
+            UserDefaults.standard.set(false, forKey: Self.didContinueAsGuestKey)
             self.authMode = .authenticated
+        } else if didContinueAsGuest {
+            self.authMode = .guest
         } else {
             self.authMode = .unauthenticated
         }
@@ -123,6 +131,7 @@ public struct ContentView: View {
             showCheckedOffView = false
             wasPausedByLock = false
             UIApplication.shared.isIdleTimerDisabled = false
+            UserDefaults.standard.set(false, forKey: Self.didContinueAsGuestKey)
             
             authMode = .unauthenticated
         }
@@ -207,9 +216,18 @@ public struct ContentView: View {
                 .tabItem { EmptyView() }
                 .tag(0)
             
-            ToDoView(viewModel: makeTodoViewModel(), onNavigationDepthChanged: { isDeep in
-                isTodoNavigating = isDeep
-            })
+            ToDoView(
+                viewModel: makeTodoViewModel(),
+                repository: makeTodoRepository(),
+                fetchCategoriesUseCase: makeFetchCategoriesUseCase(),
+                addCategoryUseCase: makeAddCategoryUseCase(),
+                updateCategoryUseCase: makeUpdateCategoryUseCase(),
+                deleteCategoryUseCase: makeDeleteCategoryUseCase(),
+                updateCategoryOrderUseCase: makeUpdateCategoryOrderUseCase(),
+                onNavigationDepthChanged: { isDeep in
+                    isTodoNavigating = isDeep
+                }
+            )
                 .tabItem { EmptyView() }
                 .tag(1)
             
@@ -293,7 +311,7 @@ public struct ContentView: View {
     }
     
     private func makeTodoViewModel() -> TodoViewModel {
-        let repo: TodoRepository = authMode == .guest ? LocalGuestTodoRepository() : TodoRepositoryImpl()
+        let repo = makeTodoRepository()
         let fetchUseCase = DefaultFetchTodosUseCase(repository: repo)
         let toggleUseCase = TimerToggleTodoCompletionUseCase(todoRepository: repo)
         let addUseCase = DefaultAddTodoUseCase(repository: repo)
@@ -309,6 +327,54 @@ public struct ContentView: View {
             writeCommitmentMessageUseCase: writeCommitmentMessageUseCase,
             reorderTodoUseCase: reorderTodoUseCase
         )
+    }
+
+    private func makeTodoRepository() -> TodoRepository {
+        authMode == .guest ? LocalGuestTodoRepository() : TodoRepositoryImpl()
+    }
+
+    private func makeLocalGuestCategoryRepository() -> LocalGuestCategoryRepository {
+        LocalGuestCategoryRepository()
+    }
+
+    private func makeFetchCategoriesUseCase() -> FetchCategoriesUseCase {
+        if authMode == .guest {
+            return FetchCategoriesUseCaseImpl(repository: makeLocalGuestCategoryRepository())
+        }
+
+        return FetchCategoriesUseCaseImpl(repository: CategoryFetchRepositoryImpl())
+    }
+
+    private func makeAddCategoryUseCase() -> AddCategoryUseCaseProtocol {
+        if authMode == .guest {
+            return AddCategoryUseCase(repository: makeLocalGuestCategoryRepository())
+        }
+
+        return AddCategoryUseCase()
+    }
+
+    private func makeUpdateCategoryUseCase() -> UpdateCategoryUseCaseProtocol {
+        if authMode == .guest {
+            return UpdateCategoryUseCase(repository: makeLocalGuestCategoryRepository())
+        }
+
+        return UpdateCategoryUseCase()
+    }
+
+    private func makeDeleteCategoryUseCase() -> DeleteCategoryUseCaseProtocol {
+        if authMode == .guest {
+            return DeleteCategoryUseCase(repository: makeLocalGuestCategoryRepository())
+        }
+
+        return DeleteCategoryUseCase()
+    }
+
+    private func makeUpdateCategoryOrderUseCase() -> UpdateCategoryOrderUseCaseProtocol {
+        if authMode == .guest {
+            return UpdateCategoryOrderUseCase(repository: makeLocalGuestCategoryRepository())
+        }
+
+        return UpdateCategoryOrderUseCase()
     }
     
     private func handleScenePhaseChange(_ phase: ScenePhase) {
