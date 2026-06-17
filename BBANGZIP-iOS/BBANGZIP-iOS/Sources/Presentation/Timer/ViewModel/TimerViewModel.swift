@@ -49,7 +49,20 @@ final class TimerViewModel: ObservableObject {
         self.breadCountUseCase = breadCountUseCase
         self.timerCompleteUseCase = timerCompleteUseCase
         bind()
-        loadBreadCount()
+    }
+
+    func loadBreadCount() {
+        Task {
+            do {
+                let count = try await breadCountUseCase.getTodayBreadCount()
+                await MainActor.run {
+                    breadCount = count
+                }
+            } catch {
+                LoggerFactory.create(category: .data)
+                    .error("Failed to load bread count: \(error.localizedDescription)")
+            }
+        }
     }
     
     func resetToInitial() {
@@ -82,20 +95,6 @@ final class TimerViewModel: ObservableObject {
                 currentBreadLevel = 1
             }
             .store(in: &cancellables)
-    }
-    
-    private func loadBreadCount() {
-        Task {
-            do {
-                let count = try await breadCountUseCase.getTodayBreadCount()
-                await MainActor.run {
-                    breadCount = count
-                }
-            } catch {
-                LoggerFactory.create(category: .data)
-                    .error("Failed to load bread count: \(error.localizedDescription)")
-            }
-        }
     }
     
     private func pauseTimer() {

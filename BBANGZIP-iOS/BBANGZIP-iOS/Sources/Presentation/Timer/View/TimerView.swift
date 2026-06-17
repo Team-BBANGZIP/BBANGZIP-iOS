@@ -65,6 +65,9 @@ struct TimerView: View {
         .sheet(isPresented: $viewModel.isBreadSelectSheetOn) {
             breadSelectSheet
         }
+        .onAppear {
+            viewModel.loadBreadCount()
+        }
     }
     
     var breadCountChip: some View {

@@ -231,8 +231,8 @@ struct ToDoView: View {
                             isCompleted: viewModel.sheetIsCompleted,
                             todoId: id,
                             repository: repository,
-                            repeatTodoUseCase: DefaultRepeatTodoUseCase(repository: TodoRepositoryImpl()),
-                            copyTodoUseCase: DefaultCopyTodoUseCase(repository: TodoRepositoryImpl()),
+                            repeatTodoUseCase: DefaultRepeatTodoUseCase(repository: repository),
+                            copyTodoUseCase: DefaultCopyTodoUseCase(repository: repository),
                             initialTargetDate: initialTargetDate,
                             onDelete: {
                             },
