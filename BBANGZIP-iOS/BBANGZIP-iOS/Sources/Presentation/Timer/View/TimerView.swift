@@ -343,7 +343,7 @@ struct TimerView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 4)
             
-            Text("빵 \(viewModel.completeSheetBreadCount) 개를 흭득했어요")
+            Text("빵 \(viewModel.completeSheetBreadCount) 개를 획득했어요")
                 .bbangFont(.body1)
                 .bbangColor(.labelAlternative)
                 .padding(.bottom, 28)
